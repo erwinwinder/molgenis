@@ -42,7 +42,7 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver;
 @ComponentScan("org.molgenis")
 @Import(
 { DatabaseConfig.class, OmxConfig.class, EmbeddedElasticSearchConfig.class, DataExplorerConfig.class,
-		SearchSecurityConfig.class })
+		SearchSecurityConfig.class, WebAppSecurityConfig.class })
 public class WebAppConfig extends WebMvcConfigurerAdapter
 {
 	@Override

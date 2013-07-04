@@ -1,17 +1,18 @@
 <#include "GeneratorHelper.ftl">
 package ${package};
 
+import org.apache.log4j.Logger;
 import org.molgenis.framework.db.Database;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+
 import java.security.NoSuchAlgorithmException;
 <#if metaData>
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import org.apache.log4j.Logger;
 
 import org.molgenis.omx.auth.util.PasswordHasher;
 import org.molgenis.omx.auth.MolgenisUser;
@@ -25,18 +26,16 @@ import org.molgenis.framework.db.DatabaseException;
 import javax.persistence.EntityManager;
 import org.molgenis.framework.security.Login;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 </#if>
 
 public abstract class MolgenisDatabasePopulator implements ApplicationListener<ContextRefreshedEvent> {
-<#if metaData>	
 	private static final Logger logger = Logger.getLogger(MolgenisDatabasePopulator.class);
 	
 	@Autowired
 	@Qualifier("unauthorizedPrototypeDatabase")
 	private Database database;
+<#if metaData>
 	
 	@Value(${r'"${admin.password:@null}"'})
 	private String adminPassword;
@@ -50,11 +49,14 @@ public abstract class MolgenisDatabasePopulator implements ApplicationListener<C
 <#if metaData>
 		if(!isApplicationDatabaseInitialized())
 		{
+</#if>		
 			try
 			{
+<#if metaData>			
 				logger.info("initializing application database defaults");
 				initializeDefaultApplicationDatabase(database);
 				logger.info("initialized application database defaults");
+</#if>				
 				logger.info("initializing application database");
 				initializeApplicationDatabase(database);
 				logger.info("initialized application database");
@@ -63,9 +65,8 @@ public abstract class MolgenisDatabasePopulator implements ApplicationListener<C
 			{
 				throw new RuntimeException(e);
 			}
+<#if metaData>			
 		}
-<#else>
-		// noop
 </#if>
 	}
 	
