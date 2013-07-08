@@ -22,7 +22,6 @@ import org.molgenis.omx.auth.vo.CaptchaRequest;
 import org.molgenis.omx.auth.vo.PasswordResetRequest;
 import org.molgenis.omx.auth.vo.RegisterRequest;
 import org.molgenis.util.CountryCodes;
-import org.molgenis.util.HandleRequestDelegationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -33,13 +32,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Controller
-@RequestMapping("/account")
 public class AccountController
 {
 	@Autowired
@@ -56,12 +53,12 @@ public class AccountController
 	private CaptchaService captchaService;
 
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
-	public String getLoginForm()
+	public String getLoginPage()
 	{
-		return "login-modal";
+		return "login";
 	}
 
-	@RequestMapping(value = "/register", method = RequestMethod.GET)
+	@RequestMapping(value = "/account/register", method = RequestMethod.GET)
 	public ModelAndView getRegisterForm() throws DatabaseException
 	{
 		ModelAndView model = new ModelAndView("register-modal");
@@ -71,32 +68,14 @@ public class AccountController
 		return model;
 	}
 
-	@RequestMapping(value = "/password/reset", method = RequestMethod.GET)
+	@RequestMapping(value = "/account/password/reset", method = RequestMethod.GET)
 	public String getPasswordResetForm()
 	{
 		return "resetpassword-modal";
 	}
 
-	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void loginUser(@RequestParam("username")
-	String username, @RequestParam("password")
-	String password) throws HandleRequestDelegationException, Exception
-	{
-		boolean ok = database.getLogin().login(database, username, password);
-		if (!ok) throw new DatabaseAccessException("Login failed: username or password unknown");
-	}
-
-	@RequestMapping(value = "/logout", method = RequestMethod.GET)
-	public String logoutUser() throws Exception
-	{
-		database.getLogin().logout(database);
-		database.getLogin().reload(database);
-		return "redirect:" + ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
-	}
-
 	// Spring's FormHttpMessageConverter cannot bind target classes (as ModelAttribute can)
-	@RequestMapping(value = "/register", method = RequestMethod.POST, headers = "Content-Type=application/x-www-form-urlencoded")
+	@RequestMapping(value = "/account/register", method = RequestMethod.POST, headers = "Content-Type=application/x-www-form-urlencoded")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void registerUser(@Valid
 	@ModelAttribute
@@ -118,7 +97,7 @@ public class AccountController
 		accountService.createUser(molgenisUser, activationUri);
 	}
 
-	@RequestMapping(value = "/activate/{activationCode}", method = RequestMethod.GET)
+	@RequestMapping(value = "/account/activate/{activationCode}", method = RequestMethod.GET)
 	public String activateUser(@Valid
 	@NotNull
 	@PathVariable
@@ -129,7 +108,7 @@ public class AccountController
 	}
 
 	// Spring's FormHttpMessageConverter cannot bind target classes (as ModelAttribute can)
-	@RequestMapping(value = "/password/reset", method = RequestMethod.POST, headers = "Content-Type=application/x-www-form-urlencoded")
+	@RequestMapping(value = "/account/password/reset", method = RequestMethod.POST, headers = "Content-Type=application/x-www-form-urlencoded")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void resetPassword(@Valid
 	@ModelAttribute

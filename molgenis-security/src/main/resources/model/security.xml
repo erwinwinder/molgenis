@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<molgenis name="org.molgenis">
+	<module name="security">
+		<entity name="MUser"><!-- TODO add 1-to-n field name="roles" -->
+			<field name="id" type="autoid" />
+			<field name="username" unique="true" />
+			<field name="password" /><!-- TODO type="password" -->
+		</entity>
+		<entity name="MUserRole">
+			<field name="id" type="autoid" />
+			<field name="mUser" type="xref" xref_entity="MUser" />
+			<field name="role" />
+		</entity>
+		<!--
+		<entity name="MolgenisGroup">
+			<field name="id" type="autoid" />
+			<field name="name" />
+		</entity>
+		<entity name="MolgenisGroupRole">
+			<field name="id" type="autoid" />
+			<field name="group" type="xref" />
+			<field name="role" />
+		</entity>
+		-->
+	</module>
+</molgenis>

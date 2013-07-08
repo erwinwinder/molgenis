@@ -72,9 +72,8 @@ public class MolgenisModelValidator
 	}
 
 	/**
-	 * As mrefs are a linking table between to other tables, interfaces cannot
-	 * be part of mrefs (as they don't have a linking table). To solve this
-	 * issue, mrefs will be removed from interface class and copied to subclass.
+	 * As mrefs are a linking table between to other tables, interfaces cannot be part of mrefs (as they don't have a
+	 * linking table). To solve this issue, mrefs will be removed from interface class and copied to subclass.
 	 * 
 	 * @throws MolgenisModelException
 	 */
@@ -115,8 +114,8 @@ public class MolgenisModelValidator
 	}
 
 	/**
-	 * Subclasses can override fields of superclasses. This should only be used
-	 * with caution! Only good motivation is to limit xref type.
+	 * Subclasses can override fields of superclasses. This should only be used with caution! Only good motivation is to
+	 * limit xref type.
 	 */
 	public static void validateOveride(Model model)
 	{
@@ -221,8 +220,7 @@ public class MolgenisModelValidator
 	}
 
 	/**
-	 * Default xref labels can come from: - the xref_entity (or one of its
-	 * superclasses)
+	 * Default xref labels can come from: - the xref_entity (or one of its superclasses)
 	 * 
 	 * @param model
 	 * @throws MolgenisModelException
@@ -253,9 +251,8 @@ public class MolgenisModelValidator
 	}
 
 	/**
-	 * In each entity of an entity subclass hierarchy a 'type' field is added to
-	 * enable filtering. This method adds this type as 'enum' field such that
-	 * all subclasses are an enum option.
+	 * In each entity of an entity subclass hierarchy a 'type' field is added to enable filtering. This method adds this
+	 * type as 'enum' field such that all subclasses are an enum option.
 	 * 
 	 * @param model
 	 * @throws MolgenisModelException
@@ -1154,10 +1151,9 @@ public class MolgenisModelValidator
 	}
 
 	/**
-	 * Copy fields to subclasses (redundantly) so this field can be part of an
-	 * extra constraint. E.g. a superclass has non-unique field 'name'; in the
-	 * subclass it is said to be unique and a copy is made to capture this
-	 * constraint in the table for the subclass.
+	 * Copy fields to subclasses (redundantly) so this field can be part of an extra constraint. E.g. a superclass has
+	 * non-unique field 'name'; in the subclass it is said to be unique and a copy is made to capture this constraint in
+	 * the table for the subclass.
 	 * 
 	 * @param model
 	 * @throws MolgenisModelException
@@ -1201,7 +1197,7 @@ public class MolgenisModelValidator
 			"DATABASE", "DEFRAG", "DELAY", "DELETE", "DISCONNECT", "DROP", "END", "EXPLAIN", "EXTRACT", "GRANT",
 			"IGNORECASE", "INDEX", "INSERT", "INTEGRITY", "LOGSIZE", "PASSWORD", "POSITION", "PLAN", "PROPERTY",
 			"READONLY", "REFERENTIAl", "REVOKE", "ROLE", "ROLLBACK", "SAVEPOINT", "SCHEMA", "SCRIPT", "SCRIPTFORMAT",
-			"SELECT", "SEQUENCE", "SET", "SHUTDOWN", "SOURCE", "TABLE", "TRIGGER", "UPDATE", "USER", "VIEW", "WRITE" };
+			"SELECT", "SEQUENCE", "SET", "SHUTDOWN", "SOURCE", "TABLE", "TRIGGER", "UPDATE", "VIEW", "WRITE" };
 	/**
 	 * http://dev.mysql.com/doc/refman/5.0/en/reserved-words.html
 	 */
@@ -1231,8 +1227,7 @@ public class MolgenisModelValidator
 			"VARBINARY", "VARCHAR", "VARCHARACTER", "VARYING", "WHEN", "WHERE", "WHILE", "WITH", "WRITE", "X509",
 			"XOR", "YEAR_MONTH", "ZEROFILL" };
 	/**
-	 * https://cis.med.ucalgary.ca/http/java.sun.com/docs/books/tutorial/java/
-	 * nutsandbolts/_keywords.html
+	 * https://cis.med.ucalgary.ca/http/java.sun.com/docs/books/tutorial/java/ nutsandbolts/_keywords.html
 	 */
 	private static final String[] JAVA_KEYWORDS =
 	{ "abstract", "continue", "for", "new", "switch", "assert", "default", "goto", "package", "synchronized",

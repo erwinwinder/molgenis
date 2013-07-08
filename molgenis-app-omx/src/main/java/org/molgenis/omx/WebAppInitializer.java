@@ -8,6 +8,7 @@ import javax.servlet.ServletRegistration.Dynamic;
 import org.apache.log4j.Logger;
 import org.molgenis.servlet.FrontController;
 import org.springframework.web.WebApplicationInitializer;
+import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -21,6 +22,9 @@ public class WebAppInitializer implements WebApplicationInitializer
 	{
 		AnnotationConfigWebApplicationContext ctx = new AnnotationConfigWebApplicationContext();
 		ctx.register(WebAppConfig.class);
+
+		// manage the lifecycle of the root application context
+		servletContext.addListener(new ContextLoaderListener(ctx));
 
 		// spring
 		Dynamic dispatcherServlet = servletContext.addServlet("dispatcher", new DispatcherServlet(ctx));
