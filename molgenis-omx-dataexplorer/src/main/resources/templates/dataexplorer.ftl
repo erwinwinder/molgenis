@@ -1,3 +1,5 @@
+<#assign security=JspTaglibs["http://www.springframework.org/security/tags"] />
+
 <!DOCTYPE html>
 <html>
 	<head>
@@ -32,6 +34,7 @@
 		</script>
 	</head>
 	<body>
+		<@security.authorize ifAnyGranted="ROLE_ADMIN">ADMIN</@security.authorize>
 		<div class="container-fluid">
 			<div class="row-fluid">
 				<div class="span3">
