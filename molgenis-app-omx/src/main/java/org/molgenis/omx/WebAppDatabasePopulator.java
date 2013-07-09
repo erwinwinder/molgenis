@@ -1,7 +1,6 @@
 package org.molgenis.omx;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 
 import org.molgenis.MolgenisDatabasePopulator;
@@ -19,6 +18,8 @@ public class WebAppDatabasePopulator extends MolgenisDatabasePopulator
 
 	private static final String ROLE_ADMIN = "ROLE_ADMIN";
 	private static final String ROLE_USER = "ROLE_USER";
+	private static final String ROLE_READ_DATASET = "ROLE_READ_DATASET";
+	private static final String ROLE_SU = "ROLE_SU";
 
 	@Autowired
 	private MolgenisUserDetailsService userDetailsService;
@@ -42,7 +43,12 @@ public class WebAppDatabasePopulator extends MolgenisDatabasePopulator
 			userUserRole.setRole(ROLE_USER);
 			userUserRole.setMUser(userUser);
 
-			userDetailsService.addUser(userUser, Collections.singleton(userUserRole));
+			MUserRole userReadDataSetRole = new MUserRole();
+			userReadDataSetRole.setRole(ROLE_READ_DATASET);
+			userReadDataSetRole.setMUser(userUser);
+
+			userDetailsService.addUser(userUser,
+					new HashSet<MUserRole>(Arrays.asList(userUserRole, userReadDataSetRole)));
 
 			adminUser = new MUser();
 			adminUser.setUsername(USER_ADMIN);
@@ -56,7 +62,12 @@ public class WebAppDatabasePopulator extends MolgenisDatabasePopulator
 			adminUserRole.setRole(ROLE_USER);
 			adminUserRole.setMUser(adminUser);
 
-			userDetailsService.addUser(adminUser, new HashSet<MUserRole>(Arrays.asList(adminAdminRole, adminUserRole)));
+			MUserRole adminSuRole = new MUserRole();
+			adminUserRole.setRole(ROLE_SU);
+			adminUserRole.setMUser(adminUser);
+
+			userDetailsService.addUser(adminUser,
+					new HashSet<MUserRole>(Arrays.asList(userUserRole, adminAdminRole, adminUserRole, adminSuRole)));
 		}
 	}
 }

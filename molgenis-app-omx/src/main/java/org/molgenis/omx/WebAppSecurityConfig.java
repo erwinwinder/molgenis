@@ -3,8 +3,10 @@ package org.molgenis.omx;
 import org.molgenis.security.MolgenisUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -14,8 +16,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebAppSecurityConfig extends WebSecurityConfigurerAdapter
 {
+
+	@Bean
+	@Override
+	public AuthenticationManager authenticationManagerBean() throws Exception
+	{
+		return super.authenticationManagerBean();
+	}
 
 	@Bean
 	public PasswordEncoder passwordEncoder()
@@ -58,7 +68,7 @@ public class WebAppSecurityConfig extends WebSecurityConfigurerAdapter
 	protected void configure(HttpSecurity http) throws Exception
 	{
 		http.authorizeUrls().antMatchers("/css/**").permitAll().antMatchers("/js/**").permitAll()
-				.regexMatchers(".*Admin").hasRole("ADMIN").antMatchers("/img/**").permitAll().anyRequest()
+				.regexMatchers(".*UploadWizard").hasRole("ADMIN").antMatchers("/img/**").permitAll().anyRequest()
 				.authenticated().and().formLogin().loginUrl("/login").defaultSuccessUrl("/").loginPage("/login")
 				.permitAll().and().logout().logoutUrl("/logout").permitAll().logoutSuccessUrl("/login");
 	}

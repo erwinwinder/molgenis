@@ -26,6 +26,9 @@ import org.molgenis.framework.db.QueryRule;
 import org.molgenis.framework.security.SimpleLogin;
 import org.molgenis.io.TupleReader;
 import org.molgenis.io.TupleWriter;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 <#if authorizable??>
 import org.molgenis.omx.auth.MolgenisUser;
 import org.molgenis.omx.auth.service.MolgenisUserService;
@@ -46,9 +49,12 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 	{
 		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
 		{
-			if (!this.getDatabase().getLogin().canWrite(${entityClass}.class))
+			if (!isUserInRole("ROLE_WRITE_${securityName}"))
+			{
 				throw new DatabaseAccessException("No write permission on ${entityClass}");
+			}
 		}
+		
 		return super.add(entities);
 	}
 
@@ -57,13 +63,16 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 	{
 		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
 		{
-			if (!this.getDatabase().getLogin().canWrite(${entityClass}.class))
+			if (!isUserInRole("ROLE_WRITE_${securityName}"))
+			{
 				throw new DatabaseAccessException("No write permission on ${entityClass}");
-
+			}
+		
 <#if authorizable??>
 			this.addRowLevelSecurityFilters(entities);
 </#if>
 		}
+		
 		return super.update(entities);
 	}
 
@@ -72,13 +81,16 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 	{
 		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
 		{
-			if (!this.getDatabase().getLogin().canWrite(${entityClass}.class))
+			if (!isUserInRole("ROLE_WRITE_${securityName}"))
+			{
 				throw new DatabaseAccessException("No write permission on ${entityClass}");
+			}
 				
 <#if authorizable??>
 			this.addRowLevelSecurityFilters(entities);
 </#if>
 		}
+		
 		return super.remove(entities);
 	}
 
@@ -87,9 +99,12 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 	{
 		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
 		{
-			if (!this.getDatabase().getLogin().canWrite(${entityClass}.class))
+			if (!isUserInRole("ROLE_WRITE_${securityName}"))
+			{
 				throw new DatabaseAccessException("No write permission on ${entityClass}");
+			}
 		}
+		
 		return super.add(reader, writer);
 	}
 
@@ -98,13 +113,16 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 	{
 		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
 		{
-			if (!this.getDatabase().getLogin().canRead(${entityClass}.class))
+			if (!isUserInRole("ROLE_READ_${securityName}"))
+			{
 				throw new DatabaseAccessException("No read permission on ${entityClass}");
-
+			}
+		
 <#if authorizable??>
 			rules = this.addRowLevelSecurityFilters(${entityClass}.CANREAD, rules);
 </#if>
 		}
+		
 		return super.count(rules);
 	}
 
@@ -113,13 +131,15 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 	{
 		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
 		{
-			if (!this.getDatabase().getLogin().canRead(${entityClass}.class))
+			if (!isUserInRole("ROLE_READ_${securityName}"))
+			{
 				throw new DatabaseAccessException("No read permission on ${entityClass}");
-
+			}
+		
 <#if authorizable??>
 			rules = this.addRowLevelSecurityFilters(${entityClass}.CANREAD, rules);
 </#if>
-		}
+		}		
 
 		List<E> result = super.find(rules);
 		return result;
@@ -130,9 +150,11 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 	{
 		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
 		{
-			if (!this.getDatabase().getLogin().canRead(${entityClass}.class))
+			if (!isUserInRole("ROLE_READ_${securityName}"))
+			{
 				throw new DatabaseAccessException("No read permission on ${entityClass}");
-
+			}
+		
 <#if authorizable??>
 			rules = this.addRowLevelSecurityFilters(${entityClass}.CANREAD, rules);
 </#if>
@@ -146,8 +168,10 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 	{
 		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
 		{
-			if (!this.getDatabase().getLogin().canRead(${entityClass}.class))
+			if (!isUserInRole("ROLE_READ_${securityName}"))
+			{
 				throw new DatabaseAccessException("No read permission on ${entityClass}");
+			}
 		}
 		
 		return super.findById(id);
@@ -158,11 +182,12 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 	{
 		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
 		{
-			if (!this.getDatabase().getLogin().canWrite(${entityClass}.class))
+			if (!isUserInRole("ROLE_WRITE_${securityName}"))
+			{
 				throw new DatabaseAccessException("No write permission on ${entityClass}");
-
-			//TODO: Add row level security filters
+			}
 		}
+		
 		return super.remove(reader);
 	}
 
@@ -171,11 +196,12 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 	{
 		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
 		{
-			if (!this.getDatabase().getLogin().canWrite(${entityClass}.class))
+			if (!isUserInRole("ROLE_WRITED_${securityName}"))
+			{
 				throw new DatabaseAccessException("No write permission on ${entityClass}");
-
-			//TODO: Add row level security filters
+			}
 		}
+		
 		return super.update(reader);
 	}
 
@@ -184,14 +210,16 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 	{
 		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
 		{
-			if (!this.getDatabase().getLogin().canRead(${entityClass}.class))
-				throw new DatabaseAccessException("No read permission on ${entityClass}");
-
+			if (!isUserInRole("ROLE_READ_${securityName}"))
+			{
+				throw new DatabaseAccessException("No write permission on ${entityClass}");
+			}
+		
 <#if authorizable??>
 			rules = this.addRowLevelSecurityFilters(${entityClass}.CANREAD, rules);
 </#if>
 		}
-
+		
 		super.find(writer, fieldsToExport, rules);
 	}
 
@@ -236,9 +264,12 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 	{
 		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
 		{
-			if (!this.getDatabase().getLogin().canWrite(${entityClass}.class))
+			if (!isUserInRole("ROLE_WRITE_${securityName}"))
+			{
 				throw new DatabaseAccessException("No write permission on ${entityClass}");
+			}
 		}
+		
 		return super.executeAdd(entities);
 	}
 	
@@ -247,9 +278,12 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 	{
 		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
 		{
-			if (!this.getDatabase().getLogin().canWrite(${entityClass}.class))
+			if (!isUserInRole("ROLE_WRITE_${securityName}"))
+			{
 				throw new DatabaseAccessException("No write permission on ${entityClass}");
+			}
 		}
+		
 		return super.executeUpdate(entities);
 	}
 	
@@ -258,9 +292,12 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 	{
 		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
 		{
-			if (!this.getDatabase().getLogin().canWrite(${entityClass}.class))
+			if (!isUserInRole("ROLE_WRITE_${securityName}"))
+			{
 				throw new DatabaseAccessException("No write permission on ${entityClass}");
+			}
 		}
+		
 		return super.executeRemove(entities);
 	}
 	
@@ -269,9 +306,12 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 	{
 		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
 		{
-			if (!this.getDatabase().getLogin().canWrite(${entityClass}.class))
-					throw new DatabaseAccessException("No write permission on ${entityClass}");
+			if (!isUserInRole("ROLE_WRITE_${securityName}"))
+			{
+				throw new DatabaseAccessException("No write permission on ${entityClass}");
+			}
 		}
+		
 		super.resolveForeignKeys(entities);
 	}
 	
@@ -280,11 +320,12 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 	{
 		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
 		{
-			if (!this.getDatabase().getLogin().canWrite(${entityClass}.class))
+			if (!isUserInRole("ROLE_WRITE_${securityName}"))
+			{
 				throw new DatabaseAccessException("No write permission on ${entityClass}");
-
-			//TODO: Add row level security filters
+			}
 		}
+		
 		return super.toList(reader, limit);
 	}
 	
@@ -293,13 +334,20 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 	{
 		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
 		{
-			if (!this.getDatabase().getLogin().canRead(${entityClass}.class))
-				throw new DatabaseAccessException("No read permission on ${entityClass}");
+			if (!isUserInRole("ROLE_READ_${securityName}"))
+			{
+				throw new DatabaseAccessException("No write permission on ${entityClass}");
+			}
 		}
 		
 		return super.createFindSqlInclRules(rules);
 	}
 
-	
+	private boolean isUserInRole(String role)
+	{
+		UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return user.getAuthorities().contains(new SimpleGrantedAuthority(role))
+				|| user.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_SU"));
+	}
 	
 }
