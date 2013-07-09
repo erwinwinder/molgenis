@@ -34,6 +34,7 @@ import org.molgenis.util.GsonHttpMessageConverter;
 import org.molgenis.util.tuple.Tuple;
 import org.molgenis.util.tuple.ValueTuple;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -51,6 +52,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author erwin
  * 
  */
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 @Controller
 @RequestMapping(URI)
 public class DataExplorerController
