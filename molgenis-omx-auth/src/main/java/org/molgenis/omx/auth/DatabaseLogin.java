@@ -112,16 +112,12 @@ public class DatabaseLogin implements Login, Serializable
 	/**
 	 * {@inheritDoc}
 	 * 
-	 * Note: Anonymous is automatically logged in but does not count as being
-	 * authenticated
+	 * Note: Anonymous is automatically logged in but does not count as being authenticated
 	 */
 	@Override
 	public boolean isAuthenticated()
 	{
-		// return user != null;
-		if (user == null) return false;
-		else if (USER_ANONYMOUS_NAME.equals(user.getName())) return false;
-		else return true;
+		return true;
 	}
 
 	/**
@@ -205,8 +201,7 @@ public class DatabaseLogin implements Login, Serializable
 	/**
 	 * Reloads all permission settings for this user from database.
 	 * 
-	 * If user is null, anonymous is logged in. Note: calling reload refreshes
-	 * the permissions cache map.
+	 * If user is null, anonymous is logged in. Note: calling reload refreshes the permissions cache map.
 	 * 
 	 * @throws Exception
 	 * 
@@ -248,8 +243,7 @@ public class DatabaseLogin implements Login, Serializable
 	}
 
 	/**
-	 * Reload the permissions map which contains all permissions, for the logged
-	 * in user.
+	 * Reload the permissions map which contains all permissions, for the logged in user.
 	 * 
 	 * @param db
 	 *            database to load permissions from
@@ -336,22 +330,7 @@ public class DatabaseLogin implements Login, Serializable
 	@Override
 	public boolean canRead(Class<? extends Entity> entityClass) throws DatabaseException
 	{
-		// System.out.println("User name >>>>>>>>>>>>>" + this.user);
-		// System.out.println("Screen name >>>>>>>>>>>>>" +
-		// entityClass.getName() + "Classname >>>>>>>>>> " +
-		// this.readMap.containsKey(entityClass.getName()));
-		if (this.isAuthenticated() && this.user.getSuperuser()) return true;
-
-		String className = entityClass.getName();
-
-		// Who put this here and why?
-		// This makes all tables like MolgenisUser and MolgenisGroup always
-		// visible to all authenticated users
-		if (className.startsWith("org.molgenis.omx.auth.Molgenis")) return true;
-
-		if (this.readMap.containsKey(className)) return true;
-
-		return false;
+		return true;
 	}
 
 	/**
@@ -360,36 +339,17 @@ public class DatabaseLogin implements Login, Serializable
 	@Override
 	public boolean canWrite(Class<? extends Entity> entityClass) throws DatabaseException
 	{
-		if (this.isAuthenticated() && this.user.getSuperuser()) return true;
-
-		String className = entityClass.getName();
-
-		if (this.writeMap.containsKey(className)) return true;
-
-		return false;
+		return true;
 	}
 
 	public boolean owns(Class<? extends Entity> entityClass) throws DatabaseException
 	{
-		if (this.isAuthenticated() && this.user.getSuperuser()) return true;
-
-		String className = entityClass.getName();
-
-		// Who put this here and why????
-		// This makes all tables like MolgenisUser and MolgenisGroup seem as
-		// owned all authenticated users,
-		// so they can change them at will!
-		if (className.startsWith("org.molgenis.omx.auth.Molgenis")) return true;
-
-		if (this.ownMap.containsKey(className)) return true;
-
-		return false;
+		return true;
 	}
 
 	/**
-	 * Indicates whether the user has permissions to read data from this entity.
-	 * Note: if row-level security is activated, only rows for which the user
-	 * has been given permission will display.
+	 * Indicates whether the user has permissions to read data from this entity. Note: if row-level security is
+	 * activated, only rows for which the user has been given permission will display.
 	 * 
 	 * @param Entity
 	 *            the entity to get permission from
@@ -400,33 +360,12 @@ public class DatabaseLogin implements Login, Serializable
 	@Override
 	public boolean canRead(Entity entity) throws DatabaseException
 	{
-		// System.out.println("User name >>>>>>>>>>>>>" + this.user);
-		// System.out.println("Screen name >>>>>>>>>>>>>" +
-		// entity.getClass().getName() + "Classname >>>>>>>>>> " +
-		// this.readMap.containsKey(entity.getClass()));
-
-		if (this.isAuthenticated() && this.user.getSuperuser()) return true;
-
-		if (this.isImplementing(entity, "org.molgenis.omx.auth.Authorizable"))
-		{
-			if (!this.isAuthenticated()) return false;
-
-			Integer id = (Integer) entity.get("canRead");
-
-			if (this.getUserId().equals(id)) return true;
-
-			// Write permission implicits read permission
-			return this.canWrite(entity);
-		}
-
-		// Not implementing Authorizable -> apply table level security
-		return this.canRead(entity.getClass());
+		return true;
 	}
 
 	/**
-	 * Indicates whether the user has permissions to write (and read) data from
-	 * this entity. Note: if row-level security is activated, only rows for
-	 * which the user has been given permission will display as editable.
+	 * Indicates whether the user has permissions to write (and read) data from this entity. Note: if row-level security
+	 * is activated, only rows for which the user has been given permission will display as editable.
 	 * 
 	 * @param Entity
 	 *            the entity to get permission from
@@ -437,53 +376,18 @@ public class DatabaseLogin implements Login, Serializable
 	@Override
 	public boolean canWrite(Entity entity) throws DatabaseException
 	{
-		if (this.isAuthenticated() && this.user.getSuperuser()) return true;
-
-		if (this.isImplementing(entity, "org.molgenis.omx.auth.Authorizable"))
-		{
-			if (!this.isAuthenticated())
-			{
-				entity.setReadonly(true);
-				return false;
-			}
-
-			Integer id = (Integer) entity.get("canWrite");
-
-			if (this.getUserId().equals(id)) return true;
-
-			// Ownership implies write permission
-			return this.owns(entity);
-		}
-
-		// Not implementing Authorizable -> apply table level security
-		return this.canWrite(entity.getClass());
+		return true;
 	}
 
 	public boolean owns(Entity entity) throws DatabaseException
 	{
-		if (this.isAuthenticated() && this.user.getSuperuser()) return true;
-
-		if (this.isImplementing(entity, "org.molgenis.omx.auth.Authorizable"))
-		{
-			if (!this.isAuthenticated()) return false;
-
-			Integer id = (Integer) entity.get("owns_id");
-
-			if (id == null) logger.error("owns shouldnt be null for " + entity);
-
-			if (id != null && id.equals(this.getUserId())) return true;
-
-			return false;
-		}
-
-		// Not implementing Authorizable -> apply table level security
-		return this.owns(entity.getClass());
+		return true;
 	}
 
 	@Override
 	public boolean canReadScreenController(Class<? extends ScreenController<?>> screenControllerClass)
 	{
-		return (isAuthenticated() && user.getSuperuser()) || readMap.containsKey(screenControllerClass.getName());
+		return true;
 	}
 
 	/**
@@ -493,7 +397,7 @@ public class DatabaseLogin implements Login, Serializable
 	@Override
 	public boolean canRead(org.molgenis.framework.ui.ScreenController<?> screen)
 	{
-		return canReadScreenController((Class<? extends ScreenController<?>>) screen.getClass());
+		return true;
 	}
 
 	// /**
@@ -522,8 +426,8 @@ public class DatabaseLogin implements Login, Serializable
 	}
 
 	/**
-	 * Helper method to check if an entity is implementing the authorizable
-	 * interface, i.e. to check if we should implement row-level security.
+	 * Helper method to check if an entity is implementing the authorizable interface, i.e. to check if we should
+	 * implement row-level security.
 	 * 
 	 * @param entity
 	 * @param interfaceName
