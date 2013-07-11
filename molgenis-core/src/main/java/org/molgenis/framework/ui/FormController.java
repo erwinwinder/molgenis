@@ -383,15 +383,14 @@ public abstract class FormController<E extends Entity> extends SimpleScreenContr
 			{
 				model.setRecordId(pager.getRecordId());
 				List<E> entities = new ArrayList<E>();
-				E entity= db.findById(this.getEntityClass(), pager.getRecordId());
-				entities.add((E)entity);
+				E entity = db.findById(this.getEntityClass(), pager.getRecordId());
+				entities.add(entity);
 				model.setRecords(entities);
 			}
-			else
-				model.setRecords(this.getData(db));
+			else model.setRecords(this.getData(db));
 
 			model.setCount(pager.getCount(db));
-            model.setOffset(pager.getOffset());
+			model.setOffset(pager.getOffset());
 			model.setSort(pager.getOrderByField());
 			model.setSortMode(pager.getOrderByOperator());
 
@@ -464,6 +463,13 @@ public abstract class FormController<E extends Entity> extends SimpleScreenContr
 	 */
 	public boolean doAdd(Database db, MolgenisRequest request) throws ParseException, DatabaseException, IOException
 	{
+		System.out.println("--------------------");
+		for (String col : request.getColNames())
+		{
+			System.out.println(col + "=" + request.getString(col));
+		}
+		System.out.println("--------------------");
+
 		ScreenMessage msg = null;
 		Entity entity = getModel().create();
 		boolean result = false;
@@ -497,6 +503,7 @@ public abstract class FormController<E extends Entity> extends SimpleScreenContr
 		catch (Exception e)
 		{
 			db.rollbackTx();
+			e.printStackTrace();
 			msg = new ScreenMessage("ADD FAILED: " + e.getMessage(), null, false);
 			result = false;
 		}
@@ -540,7 +547,7 @@ public abstract class FormController<E extends Entity> extends SimpleScreenContr
 	// helper method
 	protected void doRemove(Database db, MolgenisRequest request) throws DatabaseException, ParseException, IOException
 	{
-		//reload(db);
+		// reload(db);
 
 		Entity entity = getModel().create();
 		ScreenMessage msg = null;
@@ -669,8 +676,8 @@ public abstract class FormController<E extends Entity> extends SimpleScreenContr
 	}
 
 	/**
-	 * Provides the class of the entitites managed by this form. Note: Java
-	 * erases the specific type of E, therefore we cannot say E.newInstance();
+	 * Provides the class of the entitites managed by this form. Note: Java erases the specific type of E, therefore we
+	 * cannot say E.newInstance();
 	 */
 	public abstract Class<E> getEntityClass();
 
@@ -686,8 +693,8 @@ public abstract class FormController<E extends Entity> extends SimpleScreenContr
 
 	// ABSTRACT METHODS, varied per entity
 	/**
-	 * Abstract method to build the inputs for each row. The result will be a
-	 * set of inputs that can be put on the form screen.
+	 * Abstract method to build the inputs for each row. The result will be a set of inputs that can be put on the form
+	 * screen.
 	 * 
 	 * @param entity
 	 * @param newrecord
@@ -698,8 +705,7 @@ public abstract class FormController<E extends Entity> extends SimpleScreenContr
 	public abstract Vector<String> getHeaders();
 
 	/**
-	 * Helper function that translates xref field name into its label (for
-	 * showing that in the UI).
+	 * Helper function that translates xref field name into its label (for showing that in the UI).
 	 */
 	public abstract String getSearchField(String fieldName);
 

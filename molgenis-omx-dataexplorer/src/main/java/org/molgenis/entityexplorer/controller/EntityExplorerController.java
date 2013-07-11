@@ -18,6 +18,7 @@ import org.molgenis.framework.server.MolgenisSettings;
 import org.molgenis.omx.observ.Characteristic;
 import org.molgenis.util.Entity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +31,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 @Controller
 @RequestMapping(URI)
 public class EntityExplorerController
@@ -45,16 +47,18 @@ public class EntityExplorerController
 	private MolgenisSettings molgenisSettings;
 
 	@RequestMapping(method = RequestMethod.GET)
-	public ModelAndView init(@RequestParam(required = false) String entity,
-			@RequestParam(required = false) String identifier, @RequestParam(required = false) String query)
-			throws Exception
+	public ModelAndView init(@RequestParam(required = false)
+	String entity, @RequestParam(required = false)
+	String identifier, @RequestParam(required = false)
+	String query) throws Exception
 	{
 		// select all characteristic entities
 		Iterable<Class<? extends Entity>> entityClazzes = Iterables.filter(database.getEntityClasses(),
 				new Predicate<Class<? extends Entity>>()
 				{
 					@Override
-					public boolean apply(@Nullable Class<? extends Entity> clazz)
+					public boolean apply(@Nullable
+					Class<? extends Entity> clazz)
 					{
 						return clazz != null && Characteristic.class.isAssignableFrom(clazz)
 								&& !clazz.equals(Characteristic.class);
@@ -95,7 +99,8 @@ public class EntityExplorerController
 				{
 					@Override
 					@Nullable
-					public String apply(@Nullable Characteristic characteristic)
+					public String apply(@Nullable
+					Characteristic characteristic)
 					{
 						return characteristic != null ? characteristic.getIdentifier() : null;
 					}

@@ -1,8 +1,6 @@
 package org.molgenis.security;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.molgenis.framework.db.Database;
 import org.molgenis.framework.db.DatabaseException;
@@ -33,14 +31,14 @@ public class MolgenisUserDetailsService implements UserDetailsService
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	public void addUser(MUser user, Set<MUserRole> roles) throws DatabaseException
+	public void addUser(MUser user, List<MUserRole> roles) throws DatabaseException
 	{
 		database.beginTx();
 		try
 		{
 			user.setPassword(passwordEncoder.encode(user.getPassword()));
 			database.add(user);
-			database.add(new ArrayList<MUserRole>(roles));
+			database.add(roles);
 			database.commitTx();
 		}
 		catch (DatabaseException e)

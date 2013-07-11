@@ -11,6 +11,8 @@
 
 package ${package};
 
+import static org.molgenis.security.SecurityUtils.isUserInRole;
+
 <#if authorizable??>
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,10 +27,10 @@ import org.molgenis.framework.db.MapperDecorator;
 import org.molgenis.framework.db.QueryRule;
 import org.molgenis.framework.security.SimpleLogin;
 import org.molgenis.io.TupleReader;
+import org.molgenis.util.ApplicationContextProvider;
+import org.molgenis.security.RowLevelSecurityService;
+import org.molgenis.security.EntityPermission;
 import org.molgenis.io.TupleWriter;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 <#if authorizable??>
 import org.molgenis.omx.auth.MolgenisUser;
 import org.molgenis.omx.auth.service.MolgenisUserService;
@@ -55,7 +57,17 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 			}
 		}
 		
-		return super.add(entities);
+		int result = super.add(entities);
+		
+		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
+		{
+			for (E entity : entities)
+			{
+				getRowLevelSecurityService().addPermissionToCurrentUser(entity, EntityPermission.OWNS);
+			}
+		}
+		
+		return result;
 	}
 
 	@Override
@@ -67,7 +79,15 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 			{
 				throw new DatabaseAccessException("No write permission on ${entityClass}");
 			}
-		
+			
+			for (E entity : entities)
+			{	
+				if (!getRowLevelSecurityService().currentUserHasPermission(entity, EntityPermission.WRITE))
+				{
+					throw new DatabaseAccessException("No write permission for this entity");
+				}
+			}
+			
 <#if authorizable??>
 			this.addRowLevelSecurityFilters(entities);
 </#if>
@@ -84,6 +104,14 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 			if (!isUserInRole("ROLE_WRITE_${securityName}"))
 			{
 				throw new DatabaseAccessException("No write permission on ${entityClass}");
+			}
+				
+			for (E entity : entities)
+			{	
+				if (!getRowLevelSecurityService().currentUserHasPermission(entity, EntityPermission.WRITE))
+				{
+					throw new DatabaseAccessException("No write permission for this entity");
+				}
 			}
 				
 <#if authorizable??>
@@ -113,14 +141,17 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 	{
 		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
 		{
+		
 			if (!isUserInRole("ROLE_READ_${securityName}"))
 			{
 				throw new DatabaseAccessException("No read permission on ${entityClass}");
 			}
 		
-<#if authorizable??>
+		<#if authorizable??>
 			rules = this.addRowLevelSecurityFilters(${entityClass}.CANREAD, rules);
-</#if>
+			</#if>
+			
+			return find(rules).size();
 		}
 		
 		return super.count(rules);
@@ -142,7 +173,13 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 		}		
 
 		List<E> result = super.find(rules);
-		return result;
+		
+		if (this.getDatabase().getLogin() != null && !(this.getDatabase().getLogin() instanceof SimpleLogin))
+		{
+			return getRowLevelSecurityService().filterList(result, EntityPermission.READ);
+		}
+		
+		return result;	
 	}
 
 	@Override
@@ -341,13 +378,10 @@ public class ${clazzName}<E extends ${entityClass}> extends MapperDecorator<E>
 		}
 		
 		return super.createFindSqlInclRules(rules);
-	}
-
-	private boolean isUserInRole(String role)
-	{
-		UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		return user.getAuthorities().contains(new SimpleGrantedAuthority(role))
-				|| user.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_SU"));
-	}
+	}	
 	
+	private RowLevelSecurityService getRowLevelSecurityService()
+	{
+		return ApplicationContextProvider.getApplicationContext().getBean(RowLevelSecurityService.class);
+	}
 }
