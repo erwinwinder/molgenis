@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<script type="text/javascript" src="/js/jquery-1.8.3.min.js"></script>
+		<script>
+			function getParam(name){
+				if(name=(new RegExp('[?&]'+encodeURIComponent(name)+'=([^&]*)')).exec(location.search))
+				    return decodeURIComponent(name[1]);
+			}
+			
+			var token;
+			
+		
+			$(document).ready(function() {
+				
+				
+				var code = getParam('code');
+				
+				if (code) {
+					$.ajax({
+						type : "POST",
+						async: false,
+						url : '/oauth/token?response_type=code&grant_type=authorization_code&client_id=molgenis&client_secret=secret&redirect_uri=' + encodeURIComponent(window.location.href.split('?')[0]) + '&code=' + code,
+						//contentType : 'application/json',
+						error : function(response) {
+							alert('error getting token:' + JSON.stringify(response));
+						},
+						success : function(response) {
+							token = response.value;
+						}
+					});
+				}
+				
+				
+				$('#find').click(function() {
+					if (token) {
+							$.ajax({
+								type : "POST",
+								url : '/search?access_token=' + token,
+								data : $('#query').val(),
+								contentType : 'application/json',
+								beforeSend: function (xhr) {
+									xhr.setRequestHeader('Authorization', "Bearer " + encodeURIComponent(token));
+								},
+								error : function (xhr, textStatus, errorThrown) {
+									alert('searcherror xhr:' + xhr + ',textStatus:' + textStatus + ',errorThrown:' + errorThrown);
+								},
+								success : function(searchResponse) {
+									if (searchResponse.errorMessage) {
+										alert('searcherror:' + JSON.stringify(searchResponse));
+									}
+									$('#result').html(JSON.stringify(searchResponse));
+								}
+							});
+					} else {
+						window.location.href = '/oauth/authorize?response_type=code&grant_type=authorization_code&client_id=molgenis&client_secret=secret&redirect_uri=' + encodeURIComponent(window.location.href.split('?')[0]);
+					
+						/*
+						$.ajax({
+							type : "POST",
+							async: false,
+							url : '/oauth/token',
+							data :{
+								grant_type: 'password',
+								client_id: 'molgenis',
+								client_secret: 'secret',
+								username: 'user',
+								password: 'user',
+								scope: 'read'
+							},
+							contentType : 'application/x-www-form-urlencoded',
+							beforeSend: function (xhr) {
+								
+								//	xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+								},
+							error : function(response) {
+								alert('error getting token:' + JSON.stringify(response));
+							},
+							success : function(response) {
+								token = response.value;
+								alert('token:' + token);
+							}
+						});
+						*/
+					}
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<textarea id="query">{documentType:'carcinoma'}</textarea>
+		<button id="find">Find</button>
+		<div id="result"></div>
+	</body>
+</html>

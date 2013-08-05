@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
@@ -69,6 +70,24 @@ public class DataExplorerController
 
 	@Autowired
 	private SearchService searchService;
+
+	@RequestMapping("/oauth")
+	public void handleOAuh2AutrizationResponse(HttpServletRequest request, HttpServletResponse response)
+	{
+		String code = request.getParameter("code");
+
+		try
+		{
+			response.sendRedirect("/oauth/token?grant_type=authorization_code&client_id=molgenis&client_secret=secret&redirect_uri=/plugin/dataexplorer/oauth&code="
+					+ code);
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
 
 	/**
 	 * Show the explorer page

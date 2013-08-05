@@ -37,6 +37,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.provider.expression.OAuth2MethodSecurityExpressionHandler;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -139,6 +140,12 @@ public class WebAppSecurityConfig extends WebSecurityConfigurerAdapter
 		return new AclPermissionEvaluator(mutableAclService());
 	}
 
+	@Bean
+	public OAuth2MethodSecurityExpressionHandler expressionHandler()
+	{
+		return new OAuth2MethodSecurityExpressionHandler();
+	}
+
 	/*
 	 * public ExpressionHandler expressionHandler() { return new DefaultMethodSecurityExpressionHandler(); }
 	 */
@@ -197,10 +204,27 @@ public class WebAppSecurityConfig extends WebSecurityConfigurerAdapter
 	@Override
 	protected void configure(HttpSecurity http) throws Exception
 	{
-		http.authorizeUrls().antMatchers("/css/**").permitAll().antMatchers("/js/**").permitAll()
-				.regexMatchers(".*UploadWizard").hasRole("ADMIN").antMatchers("/img/**").permitAll().anyRequest()
-				.authenticated().and().formLogin().loginUrl("/login").defaultSuccessUrl("/").loginPage("/login")
-				.permitAll().and().logout().logoutUrl("/logout").permitAll().logoutSuccessUrl("/login");
+		http.authorizeUrls()
+
+		.antMatchers("/css/**").permitAll()
+
+		.antMatchers("/js/**").permitAll()
+
+		.antMatchers("/html/search.html").permitAll()
+
+		.regexMatchers(".*UploadWizard").hasRole("ADMIN")
+
+		.antMatchers("/img/**").permitAll()
+
+		// .antMatchers("/search").permitAll()
+
+				.antMatchers("/oauth/**").hasRole("USER")
+
+				.anyRequest().authenticated()
+
+				.and().formLogin().loginUrl("/login").defaultSuccessUrl("/").loginPage("/login").permitAll()
+
+				.and().logout().logoutUrl("/logout").permitAll().logoutSuccessUrl("/login");
 	}
 
 }
