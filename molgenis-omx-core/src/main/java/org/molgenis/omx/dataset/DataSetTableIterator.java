@@ -53,6 +53,7 @@ public class DataSetTableIterator implements Iterator<Tuple>
 		ObservationSet currentRowToGet = this.observationSets.get(currentRow);
 
 		WritableTuple tuple = new KeyValueTuple();
+		tuple.set("ObservationSetId", currentRowToGet.getId());
 
 		Query<ObservedValue> queryObservedValue = db.query(ObservedValue.class);
 

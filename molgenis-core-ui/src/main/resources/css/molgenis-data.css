@@ -159,6 +159,14 @@ label {
 	margin: 0px;
 }
 
+.validationerror {
+	color: red;
+}
+
+.input-validationerror {
+	border-color: red;	
+}
+
 /*form*/
 .form_toolbar {
 	float: left;

@@ -11,6 +11,7 @@ import org.molgenis.util.tuple.Tuple;
 public class TupleToDateTimeValueConverter implements TupleToValueConverter<DateTimeValue, String>
 {
 	private static final String DATEFORMAT_DATETIME = "yyyy-MM-dd'T'HH:mm:ssZ";
+	private static final String DATEFORMAT_DATETIME_MSEC = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
 	@Override
 	public DateTimeValue fromTuple(Tuple tuple, String colName, ObservableFeature feature)
@@ -27,7 +28,15 @@ public class TupleToDateTimeValueConverter implements TupleToValueConverter<Date
 		}
 		catch (ParseException e)
 		{
-			throw new ValueConverterException(e);
+			// Try with msecs
+			try
+			{
+				dateTimeValue.setValue(new SimpleDateFormat(DATEFORMAT_DATETIME_MSEC).parse(dateTimeStr));
+			}
+			catch (ParseException e1)
+			{
+				throw new ValueConverterException(e);
+			}
 		}
 		return dateTimeValue;
 	}

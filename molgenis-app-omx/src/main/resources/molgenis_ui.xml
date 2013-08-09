@@ -40,8 +40,9 @@
 				<plugin label="Security tokens" name="TokenManagerPlugin"
 					type="org.molgenis.omx.auth.service.tokenmanager.TokenManager" />
 			</menu>	
-			
 			<plugin label="Index datasets" name="DataSetsIndexerPlugin" type="org.molgenis.dataexplorer.plugin.DataSetsIndexerPlugin"/>
+			<plugin label="Opal import/export" name="OpalIntegrationPlugin"
+				type="org.molgenis.opal.plugin.OpalIntegrationPlugin" />
 			
 		</menu> <!-- admin panels -->	
 		<plugin name="UserLogin" type="org.molgenis.omx.auth.ui.UserLogin" label="Login" />
