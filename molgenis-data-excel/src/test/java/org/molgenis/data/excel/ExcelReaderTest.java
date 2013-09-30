@@ -83,7 +83,7 @@ public class ExcelReaderTest
 	@Test
 	public void getNumberOfSheets() throws IOException
 	{
-		assertEquals(excelReader.getNumberOfSheets(), 3);
+		assertEquals(excelReader.getNumberOfSheets(), 2);
 	}
 
 	@Test
@@ -91,7 +91,6 @@ public class ExcelReaderTest
 	{
 		assertNotNull(excelReader.getSheet(0));
 		assertNotNull(excelReader.getSheet(1));
-		assertNotNull(excelReader.getSheet(2));
 	}
 
 	@Test
@@ -99,7 +98,6 @@ public class ExcelReaderTest
 	{
 		assertNotNull(excelReader.getSheet("test"));
 		assertNotNull(excelReader.getSheet("Blad2"));
-		assertNotNull(excelReader.getSheet("Blad3"));
 		assertNull(excelReader.getSheet("doesnotexist"));
 	}
 
