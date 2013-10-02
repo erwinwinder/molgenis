@@ -69,7 +69,8 @@ public class CsvWriter implements TupleWriter
 			for (String colName : colNames)
 			{
 				// process column name
-				String processedColName = AbstractCellProcessor.processCell(colName, true, this.cellProcessors);
+				String processedColName = (String) AbstractCellProcessor
+						.processCell(colName, true, this.cellProcessors);
 				processedColNames.add(processedColName);
 			}
 
@@ -134,6 +135,6 @@ public class CsvWriter implements TupleWriter
 		{
 			value = obj.toString();
 		}
-		return AbstractCellProcessor.processCell(value, false, this.cellProcessors);
+		return (String) AbstractCellProcessor.processCell(value, false, this.cellProcessors);
 	}
 }

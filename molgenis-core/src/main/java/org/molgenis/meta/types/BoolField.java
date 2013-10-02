@@ -65,16 +65,19 @@ public class BoolField extends DataType
 		return "Ljava/lang/Boolean;";
 	}
 
+	@Override
 	public Class<?> getJavaType()
 	{
 		return Boolean.class;
 	}
 
-	public Boolean getTypedValue(String value)
+	@Override
+	public Boolean convert(Object value)
 	{
-		return Boolean.parseBoolean(value);
+		return TypeUtils.toBoolean(value);
 	}
 
+	@Override
 	public String getName()
 	{
 		return "bool";

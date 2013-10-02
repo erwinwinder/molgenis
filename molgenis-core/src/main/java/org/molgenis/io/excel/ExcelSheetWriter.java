@@ -43,7 +43,7 @@ public class ExcelSheetWriter implements TupleWriter
 			{
 				// process column name
 				Cell cell = poiRow.createCell(i++, Cell.CELL_TYPE_STRING);
-				cell.setCellValue(AbstractCellProcessor.processCell(colName, true, this.cellProcessors));
+				cell.setCellValue((String) AbstractCellProcessor.processCell(colName, true, this.cellProcessors));
 				processedColNames.add(colName);
 			}
 
@@ -107,6 +107,6 @@ public class ExcelSheetWriter implements TupleWriter
 		{
 			value = obj.toString();
 		}
-		return AbstractCellProcessor.processCell(value, false, this.cellProcessors);
+		return (String) AbstractCellProcessor.processCell(value, false, this.cellProcessors);
 	}
 }

@@ -6,6 +6,10 @@ import java.util.Properties;
 
 import org.molgenis.DatabaseConfig;
 import org.molgenis.catalogmanager.CatalogManagerService;
+import org.molgenis.data.DataService;
+import org.molgenis.data.DataServiceImpl;
+import org.molgenis.data.excel.ExcelDataSourceFactory;
+import org.molgenis.data.jpa.JpaDataSourceFactory;
 import org.molgenis.elasticsearch.config.EmbeddedElasticSearchConfig;
 import org.molgenis.framework.db.Database;
 import org.molgenis.framework.db.WebAppDatabasePopulator;
@@ -240,5 +244,24 @@ public class WebAppConfig extends WebMvcConfigurerAdapter
 	public StudyManagerService studyDefinitionManagerService()
 	{
 		return new OmxStudyManagerService(database);
+	}
+
+	@Bean
+	public JpaDataSourceFactory jpaDataSourceFactory()
+	{
+		return new JpaDataSourceFactory();
+	}
+
+	@Bean
+	public DataService dataService() throws IOException
+	{
+		DataService dataService = new DataServiceImpl();
+		dataService.registerFactory(new ExcelDataSourceFactory());
+		dataService.registerDataSource("excel://" + System.getProperty("user.home") + "/test.xls");
+
+		dataService.registerFactory(jpaDataSourceFactory());
+		dataService.registerDataSource("jpa://");
+
+		return dataService;
 	}
 }

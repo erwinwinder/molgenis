@@ -1,7 +1,5 @@
 package org.molgenis.meta.types;
 
-import java.text.ParseException;
-
 import org.molgenis.meta.MetaDataException;
 
 public class EnumField extends DataType
@@ -11,14 +9,14 @@ public class EnumField extends DataType
 	{
 		return "String";
 	}
-	
+
 	@Override
 	public String getJavaAssignment(String value)
 	{
-		if(value == null || value.equals("") ) return "null";
-		return "\""+value+"\"";
+		if (value == null || value.equals("")) return "null";
+		return "\"" + value + "\"";
 	}
-	
+
 	@Override
 	public String getJavaPropertyDefault()
 	{
@@ -28,21 +26,21 @@ public class EnumField extends DataType
 	@Override
 	public String getMysqlType() throws MetaDataException
 	{
-		return "ENUM("+this.toCsv(f.getEnumOptions())+")";
+		return "ENUM(" + this.toCsv(f.getEnumOptions()) + ")";
 	}
-	
+
 	@Override
 	public String getOracleType() throws MetaDataException
 	{
 		return "VARCHAR2(255)";
 	}
 
-
 	@Override
 	public String getHsqlType()
 	{
 		return "VARCHAR(1024)";
 	}
+
 	@Override
 	public String getXsdType()
 	{
@@ -60,7 +58,7 @@ public class EnumField extends DataType
 	{
 		return "string";
 	}
-	
+
 	@Override
 	public String getCppJavaPropertyType()
 	{
@@ -74,20 +72,20 @@ public class EnumField extends DataType
 	}
 
 	@Override
-	public Object getTypedValue(String value) throws ParseException
+	public String convert(Object value)
 	{
-		throw new UnsupportedOperationException("Unable to cast enum type");
+		return TypeUtils.toString(value);
 	}
-	
+
+	@Override
 	public String getName()
 	{
 		return "enum";
 	}
-	
+
 	@Override
 	public String toString(Object value)
 	{
-		if(value == null) return "";
-		return value.toString();
+		return TypeUtils.toString(value);
 	}
 }

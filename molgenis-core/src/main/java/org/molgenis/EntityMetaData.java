@@ -20,6 +20,8 @@ public interface EntityMetaData
 
 	Iterable<AttributeMetaData> getAttributes();
 
+	AttributeMetaData getAttribute(String attributeName);
+
 	AttributeMetaData getIdAttribute();
 
 	AttributeMetaData getLabelAttribute();

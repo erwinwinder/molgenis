@@ -1,6 +1,6 @@
 package org.molgenis.meta;
 
-import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,9 +24,9 @@ public class MolgenisMetaData
 {
 	private List<ModuleMetaData> modules = new ArrayList<ModuleMetaData>();
 
-	public List<XmlEntityMetaData> getEntities()
+	public List<EntityMetaData> getEntities()
 	{
-		List<XmlEntityMetaData> result = new ArrayList<XmlEntityMetaData>();
+		List<EntityMetaData> result = new ArrayList<EntityMetaData>();
 		for (ModuleMetaData m : this.getModules())
 		{
 			result.addAll(m.getEntities());
@@ -40,11 +40,11 @@ public class MolgenisMetaData
 		modules.add(e);
 	}
 
-	public XmlEntityMetaData getEntity(String name)
+	public EntityMetaData getEntity(String name)
 	{
 		for (ModuleMetaData module : modules)
 		{
-			XmlEntityMetaData entity = module.getEntity(name);
+			EntityMetaData entity = module.getEntity(name);
 			if (entity != null && entity.getName().equals(name)) return entity;
 		}
 		return null;
@@ -54,7 +54,7 @@ public class MolgenisMetaData
 	{
 		for (ModuleMetaData module : modules)
 		{
-			for (XmlEntityMetaData entity : module.getEntities())
+			for (EntityMetaData entity : module.getEntities())
 			{
 				if (entity.getName().equalsIgnoreCase(name)) return module.getName();
 			}
@@ -68,11 +68,11 @@ public class MolgenisMetaData
 	 * @param name
 	 * @return
 	 */
-	public XmlEntityMetaData findEntity(String name)
+	public EntityMetaData findEntity(String name)
 	{
 		for (ModuleMetaData module : modules)
 		{
-			for (XmlEntityMetaData entity : module.getEntities())
+			for (EntityMetaData entity : module.getEntities())
 			{
 				if (entity.getName().toLowerCase().equals(name.toLowerCase())) return entity;
 			}
@@ -91,9 +91,8 @@ public class MolgenisMetaData
 	}
 
 	/**
-	 * Remove module, and return the index of the module that came before this
-	 * one in the list (for GUI select purposes). If it is the last module,
-	 * return null.
+	 * Remove module, and return the index of the module that came before this one in the list (for GUI select
+	 * purposes). If it is the last module, return null.
 	 * 
 	 * @param name
 	 * @return
@@ -129,11 +128,9 @@ public class MolgenisMetaData
 	}
 
 	/**
-	 * Find and remove an entity from either root or a module. If there are
-	 * entities in the module or root left, jump to the previous one in the
-	 * list. If there are no entities left in the root, return the name of the
-	 * root. If there are no entities left in the module, return the name of the
-	 * module.
+	 * Find and remove an entity from either root or a module. If there are entities in the module or root left, jump to
+	 * the previous one in the list. If there are no entities left in the root, return the name of the root. If there
+	 * are no entities left in the module, return the name of the module.
 	 * 
 	 * @param string
 	 * @return
@@ -169,7 +166,7 @@ public class MolgenisMetaData
 		return null;
 	}
 
-	public void parse(File xml) throws MetaDataException
+	public void parse(InputStream xml) throws MetaDataException
 	{
 		JAXBContext context;
 		try
@@ -182,16 +179,16 @@ public class MolgenisMetaData
 			um.setSchema(sf.newSchema(url));
 			ModuleMetaData module = (ModuleMetaData) um.unmarshal(xml);
 
-			//link module to this model
+			// link module to this model
 			this.addModule(module);
 			module.setModel(this);
 
 			// create reverese links
-			for (XmlEntityMetaData entity : module.getEntities())
+			for (EntityMetaData entity : module.getEntities())
 			{
 				entity.setModule(module);
 
-				for (XmlFieldMetaData field : entity.getFields())
+				for (FieldMetaData field : entity.getFields())
 				{
 					field.setEntity(entity);
 				}
@@ -223,17 +220,17 @@ public class MolgenisMetaData
 		}
 	}
 
-	public static List<XmlEntityMetaData> sortEntitiesByDependency(List<XmlEntityMetaData> entityList, MolgenisMetaData model)
+	public static List<EntityMetaData> sortEntitiesByDependency(List<EntityMetaData> entityList, MolgenisMetaData model)
 			throws MetaDataException
 	{
-		List<XmlEntityMetaData> result = new ArrayList<XmlEntityMetaData>();
+		List<EntityMetaData> result = new ArrayList<EntityMetaData>();
 
 		boolean found = true;
-		List<XmlEntityMetaData> toBeMoved = new ArrayList<XmlEntityMetaData>();
+		List<EntityMetaData> toBeMoved = new ArrayList<EntityMetaData>();
 		while (entityList.size() > 0 && found)
 		{
 			found = false;
-			for (XmlEntityMetaData entity : entityList)
+			for (EntityMetaData entity : entityList)
 			{
 				List<String> deps = getDependencies(entity, model);
 
@@ -257,13 +254,13 @@ public class MolgenisMetaData
 				}
 			}
 
-			for (XmlEntityMetaData e : toBeMoved)
+			for (EntityMetaData e : toBeMoved)
 				entityList.remove(e);
 			toBeMoved.clear();
 		}
 
 		// list not empty, cyclic?
-		for (XmlEntityMetaData e : entityList)
+		for (EntityMetaData e : entityList)
 		{
 			Logger.getLogger(MolgenisMetaData.class).error(
 					"cyclic relations to '" + e.getName() + "' depends on " + getDependencies(e, model));
@@ -273,21 +270,21 @@ public class MolgenisMetaData
 		return result;
 	}
 
-	private static List<String> getDependencies(XmlEntityMetaData currentEntity, MolgenisMetaData model)
+	private static List<String> getDependencies(EntityMetaData currentEntity, MolgenisMetaData model)
 			throws MetaDataException
 	{
 		Set<String> dependencies = new HashSet<String>();
 
-		for (XmlFieldMetaData field : currentEntity.getAllFields())
+		for (FieldMetaData field : currentEntity.getAllFields())
 		{
 			if (field.getType() instanceof XrefField)
 			{
 				dependencies.add(field.getXrefEntity().getName());
 
-				XmlEntityMetaData xrefEntity = field.getXrefEntity();
+				EntityMetaData xrefEntity = field.getXrefEntity();
 
 				// also all subclasses have this xref!!!!
-				for (XmlEntityMetaData e : xrefEntity.getAllDescendants())
+				for (EntityMetaData e : xrefEntity.getAllDescendants())
 				{
 					if (!dependencies.contains(e.getName())) dependencies.add(e.getName());
 				}
@@ -297,7 +294,7 @@ public class MolgenisMetaData
 				dependencies.add(field.getXrefEntity().getName()); // mref
 				// fields
 				// including super classes and extends
-				for (XmlEntityMetaData entity : model.getEntity(field.getXrefEntity().getName()).getAllExtends())
+				for (EntityMetaData entity : model.getEntity(field.getXrefEntity().getName()).getAllExtends())
 				{
 					dependencies.add(entity.getName());
 				}
@@ -308,7 +305,7 @@ public class MolgenisMetaData
 		return new ArrayList<String>(dependencies);
 	}
 
-	private static int indexOf(List<XmlEntityMetaData> entityList, String entityName)
+	private static int indexOf(List<EntityMetaData> entityList, String entityName)
 	{
 		for (int i = 0; i < entityList.size(); i++)
 		{
@@ -317,13 +314,13 @@ public class MolgenisMetaData
 		return -1;
 	}
 
-	public int getNumberOfReferencesTo(XmlEntityMetaData e) throws MetaDataException
+	public int getNumberOfReferencesTo(EntityMetaData e) throws MetaDataException
 	{
 		int count = 0;
 
-		for (XmlEntityMetaData entity : this.getEntities())
+		for (EntityMetaData entity : this.getEntities())
 		{
-			for (XmlFieldMetaData field : entity.getImplementedFields())
+			for (FieldMetaData field : entity.getImplementedFields())
 			{
 				if (field.getType() instanceof XrefField || field.getType() instanceof MrefField)
 				{

@@ -17,7 +17,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.molgenis.data.DataSource;
 import org.molgenis.data.Repository;
-import org.molgenis.data.excel.ExcelSheetReader.RowIndexEntity;
+import org.molgenis.data.excel.ExcelSheetReader.ExcelEntity;
 import org.molgenis.io.processor.CellProcessor;
 
 public class ExcelReader implements DataSource, Closeable
@@ -104,7 +104,7 @@ public class ExcelReader implements DataSource, Closeable
 	}
 
 	@Override
-	public Repository<RowIndexEntity> getRepositoryByName(String name)
+	public Repository<ExcelEntity> getRepositoryByName(String name)
 	{
 		Sheet poiSheet = workbook.getSheet(name);
 		return poiSheet != null ? new ExcelSheetReader(poiSheet, cellProcessors) : null;
@@ -146,7 +146,7 @@ public class ExcelReader implements DataSource, Closeable
 	}
 
 	@Override
-	public Repository<RowIndexEntity> getRepositoryByEntityName(String entityName)
+	public Repository<ExcelEntity> getRepositoryByEntityName(String entityName)
 	{
 		Sheet poiSheet = workbook.getSheet(entityName);
 		return poiSheet != null ? new ExcelSheetReader(poiSheet, cellProcessors) : null;

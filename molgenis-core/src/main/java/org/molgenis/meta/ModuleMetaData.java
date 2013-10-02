@@ -24,7 +24,7 @@ public class ModuleMetaData
 	private MolgenisMetaData model;
 	
 	@XmlElement(name="entity")
-	private List<XmlEntityMetaData> entities = new ArrayList<XmlEntityMetaData>();
+	private List<EntityMetaData> entities = new ArrayList<EntityMetaData>();
 	
 	public String getName()
 	{
@@ -36,19 +36,19 @@ public class ModuleMetaData
 		this.name = name;
 	}
 
-	public synchronized List<XmlEntityMetaData> getEntities()
+	public synchronized List<EntityMetaData> getEntities()
 	{
 		return entities;
 	}
 
-	public synchronized void setEntities(List<XmlEntityMetaData> entities)
+	public synchronized void setEntities(List<EntityMetaData> entities)
 	{
 		this.entities = entities;
 	}
 	
-	public XmlEntityMetaData getEntity(String name)
+	public EntityMetaData getEntity(String name)
 	{
-		if(name != null) for (XmlEntityMetaData entity : entities)
+		if(name != null) for (EntityMetaData entity : entities)
 		{
 			if (entity.getName().toLowerCase().equals(name.toLowerCase()))
 				return entity;

@@ -1,7 +1,5 @@
 package org.molgenis.meta.types;
 
-import java.text.ParseException;
-
 import org.molgenis.meta.MetaDataException;
 
 public class TextField extends DataType
@@ -9,22 +7,22 @@ public class TextField extends DataType
 	@Override
 	public String getJavaAssignment(String value)
 	{
-		if(value == null ||value.equals("") ) return "null";
-		return "\""+value+"\"";
+		if (value == null || value.equals("")) return "null";
+		return "\"" + value + "\"";
 	}
-	
+
 	@Override
 	public String getJavaPropertyDefault()
 	{
 		return getJavaAssignment(f.getDefaultValue());
 	}
-	
+
 	@Override
 	public String getMysqlType() throws MetaDataException
 	{
 		return "TEXT";
 	}
-	
+
 	@Override
 	public String getOracleType()
 	{
@@ -35,10 +33,10 @@ public class TextField extends DataType
 	@Override
 	public String getHsqlType() throws MetaDataException
 	{
-		//these guys don't have TEXT?
+		// these guys don't have TEXT?
 		return "VARCHAR";
 	}
-	
+
 	@Override
 	public String getXsdType() throws MetaDataException
 	{
@@ -63,7 +61,7 @@ public class TextField extends DataType
 	{
 		return "string";
 	}
-	
+
 	@Override
 	public String getCppJavaPropertyType()
 	{
@@ -76,20 +74,21 @@ public class TextField extends DataType
 		return String.class;
 	}
 
-	public String getTypedValue(String value) throws ParseException
+	@Override
+	public String convert(Object value)
 	{
-		return value;
+		return TypeUtils.toString(value);
 	}
 
+	@Override
 	public String getName()
 	{
 		return "text";
 	}
-	
+
 	@Override
 	public String toString(Object value)
 	{
-		if(value == null) return "";
-		return value.toString();
+		return TypeUtils.toString(value);
 	}
 }

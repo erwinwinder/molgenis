@@ -4,6 +4,7 @@
 		<plugin id="home" name="Home" url="home"/>
 		<plugin id="protocolviewer" name="Catalog" url="protocolviewer"/>
 		<plugin id="dataexplorer" name="Data Explorer" url="dataexplorer"/>
+		<plugin id="data" name="Data" url="data"/>
 		<plugin id="entityexplorer" name="Entity Explorer" url="entityexplorer"/>
 		<plugin id="importwizard" name="Upload" url="importwizard"/>
 		<plugin id="news" name="News" url="news"/>

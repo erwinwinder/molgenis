@@ -1,6 +1,5 @@
 package org.molgenis.meta.types;
 
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,32 +12,33 @@ public class IntField extends DataType
 	{
 		return "Integer";
 	}
-	
+
 	@Override
 	public String getJavaAssignment(String value)
 	{
-		if(value == null || value.equals("")) return "null";
-		return ""+Integer.parseInt(value);
+		if (value == null || value.equals("")) return "null";
+		return "" + Integer.parseInt(value);
 	}
-	
+
 	@Override
 	public String getJavaPropertyDefault()
 	{
 		return getJavaAssignment(f.getDefaultValue());
 	}
-	
+
 	@Override
 	public String getMysqlType() throws MetaDataException
 	{
 		return "INTEGER";
 	}
-	
+
 	@Override
 	public String getOracleType() throws MetaDataException
 	{
 		return "NUMBER (10,0)";
 	}
-	
+
+	@Override
 	public String getJavaSetterType() throws MetaDataException
 	{
 		return "Integer";
@@ -49,6 +49,7 @@ public class IntField extends DataType
 	{
 		return "INT";
 	}
+
 	@Override
 	public String getXsdType()
 	{
@@ -66,38 +67,41 @@ public class IntField extends DataType
 	{
 		return "int";
 	}
-	
+
 	@Override
 	public String getCppJavaPropertyType()
 	{
 		return "Ljava/lang/Integer;";
 	}
 
+	@Override
 	public Class<?> getJavaType()
 	{
 		return Integer.class;
 	}
 
-	public Object getTypedValue(String value) throws ParseException
+	@Override
+	public Integer convert(Object value)
 	{
-		return Integer.parseInt(value);
+		return TypeUtils.toInteger(value);
 	}
-	
+
+	@Override
 	public String getName()
 	{
 		return "int";
 	}
-	
+
 	@Override
 	public List<String> getAllowedOperators()
 	{
 		return Arrays.asList("EQUALS", "NOT EQUALS", "LESS", "GREATER");
 	}
-	
+
 	@Override
 	public String toString(Object value)
 	{
-		if(value == null) return "";
+		if (value == null) return "";
 		return value.toString();
 	}
 }

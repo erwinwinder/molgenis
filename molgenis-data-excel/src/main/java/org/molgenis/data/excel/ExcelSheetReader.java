@@ -19,7 +19,7 @@ import org.molgenis.data.AbstractEntity;
 import org.molgenis.data.DefaultAttributeMetaData;
 import org.molgenis.data.DefaultEntityMetaData;
 import org.molgenis.data.Repository;
-import org.molgenis.data.excel.ExcelSheetReader.RowIndexEntity;
+import org.molgenis.data.excel.ExcelSheetReader.ExcelEntity;
 import org.molgenis.io.processor.AbstractCellProcessor;
 import org.molgenis.io.processor.CellProcessor;
 
@@ -33,7 +33,7 @@ import org.molgenis.io.processor.CellProcessor;
  * @author erwin
  * 
  */
-public class ExcelSheetReader implements Repository<RowIndexEntity>
+public class ExcelSheetReader implements Repository<ExcelEntity>
 {
 	private final Sheet sheet;
 
@@ -41,7 +41,7 @@ public class ExcelSheetReader implements Repository<RowIndexEntity>
 	private List<CellProcessor> cellProcessors;
 	/** column names index */
 	private Map<String, Integer> colNamesMap;
-	private DefaultEntityMetaData entityMetaData;
+	private EntityMetaData entityMetaData;
 
 	public ExcelSheetReader(Sheet sheet, List<CellProcessor> cellProcessors)
 	{
@@ -82,8 +82,8 @@ public class ExcelSheetReader implements Repository<RowIndexEntity>
 			{
 				for (String colName : colNamesMap.keySet())
 				{
-					entityMetaData
-							.addAttributeMetaData(new DefaultAttributeMetaData(colName, entityMetaData.getName()));
+					((DefaultEntityMetaData) entityMetaData).addAttributeMetaData(new DefaultAttributeMetaData(colName,
+							entityMetaData.getName()));
 				}
 			}
 		}
@@ -92,10 +92,10 @@ public class ExcelSheetReader implements Repository<RowIndexEntity>
 	}
 
 	@Override
-	public Iterator<RowIndexEntity> iterator()
+	public Iterator<ExcelEntity> iterator()
 	{
 		final Iterator<Row> it = sheet.iterator();
-		if (!it.hasNext()) return Collections.<RowIndexEntity> emptyList().iterator();
+		if (!it.hasNext()) return Collections.<ExcelEntity> emptyList().iterator();
 
 		// create column header index once and reuse
 		Row headerRow = it.next();
@@ -104,9 +104,9 @@ public class ExcelSheetReader implements Repository<RowIndexEntity>
 			colNamesMap = toColNamesMap(headerRow);
 		}
 
-		if (!it.hasNext()) return Collections.<RowIndexEntity> emptyList().iterator();
+		if (!it.hasNext()) return Collections.<ExcelEntity> emptyList().iterator();
 
-		return new Iterator<RowIndexEntity>()
+		return new Iterator<ExcelEntity>()
 		{
 			@Override
 			public boolean hasNext()
@@ -115,9 +115,9 @@ public class ExcelSheetReader implements Repository<RowIndexEntity>
 			}
 
 			@Override
-			public RowIndexEntity next()
+			public ExcelEntity next()
 			{
-				return new RowIndexEntity(it.next(), colNamesMap, cellProcessors, getEntityMetaData());
+				return new ExcelEntity(it.next(), colNamesMap, cellProcessors, getEntityMetaData());
 			}
 
 			@Override
@@ -144,7 +144,8 @@ public class ExcelSheetReader implements Repository<RowIndexEntity>
 		{
 			try
 			{
-				String header = AbstractCellProcessor.processCell(it.next().getStringCellValue(), true, cellProcessors);
+				String header = (String) AbstractCellProcessor.processCell(it.next().getStringCellValue(), true,
+						cellProcessors);
 				columnIdx.put(header, i++);
 			}
 			catch (final IllegalStateException ex)
@@ -158,67 +159,7 @@ public class ExcelSheetReader implements Repository<RowIndexEntity>
 		return columnIdx;
 	}
 
-	private static String toValue(Cell cell, List<CellProcessor> cellProcessors)
-	{
-		String value;
-		switch (cell.getCellType())
-		{
-			case Cell.CELL_TYPE_BLANK:
-				value = null;
-				break;
-			case Cell.CELL_TYPE_STRING:
-				value = cell.getStringCellValue();
-				break;
-			case Cell.CELL_TYPE_NUMERIC:
-				if (DateUtil.isCellDateFormatted(cell)) value = cell.getDateCellValue().toString();
-				else
-				{
-					// excel stores integer values as double values
-					// read an integer if the double value equals the
-					// integer value
-					double x = cell.getNumericCellValue();
-					if (x == Math.rint(x) && !Double.isNaN(x) && !Double.isInfinite(x)) value = String.valueOf((int) x);
-					else value = String.valueOf(x);
-				}
-				break;
-			case Cell.CELL_TYPE_BOOLEAN:
-				value = String.valueOf(cell.getBooleanCellValue());
-				break;
-			case Cell.CELL_TYPE_FORMULA:
-				// evaluate formula
-				FormulaEvaluator evaluator = cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
-				CellValue cellValue = evaluator.evaluate(cell);
-				switch (cellValue.getCellType())
-				{
-					case Cell.CELL_TYPE_BOOLEAN:
-						value = String.valueOf(cellValue.getBooleanValue());
-						break;
-					case Cell.CELL_TYPE_NUMERIC:
-						// excel stores integer values as double values
-						// read an integer if the double value equals the
-						// integer value
-						double x = cellValue.getNumberValue();
-						if (x == Math.rint(x) && !Double.isNaN(x) && !Double.isInfinite(x)) value = String
-								.valueOf((int) x);
-						else value = String.valueOf(x);
-						break;
-					case Cell.CELL_TYPE_STRING:
-						value = cellValue.getStringValue();
-						break;
-					case Cell.CELL_TYPE_BLANK:
-						value = null;
-						break;
-					default:
-						throw new RuntimeException("unsupported cell type: " + cellValue.getCellType());
-				}
-				break;
-			default:
-				throw new RuntimeException("unsupported cell type: " + cell.getCellType());
-		}
-		return AbstractCellProcessor.processCell(value, false, cellProcessors);
-	}
-
-	public static class RowIndexEntity extends AbstractEntity
+	public static class ExcelEntity extends AbstractEntity
 	{
 		private static final long serialVersionUID = 1L;
 
@@ -226,7 +167,7 @@ public class ExcelSheetReader implements Repository<RowIndexEntity>
 		private final Map<String, Integer> colNamesMap;
 		private final List<CellProcessor> cellProcessors;
 
-		public RowIndexEntity(Row row, Map<String, Integer> colNamesMap, List<CellProcessor> cellProcessors,
+		public ExcelEntity(Row row, Map<String, Integer> colNamesMap, List<CellProcessor> cellProcessors,
 				EntityMetaData entityMetaData)
 		{
 			super(entityMetaData);
@@ -242,13 +183,78 @@ public class ExcelSheetReader implements Repository<RowIndexEntity>
 		public Object get(String attributeName)
 		{
 			Integer col = colNamesMap.get(attributeName);
-			return col != null ? get(col) : null;
+			if (col != null)
+			{
+				Cell cell = row.getCell(col);
+				if (cell != null)
+				{
+					return getMetaData().getAttribute(attributeName).getDataType()
+							.convert(toValue(cell, cellProcessors));
+				}
+			}
+
+			return null;
 		}
 
-		public Object get(int col)
+		private Object toValue(Cell cell, List<CellProcessor> cellProcessors)
 		{
-			Cell cell = row.getCell(col);
-			return cell != null ? toValue(cell, cellProcessors) : null;
+			Object value;
+			switch (cell.getCellType())
+			{
+				case Cell.CELL_TYPE_BLANK:
+					value = null;
+					break;
+				case Cell.CELL_TYPE_STRING:
+					value = cell.getStringCellValue();
+					break;
+				case Cell.CELL_TYPE_NUMERIC:
+					if (DateUtil.isCellDateFormatted(cell)) value = cell.getDateCellValue().toString();
+					else
+					{
+						// excel stores integer values as double values
+						// read an integer if the double value equals the
+						// integer value
+						double x = cell.getNumericCellValue();
+						if (x == Math.rint(x) && !Double.isNaN(x) && !Double.isInfinite(x)) value = (int) x;
+						else value = x;
+					}
+					break;
+				case Cell.CELL_TYPE_BOOLEAN:
+					value = cell.getBooleanCellValue();
+					break;
+				case Cell.CELL_TYPE_FORMULA:
+					// evaluate formula
+					FormulaEvaluator evaluator = cell.getSheet().getWorkbook().getCreationHelper()
+							.createFormulaEvaluator();
+					CellValue cellValue = evaluator.evaluate(cell);
+					switch (cellValue.getCellType())
+					{
+						case Cell.CELL_TYPE_BOOLEAN:
+							value = cellValue.getBooleanValue();
+							break;
+						case Cell.CELL_TYPE_NUMERIC:
+							// excel stores integer values as double values
+							// read an integer if the double value equals the
+							// integer value
+							double x = cellValue.getNumberValue();
+							if (x == Math.rint(x) && !Double.isNaN(x) && !Double.isInfinite(x)) value = (int) x;
+							else value = x;
+							break;
+						case Cell.CELL_TYPE_STRING:
+							value = cellValue.getStringValue();
+							break;
+						case Cell.CELL_TYPE_BLANK:
+							value = null;
+							break;
+						default:
+							throw new RuntimeException("unsupported cell type: " + cellValue.getCellType());
+					}
+					break;
+				default:
+					throw new RuntimeException("unsupported cell type: " + cell.getCellType());
+			}
+
+			return AbstractCellProcessor.processCell(value, false, cellProcessors);
 		}
 
 		@Override

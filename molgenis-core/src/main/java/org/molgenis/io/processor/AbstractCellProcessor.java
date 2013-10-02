@@ -32,7 +32,7 @@ public abstract class AbstractCellProcessor implements CellProcessor
 		return this.processData;
 	}
 
-	public static String processCell(String value, boolean isHeader, List<CellProcessor> cellProcessors)
+	public static Object processCell(Object value, boolean isHeader, List<CellProcessor> cellProcessors)
 	{
 		if (cellProcessors != null)
 		{

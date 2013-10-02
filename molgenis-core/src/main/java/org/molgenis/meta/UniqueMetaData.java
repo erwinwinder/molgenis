@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlTransient;
 public class UniqueMetaData
 {
 	@XmlTransient
-	XmlEntityMetaData entity;
+	EntityMetaData entity;
 
 	@XmlAttribute(name = "fields")
 	String fields = null;
@@ -32,7 +32,7 @@ public class UniqueMetaData
 	{
 		this.entity = u.getEntity();
 		this.fields = "";
-		for (XmlFieldMetaData f : u.getFields())
+		for (FieldMetaData f : u.getFields())
 		{
 			this.fields += "," + f.getName();
 		}
@@ -47,10 +47,10 @@ public class UniqueMetaData
 		this.fields = fields;
 	}
 
-	public List<XmlFieldMetaData> getFields()
+	public List<FieldMetaData> getFields()
 	{
-		List<XmlFieldMetaData> result = new ArrayList<XmlFieldMetaData>();
-		for (XmlFieldMetaData f : entity.getAllFields())
+		List<FieldMetaData> result = new ArrayList<FieldMetaData>();
+		for (FieldMetaData f : entity.getAllFields())
 		{
 			for (String name : this.fields.split(","))
 			{
@@ -80,12 +80,12 @@ public class UniqueMetaData
 		this.subclass = subclass;
 	}
 
-	public XmlEntityMetaData getEntity()
+	public EntityMetaData getEntity()
 	{
 		return entity;
 	}
 
-	public void setEntity(XmlEntityMetaData entity)
+	public void setEntity(EntityMetaData entity)
 	{
 		this.entity = entity;
 	}

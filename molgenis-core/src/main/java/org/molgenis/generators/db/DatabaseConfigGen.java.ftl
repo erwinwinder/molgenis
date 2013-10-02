@@ -122,7 +122,8 @@ public class DatabaseConfig implements TransactionManagementConfigurer
 	public FactoryBean<EntityManagerFactory> localEntityManagerFactoryBean()
 	{
 		LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
-		entityManagerFactoryBean.setPersistenceUnitName(DEFAULT_PERSISTENCE_UNIT_NAME);
+		//entityManagerFactoryBean.setPersistenceUnitName(DEFAULT_PERSISTENCE_UNIT_NAME);
+		entityManagerFactoryBean.setPackagesToScan("org.molgenis");
 		entityManagerFactoryBean.setDataSource(dataSource());
 		entityManagerFactoryBean.setJpaDialect(jpaDialect());
 		entityManagerFactoryBean.setJpaVendorAdapter(jpaVendorAdapter());

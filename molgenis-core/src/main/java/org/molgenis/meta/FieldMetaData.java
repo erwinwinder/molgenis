@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
+import org.molgenis.AttributeMetaData;
 import org.molgenis.Entity;
 import org.molgenis.FieldTypes;
 import org.molgenis.meta.types.DataType;
@@ -20,14 +21,14 @@ import org.molgenis.meta.types.XrefField;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "field")
-public class XmlFieldMetaData
+public class FieldMetaData implements AttributeMetaData
 {
-	//T get();
-	
+	// T get();
+
 	public static final String TYPE_FIELD = "__type";
 
 	// this value will be set after parsing
-	private XmlEntityMetaData entity = null;
+	private EntityMetaData entity = null;
 
 	@XmlAttribute(name = "name")
 	private String name;
@@ -86,12 +87,12 @@ public class XmlFieldMetaData
 	@XmlAttribute(name = "mref_name")
 	private String mref_name;
 
-	public XmlFieldMetaData()
+	public FieldMetaData()
 	{
 
 	}
 
-	public XmlFieldMetaData(XmlFieldMetaData f)
+	public FieldMetaData(FieldMetaData f)
 	{
 		this.setAuto(f.getAuto());
 		this.setDefaultValue(f.getDefaultValue());
@@ -115,19 +116,18 @@ public class XmlFieldMetaData
 		this.setXrefLabel(f.xref_label);
 	}
 
-	public XmlFieldMetaData(String name)
+	public FieldMetaData(String name)
 	{
 		this.setName(name);
 	}
 
-	public void setXrefEntity(XmlEntityMetaData xrefEntity)
+	public void setXrefEntity(EntityMetaData xrefEntity)
 	{
 		if (xrefEntity != null) this.xref_entity = xrefEntity.getName();
-		else
-			this.xref_entity = null;
+		else this.xref_entity = null;
 	}
 
-	public void setXrefLabel(XmlFieldMetaData xrefLabel)
+	public void setXrefLabel(FieldMetaData xrefLabel)
 	{
 		this.setXrefLabel(xrefLabel.getName());
 	}
@@ -149,11 +149,12 @@ public class XmlFieldMetaData
 	/** Helper used by the code generators */
 	public String getJavaName()
 	{
-		if(getName() == null) return "NULL";
+		if (getName() == null) return "NULL";
 		return getName().substring(0, 1).toUpperCase() + getName().substring(1);
 	}
-	
+
 	// GETTERS and SETTERS
+	@Override
 	public String getName()
 	{
 		return name;
@@ -166,7 +167,7 @@ public class XmlFieldMetaData
 
 	public String getLabel()
 	{
-		if(label == null) return getName();
+		if (label == null) return getName();
 		return label;
 	}
 
@@ -193,6 +194,7 @@ public class XmlFieldMetaData
 		this.type = type;
 	}
 
+	@Override
 	public String getDescription()
 	{
 		return description;
@@ -203,7 +205,7 @@ public class XmlFieldMetaData
 		this.description = description;
 	}
 
-	public XmlEntityMetaData getXrefEntity()
+	public EntityMetaData getXrefEntity()
 	{
 		return this.entity.getModel().getEntity(this.xref_entity);
 	}
@@ -213,7 +215,7 @@ public class XmlFieldMetaData
 		this.xref_entity = xrefEntity;
 	}
 
-	public XmlFieldMetaData getXrefLabel()
+	public FieldMetaData getXrefLabel()
 	{
 		if (xref_label != null)
 		{
@@ -362,7 +364,7 @@ public class XmlFieldMetaData
 		this.type = stringField.getName();
 	}
 
-	public XmlFieldMetaData getXrefField()
+	public FieldMetaData getXrefField()
 	{
 		return getXrefEntity().getPrimaryKey();
 	}
@@ -382,12 +384,12 @@ public class XmlFieldMetaData
 		throw new UnsupportedOperationException("TODO");
 	}
 
-	public XmlEntityMetaData getEntity()
+	public EntityMetaData getEntity()
 	{
 		return entity;
 	}
 
-	public void setEntity(XmlEntityMetaData entity)
+	public void setEntity(EntityMetaData entity)
 	{
 		this.entity = entity;
 	}
@@ -407,6 +409,7 @@ public class XmlFieldMetaData
 	 * 
 	 * @return The string-representation.
 	 */
+	@Override
 	public String toString()
 	{
 		String str = "FieldModel(";
@@ -419,22 +422,23 @@ public class XmlFieldMetaData
 
 		// type
 		str += ", type=" + type;
-//		if (getType() instanceof StringField || getType() instanceof CharField)
-//		{
-//			str += "[" + this.length + "]";
-//		}
-//		else if (getType() instanceof XrefField || getType() instanceof MrefField)
-//		{
-//			str += "[" + this.getXrefEntity().getName() + "." + this.getXrefFieldName() + "]";
-//		}
-//		if (getType() instanceof MrefField)
-//		{
-//			str += ", mref_name=" + this.mref_name + ", mref_localid=" + this.mref_localid + ", mref_remoteid=" + this.mref_remoteid;
-//		}
-//		if (getType() instanceof XrefField || getType() instanceof MrefField)
-//		{
-//			str += ", xref_label=TODO!!";
-//		}
+		// if (getType() instanceof StringField || getType() instanceof CharField)
+		// {
+		// str += "[" + this.length + "]";
+		// }
+		// else if (getType() instanceof XrefField || getType() instanceof MrefField)
+		// {
+		// str += "[" + this.getXrefEntity().getName() + "." + this.getXrefFieldName() + "]";
+		// }
+		// if (getType() instanceof MrefField)
+		// {
+		// str += ", mref_name=" + this.mref_name + ", mref_localid=" + this.mref_localid + ", mref_remoteid=" +
+		// this.mref_remoteid;
+		// }
+		// if (getType() instanceof XrefField || getType() instanceof MrefField)
+		// {
+		// str += ", xref_label=TODO!!";
+		// }
 
 		// settings
 		str += ", auto=" + auto;
@@ -456,30 +460,30 @@ public class XmlFieldMetaData
 		return str;
 	}
 
-	public Map<String, List<XmlFieldMetaData>> allPossibleXrefLabels() throws MetaDataException
+	public Map<String, List<FieldMetaData>> allPossibleXrefLabels() throws MetaDataException
 	{
 		if (!(this.getType() instanceof XrefField) && !(this.getType() instanceof MrefField))
 		{
 			throw new MetaDataException("asking xref labels for non-xref field");
 		}
 
-		Map<String, List<XmlFieldMetaData>> result = new LinkedHashMap<String, List<XmlFieldMetaData>>();
+		Map<String, List<FieldMetaData>> result = new LinkedHashMap<String, List<FieldMetaData>>();
 		for (UniqueMetaData key : getXrefEntity().getAllUniques()) // get all
-																// except
+																	// except
 		// primary key
 		// if (!key.equals(getXrefEntity().getAllKeys().firstElement()))
 		// {
 		{
-			for (XmlFieldMetaData f : key.getFields())
+			for (FieldMetaData f : key.getFields())
 			{
 				if (f.getType() instanceof XrefField || f.getType() instanceof MrefField)
 				{
 					f = getXrefEntity().getAllField(f.getName());
 
-					Map<String, List<XmlFieldMetaData>> subpaths = f.allPossibleXrefLabels();
-					for (Entry<String, List<XmlFieldMetaData>> pair : subpaths.entrySet())
+					Map<String, List<FieldMetaData>> subpaths = f.allPossibleXrefLabels();
+					for (Entry<String, List<FieldMetaData>> pair : subpaths.entrySet())
 					{
-						List<XmlFieldMetaData> path = pair.getValue();
+						List<FieldMetaData> path = pair.getValue();
 						path.add(0, f);
 						String label = f.getName() + "_" + pair.getKey();
 						result.put(label, path);
@@ -513,7 +517,7 @@ public class XmlFieldMetaData
 				}
 				else
 				{
-					List<XmlFieldMetaData> path = new ArrayList<XmlFieldMetaData>();
+					List<FieldMetaData> path = new ArrayList<FieldMetaData>();
 					path.add(f);
 					result.put(f.getName(), path);
 				}
@@ -540,7 +544,7 @@ public class XmlFieldMetaData
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		XmlFieldMetaData other = (XmlFieldMetaData) obj;
+		FieldMetaData other = (FieldMetaData) obj;
 		if (entity == null)
 		{
 			if (other.entity != null) return false;
@@ -553,9 +557,65 @@ public class XmlFieldMetaData
 		else if (!name.equals(other.name)) return false;
 		return true;
 	}
-	
+
 	public String toString(Entity entity)
 	{
 		return this.getType().toString(entity.get(this.getName()));
+	}
+
+	@Override
+	public DataType getDataType()
+	{
+		return getType();
+	}
+
+	@Override
+	public boolean isNillable()
+	{
+		return nillable;
+	}
+
+	@Override
+	public boolean isVisible()
+	{
+		return !system;
+	}
+
+	@Override
+	public boolean isUnique()
+	{
+		return unique;
+	}
+
+	@Override
+	public boolean isIdAtrribute()
+	{
+		return entity.getPrimaryKey() == this;
+	}
+
+	@Override
+	public boolean isLabelAttribute()
+	{
+		if (entity.getLabel() == null) return false;
+
+		return entity.getLabel().equals(name);
+	}
+
+	@Override
+	public String getXrefEntityName()
+	{
+		return xref_entity;
+	}
+
+	@Override
+	public String getMrefEntityName()
+	{
+		return mref_name;
+	}
+
+	@Override
+	public String getMrefRemoteAttributeName()
+	{
+		return mref_remoteid;
 	}
 }

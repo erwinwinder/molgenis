@@ -1,6 +1,5 @@
 package org.molgenis.meta.types;
 
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -18,22 +17,22 @@ public class DecimalField extends DataType
 	@Override
 	public String getJavaAssignment(String value)
 	{
-		if(value == null || value.equals("") ) return "null";
-		return ""+Double.parseDouble(value);
+		if (value == null || value.equals("")) return "null";
+		return "" + Double.parseDouble(value);
 	}
-	
+
 	@Override
 	public String getJavaPropertyDefault()
 	{
 		return getJavaAssignment(f.getDefaultValue());
 	}
-	
+
 	@Override
 	public String getMysqlType() throws MetaDataException
 	{
 		return "DECIMAL(65,30)";
 	}
-	
+
 	@Override
 	public String getOracleType() throws MetaDataException
 	{
@@ -45,7 +44,7 @@ public class DecimalField extends DataType
 	{
 		return "DOUBLE";
 	}
-	
+
 	@Override
 	public String getXsdType()
 	{
@@ -70,21 +69,24 @@ public class DecimalField extends DataType
 		return "double";
 	}
 
+	@Override
 	public Class<?> getJavaType()
 	{
 		return Date.class;
 	}
 
-	public Double getTypedValue(String value) throws ParseException
+	@Override
+	public Double convert(Object value)
 	{
-		return Double.parseDouble(value);
+		return TypeUtils.toDouble(value);
 	}
-	
+
+	@Override
 	public String getName()
 	{
 		return "decimal";
 	}
-	
+
 	@Override
 	public List<String> getAllowedOperators()
 	{
@@ -94,7 +96,7 @@ public class DecimalField extends DataType
 	@Override
 	public String toString(Object value)
 	{
-		if(value == null) return "";
+		if (value == null) return "";
 		return value.toString();
 	}
 }

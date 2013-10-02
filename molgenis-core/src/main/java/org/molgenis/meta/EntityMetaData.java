@@ -1,6 +1,7 @@
 package org.molgenis.meta;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -16,14 +17,17 @@ import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.log4j.Logger;
+import org.molgenis.AttributeMetaData;
 import org.molgenis.meta.types.DataType;
+
+import com.google.common.collect.Iterables;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "entity")
-public class XmlEntityMetaData
+public class EntityMetaData implements org.molgenis.EntityMetaData
 {
 	@XmlTransient
-	Logger logger = Logger.getLogger(XmlEntityMetaData.class);
+	Logger logger = Logger.getLogger(EntityMetaData.class);
 
 	@XmlTransient
 	ModuleMetaData module;
@@ -40,7 +44,7 @@ public class XmlEntityMetaData
 	private String description = "No description provided";
 
 	@XmlElement(name = "field")
-	private List<XmlFieldMetaData> fields = new ArrayList<XmlFieldMetaData>();
+	private List<FieldMetaData> fields = new ArrayList<FieldMetaData>();
 
 	@XmlElement(name = "unique")
 	private List<UniqueMetaData> uniques = new ArrayList<UniqueMetaData>();
@@ -75,22 +79,22 @@ public class XmlEntityMetaData
 	}
 
 	// CONSTRUCTORS
-	public XmlEntityMetaData()
+	public EntityMetaData()
 	{
 
 	}
 
 	// HELPER METHODS
-	public XmlFieldMetaData getField(String name)
+	public FieldMetaData getField(String name)
 	{
-		for (XmlFieldMetaData f : fields)
+		for (FieldMetaData f : fields)
 		{
 			if (f.getName().trim().equals(name.trim())) return f;
 		}
 		return null;
 	}
 
-	public void addField(XmlFieldMetaData e)
+	public void addField(FieldMetaData e)
 	{
 		e.setEntity(this);
 		fields.add(e);
@@ -106,41 +110,41 @@ public class XmlEntityMetaData
 		return getModule().getName();
 	}
 
-	public List<XmlFieldMetaData> getAllFields()
+	public List<FieldMetaData> getAllFields()
 	{
-		Map<String, XmlFieldMetaData> result = new LinkedHashMap<String, XmlFieldMetaData>();
+		Map<String, FieldMetaData> result = new LinkedHashMap<String, FieldMetaData>();
 
 		if (this.getExtends() != null)
 		{
-			for (XmlFieldMetaData f : this.getExtends().getAllFields())
+			for (FieldMetaData f : this.getExtends().getAllFields())
 			{
 				result.put(f.getName(), f);
 			}
 		}
 
-		for (XmlEntityMetaData iface : this.getImplements())
+		for (EntityMetaData iface : this.getImplements())
 		{
-			for (XmlFieldMetaData f : iface.getAllFields())
+			for (FieldMetaData f : iface.getAllFields())
 			{
 				result.put(f.getName(), f);
 			}
 		}
 
-		for (XmlFieldMetaData f : this.getFields())
+		for (FieldMetaData f : this.getFields())
 		{
 			result.put(f.getName(), f);
 		}
-		return new ArrayList<XmlFieldMetaData>(result.values());
+		return new ArrayList<FieldMetaData>(result.values());
 	}
 
-	public XmlEntityMetaData getExtends()
+	public EntityMetaData getExtends()
 	{
 		return this.getModel().getEntity(this._extends);
 	}
 
-	public List<XmlEntityMetaData> getImplements()
+	public List<EntityMetaData> getImplements()
 	{
-		List<XmlEntityMetaData> result = new ArrayList<XmlEntityMetaData>();
+		List<EntityMetaData> result = new ArrayList<EntityMetaData>();
 		if (this._implements != null) for (String name : this._implements.split(","))
 		{
 			if (!"".equals(name.trim())) result.add(this.module.getModel().getEntity(name));
@@ -149,46 +153,44 @@ public class XmlEntityMetaData
 
 	}
 
-	public List<XmlFieldMetaData> getFieldsOf(DataType typeField)
+	public List<FieldMetaData> getFieldsOf(DataType typeField)
 	{
-		List<XmlFieldMetaData> result = new ArrayList<XmlFieldMetaData>();
-		for (XmlFieldMetaData f : this.getFields())
+		List<FieldMetaData> result = new ArrayList<FieldMetaData>();
+		for (FieldMetaData f : this.getFields())
 		{
 			if (f.getType().equals(typeField.getName())) result.add(f);
 		}
 		return result;
 	}
 
-	public XmlFieldMetaData getAllField(String fieldName)
+	public FieldMetaData getAllField(String fieldName)
 	{
-		XmlFieldMetaData f = getField(fieldName);
+		FieldMetaData f = getField(fieldName);
 		if (f == null && this.hasExtends()) return this.getExtends().getAllField(fieldName);
-		else
-			return f;
+		else return f;
 	}
 
-	public List<XmlFieldMetaData> getImplementedFieldsOf(DataType fieldType)
+	public List<FieldMetaData> getImplementedFieldsOf(DataType fieldType)
 	{
-		List<XmlFieldMetaData> result = new ArrayList<XmlFieldMetaData>();
-		for (XmlEntityMetaData em : this.getAllExtends())
+		List<FieldMetaData> result = new ArrayList<FieldMetaData>();
+		for (EntityMetaData em : this.getAllExtends())
 		{
 			result.addAll(em.getFieldsOf(fieldType));
 		}
 		return result;
 	}
 
-	public XmlFieldMetaData getPrimaryKey()
+	public FieldMetaData getPrimaryKey()
 	{
-		if(this.getAllUniques().size() >0 )
-			return this.getAllUniques().get(0).getFields().get(0);
+		if (this.getAllUniques().size() > 0) return this.getAllUniques().get(0).getFields().get(0);
 		return null;
 	}
 
-	public List<XmlEntityMetaData> getAllImplements()
+	public List<EntityMetaData> getAllImplements()
 	{
-		List<XmlEntityMetaData> result = new ArrayList<XmlEntityMetaData>();
-	
-		for (XmlEntityMetaData impl : this.getImplements())
+		List<EntityMetaData> result = new ArrayList<EntityMetaData>();
+
+		for (EntityMetaData impl : this.getImplements())
 		{
 			result.add(impl);
 			result.addAll(impl.getAllImplements());
@@ -197,9 +199,9 @@ public class XmlEntityMetaData
 		return result;
 	}
 
-	public List<XmlEntityMetaData> getAllExtends()
+	public List<EntityMetaData> getAllExtends()
 	{
-		List<XmlEntityMetaData> result = new ArrayList<XmlEntityMetaData>();
+		List<EntityMetaData> result = new ArrayList<EntityMetaData>();
 
 		if (this.getExtends() != null)
 		{
@@ -210,37 +212,37 @@ public class XmlEntityMetaData
 		return result;
 	}
 
-	public void addField(int i, XmlFieldMetaData f)
+	public void addField(int i, FieldMetaData f)
 	{
 		this.getFields().add(i, f);
 	}
 
-	public void removeField(XmlFieldMetaData field)
+	public void removeField(FieldMetaData field)
 	{
 		this.fields.remove(field);
 	}
 
 	public List<UniqueMetaData> getAllUniques()
 	{
-		//uniques may be multiple so check uniqueness of fields
+		// uniques may be multiple so check uniqueness of fields
 		Set<UniqueMetaData> result = new LinkedHashSet<UniqueMetaData>();
 
-		for (XmlEntityMetaData m : this.getAllExtends())
+		for (EntityMetaData m : this.getAllExtends())
 		{
 			for (UniqueMetaData u : m.getAllUniques())
 			{
 				if (!result.contains(u)) result.add(u);
 			}
 		}
-		
-		for (XmlEntityMetaData m : this.getAllImplements())
+
+		for (EntityMetaData m : this.getAllImplements())
 		{
 			for (UniqueMetaData u : m.getAllUniques())
 			{
 				if (!result.contains(u)) result.add(u);
 			}
 		}
-		
+
 		for (UniqueMetaData u : this.getUniques())
 		{
 			if (!result.contains(u)) result.add(u);
@@ -249,10 +251,10 @@ public class XmlEntityMetaData
 		return new ArrayList<UniqueMetaData>(result);
 	}
 
-	public void setXrefLabel(List<XmlFieldMetaData> labels)
+	public void setXrefLabel(List<FieldMetaData> labels)
 	{
 		String label_string = "";
-		for (XmlFieldMetaData label : labels)
+		for (FieldMetaData label : labels)
 		{
 			if (!label.equals(labels.get(0)))
 			{
@@ -263,11 +265,11 @@ public class XmlEntityMetaData
 		this.setXrefLabel(label_string);
 	}
 
-	public List<XmlEntityMetaData> getAllDescendants()
+	public List<EntityMetaData> getAllDescendants()
 	{
-		List<XmlEntityMetaData> result = new ArrayList<XmlEntityMetaData>();
+		List<EntityMetaData> result = new ArrayList<EntityMetaData>();
 
-		for (XmlEntityMetaData em : this.getModel().getEntities())
+		for (EntityMetaData em : this.getModel().getEntities())
 		{
 			if (this.getName().equals(em.getExtends()))
 			{
@@ -279,13 +281,14 @@ public class XmlEntityMetaData
 		return result;
 	}
 
-	public List<XmlFieldMetaData> getKeyFields(int keyIndex)
+	public List<FieldMetaData> getKeyFields(int keyIndex)
 	{
 		if (this.getUniques().size() > keyIndex) return this.getUniques().get(keyIndex).getFields();
-		return new ArrayList<XmlFieldMetaData>();
+		return new ArrayList<FieldMetaData>();
 	}
 
 	// GETTERS and SETTERS
+	@Override
 	public String getName()
 	{
 		return name;
@@ -298,7 +301,7 @@ public class XmlEntityMetaData
 
 	public String getLabel()
 	{
-		if(label == null) return getName();
+		if (label == null) return getName();
 		return label;
 	}
 
@@ -312,12 +315,12 @@ public class XmlEntityMetaData
 		return this.system;
 	}
 
-	public List<XmlFieldMetaData> getFields()
+	public List<FieldMetaData> getFields()
 	{
 		return fields;
 	}
 
-	public void setFields(List<XmlFieldMetaData> fields)
+	public void setFields(List<FieldMetaData> fields)
 	{
 		this.fields = fields;
 	}
@@ -328,7 +331,7 @@ public class XmlEntityMetaData
 
 		if (hasImplements())
 		{
-			for (XmlEntityMetaData e : getImplements())
+			for (EntityMetaData e : getImplements())
 			{
 				// we need to rewrite the uniques to point to the right entity
 				for (UniqueMetaData u : e.getUniques())
@@ -404,7 +407,7 @@ public class XmlEntityMetaData
 	{
 		if (xref_label == null)
 		{
-			//return this.getPrimaryKey().getName();
+			// return this.getPrimaryKey().getName();
 		}
 		return xref_label;
 	}
@@ -414,24 +417,24 @@ public class XmlEntityMetaData
 		this.xref_label = xref_label;
 	}
 
-	public List<XmlFieldMetaData> getImplementedFields()
+	public List<FieldMetaData> getImplementedFields()
 	{
-		Map<String,XmlFieldMetaData> result = new LinkedHashMap<String,XmlFieldMetaData>();
-		
-		for (XmlEntityMetaData i : this.getImplements())
+		Map<String, FieldMetaData> result = new LinkedHashMap<String, FieldMetaData>();
+
+		for (EntityMetaData i : this.getImplements())
 		{
-			for(XmlFieldMetaData f: i.getAllFields())
+			for (FieldMetaData f : i.getAllFields())
 			{
-				if(!result.containsKey(f.getName())) result.put(f.getName(), f);
+				if (!result.containsKey(f.getName())) result.put(f.getName(), f);
 			}
 		}
-		
-		for(XmlFieldMetaData f: this.getFields())
+
+		for (FieldMetaData f : this.getFields())
 		{
-			if(!result.containsKey(f.getName()))  result.put(f.getName(), f);
+			if (!result.containsKey(f.getName())) result.put(f.getName(), f);
 		}
 
-		return new ArrayList<XmlFieldMetaData>(result.values());
+		return new ArrayList<FieldMetaData>(result.values());
 	}
 
 	public void setImplements(String _implements)
@@ -443,10 +446,11 @@ public class XmlEntityMetaData
 	{
 		logger.debug("validate 'extends' and 'implements' relationships...");
 
-		List<XmlEntityMetaData> ifaces = this.getAllImplements();
-		for (XmlEntityMetaData iface : ifaces)
+		List<EntityMetaData> ifaces = this.getAllImplements();
+		for (EntityMetaData iface : ifaces)
 		{
-			if (!iface.getAbstract()) throw new MetaDataException(this.getName() + " cannot implement " + iface.getName() + " because it is not abstract");
+			if (!iface.getAbstract()) throw new MetaDataException(this.getName() + " cannot implement "
+					+ iface.getName() + " because it is not abstract");
 
 			// copy primary key and xref_label from interface to subclass,
 			// a primary key can have only one field.
@@ -454,14 +458,14 @@ public class XmlEntityMetaData
 			// composite keys are ignored
 			try
 			{
-				XmlFieldMetaData pkeyField = null;
+				FieldMetaData pkeyField = null;
 				if (iface.getUniques().size() > 0 && iface.getUniques().get(0).getFields().size() == 1)
 				{
 					pkeyField = iface.getUniques().get(0).getFields().get(0);
 					// if not already exists
 					if (this.getField(pkeyField.getName()) == null)
 					{
-						XmlFieldMetaData field = new XmlFieldMetaData(pkeyField);
+						FieldMetaData field = new FieldMetaData(pkeyField);
 						field.setEntity(this);
 						field.setAuto(pkeyField.getAuto());
 						field.setNillable(pkeyField.getNillable());
@@ -471,7 +475,8 @@ public class XmlEntityMetaData
 						field.setXrefEntity(iface.getName());
 						field.setHidden(true);
 
-						logger.debug("copy primary key " + field.getName() + " from interface " + iface.getName() + " to " + this.getName());
+						logger.debug("copy primary key " + field.getName() + " from interface " + iface.getName()
+								+ " to " + this.getName());
 						this.addField(field);
 					}
 				}
@@ -484,22 +489,24 @@ public class XmlEntityMetaData
 			}
 		}
 
-		XmlEntityMetaData parent = this.getExtends();
+		EntityMetaData parent = this.getExtends();
 
-		if (parent == null) throw new MetaDataException("superclass '" + this.getExtends() + "' for '" + this.getName() + "' is missing");
+		if (parent == null) throw new MetaDataException("superclass '" + this.getExtends() + "' for '" + this.getName()
+				+ "' is missing");
 
 		if (parent != null)
 		{
-			if (parent.getAbstract()) throw new MetaDataException(this.getName() + " cannot extend " + parent.getName() + " because superclas " + parent.getName() + " is abstract (use implements)");
-			if (this.getAbstract()) throw new MetaDataException(this.getName() + " cannot extend " + parent.getName() + " because " + this.getName() + " itself is abstract");
+			if (parent.getAbstract()) throw new MetaDataException(this.getName() + " cannot extend " + parent.getName()
+					+ " because superclas " + parent.getName() + " is abstract (use implements)");
+			if (this.getAbstract()) throw new MetaDataException(this.getName() + " cannot extend " + parent.getName()
+					+ " because " + this.getName() + " itself is abstract");
 		}
 	}
 
 	/**
-	 * Copy fields to subclasses (redundantly) so this field can be part of an
-	 * extra constraint. E.g. a superclass has non-unique field 'name'; in the
-	 * subclass it is said to be unique and a copy is made to capture this
-	 * constraint in the table for the subclass.
+	 * Copy fields to subclasses (redundantly) so this field can be part of an extra constraint. E.g. a superclass has
+	 * non-unique field 'name'; in the subclass it is said to be unique and a copy is made to capture this constraint in
+	 * the table for the subclass.
 	 * 
 	 * @param model
 	 * @throws MetaDataException
@@ -514,18 +521,19 @@ public class XmlEntityMetaData
 		{
 			for (UniqueMetaData aKey : this.getUniques())
 			{
-				for (XmlFieldMetaData f : aKey.getFields())
+				for (FieldMetaData f : aKey.getFields())
 				{
 					if (this.getField(f.getName()) == null)
 					{
 						// copy the field
-						XmlFieldMetaData copy = new XmlFieldMetaData(f);
+						FieldMetaData copy = new FieldMetaData(f);
 						copy.setEntity(this);
 						copy.setAuto(f.getAuto());
 						copy.setSystem(true);
 						this.addField(copy);
 
-						logger.warn(aKey.toString() + " cannot be enforced on " + this.getName() + ", copying " + f.getEntity().getName() + "." + f.getName() + " to subclass as " + copy.getName());
+						logger.warn(aKey.toString() + " cannot be enforced on " + this.getName() + ", copying "
+								+ f.getEntity().getName() + "." + f.getName() + " to subclass as " + copy.getName());
 					}
 				}
 			}
@@ -579,7 +587,7 @@ public class XmlEntityMetaData
 	 * 
 	 * @return Entity
 	 */
-	public XmlEntityMetaData getRootAncestor()
+	public EntityMetaData getRootAncestor()
 	{
 		if (this.getExtends() != null)
 		{
@@ -611,10 +619,10 @@ public class XmlEntityMetaData
 		this.uniques.add(i, m);
 	}
 
-	public List<XmlFieldMetaData> getInheritedFields()
+	public List<FieldMetaData> getInheritedFields()
 	{
 		if (this.hasExtends()) return getExtends().getAllFields();
-		return new ArrayList<XmlFieldMetaData>();
+		return new ArrayList<FieldMetaData>();
 	}
 
 	public List<UniqueMetaData> getUniqueKeysWithoutPk() throws MetaDataException
@@ -623,7 +631,7 @@ public class XmlEntityMetaData
 
 		if (hasImplements())
 		{
-			for (XmlEntityMetaData e : getImplements())
+			for (EntityMetaData e : getImplements())
 			{
 				// we need to rewrite the uniques to point to the right entity
 				for (UniqueMetaData u : e.getUniques())
@@ -661,12 +669,12 @@ public class XmlEntityMetaData
 	/**
 	 * Get the subclasses of this entity.
 	 */
-	public List<XmlEntityMetaData> getDescendants()
+	public List<EntityMetaData> getDescendants()
 	{
-		Vector<XmlEntityMetaData> descendants = new Vector<XmlEntityMetaData>();
+		Vector<EntityMetaData> descendants = new Vector<EntityMetaData>();
 
 		// get the model
-		for (XmlEntityMetaData e : getModel().getEntities())
+		for (EntityMetaData e : getModel().getEntities())
 		{
 			if (e.hasExtends() && e.getExtends().getName().equals(getName()))
 			{
@@ -686,19 +694,56 @@ public class XmlEntityMetaData
 	{
 		this.indices = indices;
 	}
-	
+
 	public Iterable<String> getFieldNames()
 	{
 		List<String> result = new ArrayList<String>();
-		for(XmlFieldMetaData f: this.getFields())
+		for (FieldMetaData f : this.getFields())
 		{
 			result.add(f.getName());
 		}
 		return result;
 	}
-	
+
+	@Override
 	public String toString()
 	{
 		return String.format("entity(name=%s)", this.getName());
+	}
+
+	@Override
+	public String getRole()
+	{
+		return org.molgenis.EntityMetaData.ROLE_ENTITY;
+	}
+
+	@Override
+	public boolean isVisible()
+	{
+		return !_abstract && !system;
+	}
+
+	@Override
+	public Iterable<AttributeMetaData> getAttributes()
+	{
+		return Arrays.asList(Iterables.toArray(fields, AttributeMetaData.class));
+	}
+
+	@Override
+	public AttributeMetaData getAttribute(String attributeName)
+	{
+		return getField(attributeName);
+	}
+
+	@Override
+	public AttributeMetaData getIdAttribute()
+	{
+		return getPrimaryKey();
+	}
+
+	@Override
+	public AttributeMetaData getLabelAttribute()
+	{
+		return getAttribute(label);
 	}
 }

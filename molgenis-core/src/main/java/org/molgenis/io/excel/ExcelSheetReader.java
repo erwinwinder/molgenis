@@ -126,17 +126,19 @@ public class ExcelSheetReader implements TupleReader
 		int i = 0;
 		for (Iterator<Cell> it = headerRow.cellIterator(); it.hasNext();)
 		{
-            try
-            {
-                String header = AbstractCellProcessor.processCell(it.next().getStringCellValue(), true, cellProcessors);
-                columnIdx.put(header, i++);
-            }
-            catch (final IllegalStateException ex)
-            {
-                final int row = headerRow.getRowNum();
-                final String column = CellReference.convertNumToColString(i);
-                throw new IllegalStateException("Invalid value at [" + sheet.getSheetName() + "] " + column + row + 1, ex);
-            }
+			try
+			{
+				String header = (String) AbstractCellProcessor.processCell(it.next().getStringCellValue(), true,
+						cellProcessors);
+				columnIdx.put(header, i++);
+			}
+			catch (final IllegalStateException ex)
+			{
+				final int row = headerRow.getRowNum();
+				final String column = CellReference.convertNumToColString(i);
+				throw new IllegalStateException("Invalid value at [" + sheet.getSheetName() + "] " + column + row + 1,
+						ex);
+			}
 		}
 		return columnIdx;
 	}
@@ -198,7 +200,7 @@ public class ExcelSheetReader implements TupleReader
 			default:
 				throw new RuntimeException("unsupported cell type: " + cell.getCellType());
 		}
-		return AbstractCellProcessor.processCell(value, false, cellProcessors);
+		return (String) AbstractCellProcessor.processCell(value, false, cellProcessors);
 	}
 
 	public static class ExcelTuple extends AbstractTuple

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/tx
+http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<bean
+		class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
+	<bean
+		class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor" />
+
+<bean
+		class="org.molgenis.controllers.EntityController" abstract="true" />
+
+	<context:component-scan base-package="org.molgenis" />
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		p:driverClassName="com.mysql.jdbc.Driver"
+		p:url="jdbc:mysql://localhost/molgenis?rewriteBatchedStatements=true"
+		p:username="molgenis" p:password="molgenis" p:initialSize="5"
+		p:maxActive="10">
+	</bean>
+
+	<bean
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+		id="entityManagerFactory">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean class="org.springframework.orm.jpa.JpaTransactionManager"
+		id="transactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+
+	<context:annotation-config />
+	<tx:annotation-driven />
+
+</beans>

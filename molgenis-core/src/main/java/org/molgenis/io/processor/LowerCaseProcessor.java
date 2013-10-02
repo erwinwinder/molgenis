@@ -15,8 +15,13 @@ public class LowerCaseProcessor extends AbstractCellProcessor
 	}
 
 	@Override
-	public String process(String value)
+	public Object process(Object value)
 	{
-		return value != null ? value.toLowerCase() : null;
+		if ((value == null) || (!(value instanceof String)))
+		{
+			return value;
+		}
+
+		return ((String) value).toLowerCase();
 	}
 }

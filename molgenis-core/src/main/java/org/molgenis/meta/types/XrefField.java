@@ -1,42 +1,41 @@
 package org.molgenis.meta.types;
 
-import java.text.ParseException;
-
-import org.molgenis.meta.XmlFieldMetaData;
+import org.molgenis.meta.FieldMetaData;
 import org.molgenis.meta.MetaDataException;
 
-public class XrefField extends DataType 
-{	
+public class XrefField extends DataType
+{
 	@Override
 	public String getJavaAssignment(String value)
 	{
 		return "NOT IMPLEMENTED";
 	}
-	
+
 	@Override
 	public String getJavaPropertyType() throws MetaDataException
 	{
-		return f.getXrefEntity().getNamespace()+"."+f.getXrefEntity().getName();
+		return f.getXrefEntity().getNamespace() + "." + f.getXrefEntity().getName();
 	}
-	
+
 	@Override
 	public String getJavaPropertyDefault()
 	{
-		if(f.getDefaultValue() == null || f.getDefaultValue() == "") return "null";
+		if (f.getDefaultValue() == null || f.getDefaultValue() == "") return "null";
 		return f.getDefaultValue();
 	}
-	
+
+	@Override
 	public String getJavaGetterType()
 	{
 		return "List";
 	}
-	
+
 	@Override
 	public String getMysqlType() throws MetaDataException
 	{
 		return getFieldType(f.getXrefField()).getMysqlType();
 	}
-	
+
 	@Override
 	public String getOracleType() throws MetaDataException
 	{
@@ -48,7 +47,8 @@ public class XrefField extends DataType
 	{
 		return getFieldType(f.getXrefField()).getHsqlType();
 	}
-	
+
+	@Override
 	public String getXsdType() throws MetaDataException
 	{
 		return getFieldType(f.getXrefField()).getXsdType();
@@ -63,14 +63,14 @@ public class XrefField extends DataType
 	@Override
 	public String getCppPropertyType() throws MetaDataException
 	{
-		XmlFieldMetaData f_ref = f.getXrefField();
+		FieldMetaData f_ref = f.getXrefField();
 		return getFieldType(f_ref).getCppPropertyType();
 	}
-	
+
 	@Override
 	public String getCppJavaPropertyType() throws MetaDataException
 	{
-		XmlFieldMetaData f_ref = f.getXrefField();
+		FieldMetaData f_ref = f.getXrefField();
 		return getFieldType(f_ref).getCppJavaPropertyType();
 	}
 
@@ -81,21 +81,21 @@ public class XrefField extends DataType
 	}
 
 	@Override
-	public Object getTypedValue(String value) throws ParseException
+	public String convert(Object value)
 	{
-		throw new UnsupportedOperationException("Xref conversion not supported.");
+		return TypeUtils.toString(value);
 	}
-	
+
+	@Override
 	public String getName()
 	{
 		return "xref";
 	}
-	
+
 	@Override
 	public String toString(Object value)
 	{
-		if(value == null) return "";
-		return value.toString();
+		return TypeUtils.toString(value);
 	}
 
 }

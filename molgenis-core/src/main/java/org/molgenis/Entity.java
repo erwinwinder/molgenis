@@ -18,6 +18,13 @@ public interface Entity extends Serializable
 	Object get(String attributeName);
 
 	/**
+	 * Get a representation of the value as it will be displayed to the user. (Nicely formatted)
+	 * 
+	 * @return
+	 */
+	String getDisplayValue(String attributeName);
+
+	/**
 	 * Set the value of an attribute
 	 * 
 	 * @param attributeName

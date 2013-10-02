@@ -1,6 +1,5 @@
 package org.molgenis.meta.types;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -78,16 +77,19 @@ public class DateField extends DataType
 		return "Ljava/util/Date;";
 	}
 
+	@Override
 	public Class<?> getJavaType()
 	{
 		return Date.class;
 	}
 
-	public Date getTypedValue(String value) throws ParseException
+	@Override
+	public Date convert(Object value)
 	{
-		return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(value);
+		return TypeUtils.toDate(value);
 	}
 
+	@Override
 	public String getName()
 	{
 		return "date";
@@ -104,6 +106,6 @@ public class DateField extends DataType
 	{
 		if (value == null) return "";
 		if (value instanceof Date) return new SimpleDateFormat("MM/dd/yyyy").format((Date) value);
-		throw new RuntimeException("cannot convert "+value+" to date");
+		throw new RuntimeException("cannot convert " + value + " to date");
 	}
 }

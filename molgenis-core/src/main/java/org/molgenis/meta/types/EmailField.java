@@ -1,7 +1,5 @@
 package org.molgenis.meta.types;
 
-import java.text.ParseException;
-
 import org.molgenis.meta.MetaDataException;
 
 public class EmailField extends DataType
@@ -9,10 +7,10 @@ public class EmailField extends DataType
 	@Override
 	public String getJavaAssignment(String value) throws MetaDataException
 	{
-		if(value == null || value.equals("") ) return "null";
-		return "\""+value+"\"";
+		if (value == null || value.equals("")) return "null";
+		return "\"" + value + "\"";
 	}
-	
+
 	@Override
 	public String getJavaPropertyDefault() throws MetaDataException
 	{
@@ -30,7 +28,7 @@ public class EmailField extends DataType
 	{
 		return "VARCHAR(255)";
 	}
-	
+
 	@Override
 	public String getOracleType() throws MetaDataException
 	{
@@ -42,6 +40,7 @@ public class EmailField extends DataType
 	{
 		return "VARCHAR(255)";
 	}
+
 	@Override
 	public String getXsdType() throws MetaDataException
 	{
@@ -59,34 +58,35 @@ public class EmailField extends DataType
 	{
 		return "string";
 	}
-	
+
 	@Override
 	public String getCppJavaPropertyType()
 	{
 		return "Ljava/lang/String;";
 	}
 
+	@Override
 	public Class<?> getJavaType()
 	{
 		return String.class;
 	}
 
 	@Override
-	public String getTypedValue(String value) throws ParseException
+	public String convert(Object value)
 	{
-		return value;
+		return TypeUtils.toString(value);
 	}
 
-
+	@Override
 	public String getName()
 	{
 		return "email";
 	}
-	
+
 	@Override
 	public String toString(Object value)
 	{
-		if(value == null) return "";
+		if (value == null) return "";
 		return value.toString();
 	}
 }

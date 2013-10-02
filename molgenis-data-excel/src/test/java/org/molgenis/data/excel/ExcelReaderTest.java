@@ -10,7 +10,7 @@ import static org.testng.Assert.assertNull;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.molgenis.data.excel.ExcelSheetReader.RowIndexEntity;
+import org.molgenis.Entity;
 import org.molgenis.io.processor.CellProcessor;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -52,7 +52,7 @@ public class ExcelReaderTest
 		for (String sheetName : excelReader.getRepositoryNames())
 		{
 			for (@SuppressWarnings("unused")
-			RowIndexEntity entity : excelReader.getRepositoryByName(sheetName))
+			Entity entity : excelReader.getRepositoryByName(sheetName))
 			{
 			}
 		}
@@ -69,7 +69,7 @@ public class ExcelReaderTest
 
 		for (String sheetName : excelReader.getRepositoryNames())
 		{
-			for (RowIndexEntity entity : excelReader.getRepositoryByName(sheetName))
+			for (Entity entity : excelReader.getRepositoryByName(sheetName))
 			{
 				entity.get("col2");
 			}

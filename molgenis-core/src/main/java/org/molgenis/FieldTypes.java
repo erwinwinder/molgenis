@@ -4,16 +4,16 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
-import org.molgenis.meta.XmlFieldMetaData;
+import org.molgenis.meta.FieldMetaData;
 import org.molgenis.meta.MetaDataException;
 import org.molgenis.meta.types.AutoidField;
 import org.molgenis.meta.types.BoolField;
+import org.molgenis.meta.types.DataType;
 import org.molgenis.meta.types.DateField;
 import org.molgenis.meta.types.DatetimeField;
 import org.molgenis.meta.types.DecimalField;
 import org.molgenis.meta.types.EmailField;
 import org.molgenis.meta.types.EnumField;
-import org.molgenis.meta.types.DataType;
 import org.molgenis.meta.types.FreemarkerField;
 import org.molgenis.meta.types.IntField;
 import org.molgenis.meta.types.LongField;
@@ -24,8 +24,8 @@ import org.molgenis.meta.types.TextField;
 import org.molgenis.meta.types.XrefField;
 
 /**
- * Singleton class that holds all known field types in MOLGENIS. For each
- * FieldType it can be defined how to behave in jdbc, jave <br>
+ * Singleton class that holds all known field types in MOLGENIS. For each FieldType it can be defined how to behave in
+ * jdbc, jave <br>
  * 
  * @see DataType interface
  */
@@ -64,7 +64,7 @@ public class FieldTypes
 	{
 		types.put(ft.getClass().getSimpleName().toLowerCase(), ft);
 	}
-	
+
 	public static DataType getType(String name)
 	{
 		init();
@@ -79,7 +79,7 @@ public class FieldTypes
 		}
 	}
 
-	public static DataType get(XmlFieldMetaData f) throws MetaDataException
+	public static DataType get(FieldMetaData f) throws MetaDataException
 	{
 		init();
 		try

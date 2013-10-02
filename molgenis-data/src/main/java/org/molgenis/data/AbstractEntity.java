@@ -64,4 +64,16 @@ public abstract class AbstractEntity implements Entity
 		return labelAttribute.getDataType().toString(label);
 	}
 
+	@Override
+	public String getDisplayValue(String attributeName)
+	{
+		AttributeMetaData attribute = entityMetaData.getAttribute(attributeName);
+		if (attribute != null)
+		{
+			return attribute.getDataType().toString(get(attributeName));
+		}
+
+		return null;
+	}
+
 }

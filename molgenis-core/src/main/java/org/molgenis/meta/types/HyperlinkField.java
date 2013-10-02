@@ -1,7 +1,5 @@
 package org.molgenis.meta.types;
 
-import java.text.ParseException;
-
 import org.molgenis.meta.MetaDataException;
 
 public class HyperlinkField extends DataType
@@ -11,26 +9,26 @@ public class HyperlinkField extends DataType
 	{
 		return "String";
 	}
-	
+
 	@Override
 	public String getJavaAssignment(String value)
 	{
-		if(value == null || value.equals("") ) return "null";
-		return "\""+value+"\"";
+		if (value == null || value.equals("")) return "null";
+		return "\"" + value + "\"";
 	}
-	
+
 	@Override
 	public String getJavaPropertyDefault()
 	{
 		return getJavaAssignment(f.getDefaultValue());
 	}
-	
+
 	@Override
 	public String getMysqlType() throws MetaDataException
 	{
 		return "VARCHAR(255)";
 	}
-	
+
 	@Override
 	public String getOracleType() throws MetaDataException
 	{
@@ -42,6 +40,7 @@ public class HyperlinkField extends DataType
 	{
 		return "TEXT";
 	}
+
 	@Override
 	public String getXsdType()
 	{
@@ -66,26 +65,27 @@ public class HyperlinkField extends DataType
 		return "Ljava/lang/String;";
 	}
 
+	@Override
 	public Class<?> getJavaType()
 	{
 		return String.class;
 	}
 
 	@Override
-	public String getTypedValue(String value) throws ParseException
+	public String convert(Object value)
 	{
-		return value;
+		return TypeUtils.toString(value);
 	}
-	
+
+	@Override
 	public String getName()
 	{
 		return "hyperlink";
 	}
-	
+
 	@Override
 	public String toString(Object value)
 	{
-		if(value == null) return "";
-		return value.toString();
+		return TypeUtils.toString(value);
 	}
 }

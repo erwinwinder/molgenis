@@ -1,0 +1,44 @@
+<molgenis name="org.molgenis.test.inheritance">
+	<entity name="interfaceC" abstract="true">
+		<field name="nameC" label="Name C" type="varchar" />
+		<field name="xrefC" type="xref" xref_entity="VarcharEntity" />
+	</entity>
+	<entity name="ClassA">
+		<field name="id" type="autoid" />
+		<field name="fieldA" type="string" />
+		<unique fields="fieldA" subclass="true" />
+	</entity>
+	<entity name="BextendsA" extends="ClassA">
+		<field name="fieldB" type="string" />
+	</entity>
+	<entity name="CextendsA" extends="ClassA">
+		<field name="fieldC" type="string" />
+	</entity>
+	<entity name="DextendsB" extends="BextendsA">
+		<field name="fieldD" type="string" />
+	</entity>
+	<entity name="InterfaceA" abstract="true">
+		<field name="id" type="autoid" />
+		<field name="fieldA" type="string" unique="true" />
+	</entity>
+	<entity name="BimplementsA" implements="InterfaceA">
+		<field name="fieldB" type="string" />
+		<field name="IssueType" description="Issue" />
+	</entity>
+	<entity name="CimplementsA" implements="InterfaceA">
+		<field name="fieldC" type="string" />
+	</entity>
+	<entity name="DextendsBimplementsA" extends="BimplementsA">
+		<field name="fieldD" type="string" />
+		<!-- <unique fields="fieldD,__Type" description="known problem with constraint 
+			between classes" /> -->
+	</entity>
+	<entity name="guessMe">
+		<field name="thename" />
+		<field name="guessMeId" type="autoid" />
+	</entity>
+	<entity name="GuessMeXref">
+		<field name="guessMeXrefId" type="autoid" />
+		<field name="guessMeId" type="int" />
+	</entity>
+</molgenis>

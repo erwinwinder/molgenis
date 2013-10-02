@@ -12,7 +12,7 @@ import java.util.Iterator;
 
 import org.molgenis.AttributeMetaData;
 import org.molgenis.Entity;
-import org.molgenis.data.excel.ExcelSheetReader.RowIndexEntity;
+import org.molgenis.data.excel.ExcelSheetReader.ExcelEntity;
 import org.molgenis.io.processor.CellProcessor;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -97,7 +97,7 @@ public class ExcelSheetReaderTest
 	@Test
 	public void iterator()
 	{
-		Iterator<RowIndexEntity> it = excelSheetReader.iterator();
+		Iterator<ExcelEntity> it = excelSheetReader.iterator();
 		assertTrue(it.hasNext());
 
 		Entity row1 = it.next();
@@ -131,7 +131,7 @@ public class ExcelSheetReaderTest
 		assertTrue(headerIt.hasNext());
 		assertEquals(headerIt.next().getName(), "col2");
 
-		Iterator<RowIndexEntity> it = excelSheetReader.iterator();
+		Iterator<ExcelEntity> it = excelSheetReader.iterator();
 		assertTrue(it.hasNext());
 
 		Entity row1 = it.next();

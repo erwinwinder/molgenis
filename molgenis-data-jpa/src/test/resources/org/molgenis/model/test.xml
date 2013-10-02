@@ -1,0 +1,25 @@
+<molgenis name="org.molgenis.test">
+	<description>test module</description>
+	<entity name="address" label="FirstName">
+		<!-- test -->
+		<description>This is a test</description>
+		<field name="id" type="autoid" />
+		<field name="FirstName" />
+		<field name="LastName" />
+		<field name="Birthday" type="date" />
+		<unique fields="id"  />
+	</entity>
+
+
+	<!-- entity name="ImageEntity"> <field name="id" type="autoid" /> <field 
+		name="normalImage" label="Normal Image" type="image" /> <field name="readonlyImage" 
+		label="Readonly Image" type="image" readonly="true" /> <field name="nillableImage" 
+		label="Nillable Image" type="image" nillable="true" /> </entity -->
+	<!-- entity name="DecoratedEntity" decorator="test.decorators.MyDecorator2"> 
+		<field name="id" type="autoid" /> <field name="triggeredField" description="Trigger 
+		will put something here..." /> </entity -->
+
+	<!-- <form name="scherm1"> <menu name="scherm2" /> <plugin name="scherm3" 
+		/> </form> -->
+
+</molgenis>

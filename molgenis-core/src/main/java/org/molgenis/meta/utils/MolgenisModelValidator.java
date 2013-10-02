@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
-import org.molgenis.meta.XmlEntityMetaData;
-import org.molgenis.meta.XmlFieldMetaData;
+import org.molgenis.meta.EntityMetaData;
+import org.molgenis.meta.FieldMetaData;
 import org.molgenis.meta.ModuleMetaData;
 import org.molgenis.meta.MolgenisMetaData;
 import org.molgenis.meta.MetaDataException;
@@ -58,9 +58,9 @@ public class MolgenisModelValidator
 
 	public static void convertTypeIsAutoidToIntField(MolgenisMetaData model)
 	{
-		for (XmlEntityMetaData e : model.getEntities())
+		for (EntityMetaData e : model.getEntities())
 		{
-			for (XmlFieldMetaData f : e.getFields())
+			for (FieldMetaData f : e.getFields())
 			{
 				if ("autoid".equals(f.getType()))
 				{
@@ -99,7 +99,7 @@ public class MolgenisModelValidator
 	static public void copyFieldsToSubclassToEnforceConstraints(MolgenisMetaData model) throws MetaDataException
 	{
 		logger.debug("copy fields to subclass for constrain checking...");
-		for (XmlEntityMetaData e : model.getEntities())
+		for (EntityMetaData e : model.getEntities())
 		{
 			// copy keyfields to subclasses to ensure that keys can be
 			// enforced (if the key includes superclass fields).
@@ -107,12 +107,12 @@ public class MolgenisModelValidator
 			{
 				for (UniqueMetaData aKey : e.getUniques())
 				{
-					for (XmlFieldMetaData f : aKey.getFields())
+					for (FieldMetaData f : aKey.getFields())
 					{
 						if (e.getField(f.getName()) == null)
 						{
 							// copy the field
-							XmlFieldMetaData copy = new XmlFieldMetaData(f);
+							FieldMetaData copy = new FieldMetaData(f);
 							copy.setEntity(e);
 							copy.setAuto(f.getAuto());
 							copy.setSystem(true);
@@ -141,13 +141,13 @@ public class MolgenisModelValidator
 
 		// copy mrefs from interfaces to implementing entities
 		// also rename the target from interface to entity
-		for (XmlEntityMetaData entity : model.getEntities())
+		for (EntityMetaData entity : model.getEntities())
 		{
-			for (XmlEntityMetaData iface : entity.getImplements())
+			for (EntityMetaData iface : entity.getImplements())
 			{
-				for (XmlFieldMetaData mref : iface.getFieldsOf(new MrefField()))
+				for (FieldMetaData mref : iface.getFieldsOf(new MrefField()))
 				{
-					XmlFieldMetaData f = new XmlFieldMetaData(mref);
+					FieldMetaData f = new FieldMetaData(mref);
 					f.setEntity(entity);
 
 					String mrefName = entity.getName() + "_" + f.getName();
@@ -162,9 +162,9 @@ public class MolgenisModelValidator
 		}
 
 		// remove interfaces from entities
-		for (XmlEntityMetaData entity : model.getEntities())
+		for (EntityMetaData entity : model.getEntities())
 		{
-			if (entity.getAbstract()) for (XmlFieldMetaData mref : entity.getFieldsOf(new MrefField()))
+			if (entity.getAbstract()) for (FieldMetaData mref : entity.getFieldsOf(new MrefField()))
 			{
 				entity.removeField(mref);
 			}
@@ -183,14 +183,14 @@ public class MolgenisModelValidator
 
 	public static void validateNameSize(MolgenisMetaData model) throws MetaDataException
 	{
-		for (XmlEntityMetaData e : model.getEntities())
+		for (EntityMetaData e : model.getEntities())
 		{
 			// maximum num of chars in oracle table name of column is 30
 			if (e.getName().length() > 30)
 			{
 				throw new MetaDataException(String.format("table name %s is longer than %d", e.getName(), 30));
 			}
-			for (XmlFieldMetaData f : e.getFields())
+			for (FieldMetaData f : e.getFields())
 			{
 				if (f.getName().length() > 30)
 				{
@@ -202,15 +202,15 @@ public class MolgenisModelValidator
 
 	public static void addXrefLabelsToEntities(MolgenisMetaData model) throws MetaDataException
 	{
-		for (XmlEntityMetaData e : model.getEntities())
+		for (EntityMetaData e : model.getEntities())
 		{
 			if (e.getXrefLabel() == null)
 			{
 				// still empty then construct from secondary key
-				List<XmlFieldMetaData> result = new ArrayList<XmlFieldMetaData>();
+				List<FieldMetaData> result = new ArrayList<FieldMetaData>();
 				if (e.getAllUniques().size() > 1)
 				{
-					for (XmlFieldMetaData f : e.getAllUniques().get(1).getFields())
+					for (FieldMetaData f : e.getAllUniques().get(1).getFields())
 						result.add(f);
 					e.setXrefLabel(result);
 				}
@@ -218,7 +218,7 @@ public class MolgenisModelValidator
 				// otherwise use primary key
 				else if (e.getAllUniques().size() > 0)
 				{
-					for (XmlFieldMetaData f : e.getAllUniques().get(0).getFields())
+					for (FieldMetaData f : e.getAllUniques().get(0).getFields())
 						result.add(f);
 					e.setXrefLabel(result);
 				}
@@ -232,7 +232,7 @@ public class MolgenisModelValidator
 
 	public static void validatePrimaryKeys(MolgenisMetaData model) throws MetaDataException
 	{
-		for (XmlEntityMetaData e : model.getEntities())
+		for (EntityMetaData e : model.getEntities())
 			if (!e.getAbstract())
 			{
 				if (e.getAllUniques().size() == 0) throw new MetaDataException("entity '" + e.getName()
@@ -249,15 +249,15 @@ public class MolgenisModelValidator
 	 */
 	public static void copyDefaultXrefLabels(MolgenisMetaData model) throws MetaDataException
 	{
-		for (XmlEntityMetaData e : model.getEntities())
+		for (EntityMetaData e : model.getEntities())
 		{
-			for (XmlFieldMetaData f : e.getFields())
+			for (FieldMetaData f : e.getFields())
 			{
 				if (f.getType() instanceof XrefField || f.getType() instanceof MrefField)
 				{
 					if (f.getXrefLabel() != null && !f.getXrefLabel().equals(f.getXrefFieldName()))
 					{
-						XmlEntityMetaData xref_entity = f.getXrefEntity();
+						EntityMetaData xref_entity = f.getXrefEntity();
 						if (xref_entity.getXrefLabel() != null)
 						{
 							logger.debug("copying xref_label " + xref_entity.getXrefLabel() + " from "
@@ -282,23 +282,23 @@ public class MolgenisModelValidator
 	public static void addTypeFieldInSubclasses(MolgenisMetaData model) throws MetaDataException
 	{
 		logger.debug("add a 'type' field in subclasses to enable instanceof at database level...");
-		for (XmlEntityMetaData e : model.getEntities())
+		for (EntityMetaData e : model.getEntities())
 		{
 			if (e.getExtends() == null)
 			{
-				List<XmlEntityMetaData> subclasses = e.getAllDescendants();
+				List<EntityMetaData> subclasses = e.getAllDescendants();
 				List<String> enumOptions = new ArrayList<String>();
 				enumOptions.add(firstToUpper(e.getName()));
-				for (XmlEntityMetaData subclass : subclasses)
+				for (EntityMetaData subclass : subclasses)
 				{
 					enumOptions.add(firstToUpper(subclass.getName()));
 				}
-				if (e.getField(XmlFieldMetaData.TYPE_FIELD) == null)
+				if (e.getField(FieldMetaData.TYPE_FIELD) == null)
 				{
-					XmlFieldMetaData type_field = new XmlFieldMetaData();
+					FieldMetaData type_field = new FieldMetaData();
 					type_field.setEntity(e);
 					type_field.setType(new EnumField());
-					type_field.setName(XmlFieldMetaData.TYPE_FIELD);
+					type_field.setName(FieldMetaData.TYPE_FIELD);
 					type_field.setHidden(true);
 					type_field.setSystem(true);
 
@@ -307,11 +307,11 @@ public class MolgenisModelValidator
 					type_field.setHidden(true);
 					e.addField(0, type_field);
 				}
-				e.getField(XmlFieldMetaData.TYPE_FIELD).setEnumOptions(enumOptions);
+				e.getField(FieldMetaData.TYPE_FIELD).setEnumOptions(enumOptions);
 			}
 			else
 			{
-				e.removeField(e.getField(XmlFieldMetaData.TYPE_FIELD));
+				e.removeField(e.getField(FieldMetaData.TYPE_FIELD));
 			}
 		}
 
@@ -337,18 +337,18 @@ public class MolgenisModelValidator
 
 		logger.debug("add linktable entities for mrefs...");
 		// find the multi-ref fields
-		for (XmlEntityMetaData xref_entity_from : model.getEntities())
+		for (EntityMetaData xref_entity_from : model.getEntities())
 		{
 
 			// iterate through all fields including those inherited from
 			// interfaces
-			for (XmlFieldMetaData xref_field_from : xref_entity_from.getImplementedFieldsOf(new MrefField()))
+			for (FieldMetaData xref_field_from : xref_entity_from.getImplementedFieldsOf(new MrefField()))
 			{
 				try
 				{
 					// retrieve the references to the entity+field
-					XmlEntityMetaData xref_entity_to = xref_field_from.getXrefEntity();
-					XmlFieldMetaData xref_field_to = xref_field_from.getXrefField();
+					EntityMetaData xref_entity_to = xref_field_from.getXrefEntity();
+					FieldMetaData xref_field_to = xref_field_from.getXrefField();
 
 					// TODO: check whether this link is already present
 
@@ -363,7 +363,7 @@ public class MolgenisModelValidator
 					}
 
 					// check if the mref already exists
-					XmlEntityMetaData mrefEntityModel = null;
+					EntityMetaData mrefEntityModel = null;
 					try
 					{
 						mrefEntityModel = model.getEntity(mref_name);
@@ -375,7 +375,7 @@ public class MolgenisModelValidator
 					// if mref entity doesn't exist: create
 					if (mrefEntityModel == null)
 					{
-						mrefEntityModel = new XmlEntityMetaData();
+						mrefEntityModel = new EntityMetaData();
 						mrefEntityModel.setName(mref_name);
 						mrefEntityModel.setLabel(mref_name);
 						mrefEntityModel.setModule(xref_entity_from.getModule());
@@ -386,7 +386,7 @@ public class MolgenisModelValidator
 						mrefEntityModel.setSystem(true);
 
 						// create id field to ensure ordering
-						XmlFieldMetaData idField = new XmlFieldMetaData();
+						FieldMetaData idField = new FieldMetaData();
 						idField.setEntity(mrefEntityModel);
 						idField.setType(new IntField());
 						idField.setName("autoid");
@@ -397,10 +397,10 @@ public class MolgenisModelValidator
 						mrefEntityModel.addUnique(idField.getName(), "unique auto key to ensure ordering of mrefs");
 
 						// create the fields for the linktable
-						XmlFieldMetaData field;
+						FieldMetaData field;
 						Vector<String> unique = new Vector<String>();
 
-						field = new XmlFieldMetaData();
+						field = new FieldMetaData();
 						field.setEntity(mrefEntityModel);
 						field.setType(new XrefField());
 						field.setName(xref_field_from.getMrefRemoteid());
@@ -413,9 +413,9 @@ public class MolgenisModelValidator
 						unique.add(field.getName());
 
 						// add all the key-fields of xref_entity_from
-						for (@SuppressWarnings("unused") XmlFieldMetaData key : xref_entity_from.getKeyFields(XmlEntityMetaData.PRIMARY_KEY))
+						for (@SuppressWarnings("unused") FieldMetaData key : xref_entity_from.getKeyFields(EntityMetaData.PRIMARY_KEY))
 						{
-							field = new XmlFieldMetaData();
+							field = new FieldMetaData();
 							field.setEntity(mrefEntityModel);
 							field.setType(new XrefField());
 							field.setName(xref_field_from.getMrefLocalid());
@@ -435,7 +435,7 @@ public class MolgenisModelValidator
 					else
 					{
 						// field is xref_field, does it have label(s)?
-						XmlFieldMetaData xrefField = mrefEntityModel.getAllField(xref_field_to.getName());
+						FieldMetaData xrefField = mrefEntityModel.getAllField(xref_field_to.getName());
 
 						// verify xref_label
 						if (xrefField != null)
@@ -477,17 +477,17 @@ public class MolgenisModelValidator
 		logger.debug("validate xref_field and xref_label references...");
 
 		// validate foreign key relations
-		for (XmlEntityMetaData entity : model.getEntities())
+		for (EntityMetaData entity : model.getEntities())
 		{
 			String entityname = entity.getName();
 
-			for (XmlFieldMetaData field : entity.getFields())
+			for (FieldMetaData field : entity.getFields())
 			{
 				String fieldname = field.getName();
 				if (field.getType() instanceof XrefField || field.getType() instanceof MrefField)
 				{
 
-					XmlEntityMetaData xref_entity = field.getXrefEntity();
+					EntityMetaData xref_entity = field.getXrefEntity();
 
 					//List<String> xref_label_names = field.getXrefLabelNames();
 
@@ -586,10 +586,10 @@ public class MolgenisModelValidator
 		logger.debug("validate the fields used in 'unique' constraints...");
 
 		// copy all 'unique' marked fields into proper UniqueModel
-		for (XmlEntityMetaData entity : model.getEntities())
+		for (EntityMetaData entity : model.getEntities())
 		{
 			int index = 0;
-			for (XmlFieldMetaData field : entity.getFields())
+			for (FieldMetaData field : entity.getFields())
 			{
 
 				if (field.getUnique() && field.getEntity().equals(entity))
@@ -603,12 +603,12 @@ public class MolgenisModelValidator
 		}
 
 		// validate the keys
-		for (XmlEntityMetaData entity : model.getEntities())
+		for (EntityMetaData entity : model.getEntities())
 		{
 			String entityname = entity.getName();
 			int autocount = 0;
 
-			for (XmlFieldMetaData field : entity.getAllFields())
+			for (FieldMetaData field : entity.getAllFields())
 			{
 				String fieldname = field.getName();
 				if (field.getType() instanceof IntField && field.getAuto())
@@ -619,7 +619,7 @@ public class MolgenisModelValidator
 
 					for (UniqueMetaData unique : entity.getAllUniques())
 					{
-						for (XmlFieldMetaData keyfield : unique.getFields())
+						for (FieldMetaData keyfield : unique.getFields())
 						{
 							if (keyfield.getName() == null) throw new MetaDataException("unique field '"
 									+ fieldname + "' is not known in entity " + entityname);
@@ -654,9 +654,9 @@ public class MolgenisModelValidator
 				{
 					// check references
 					//boolean ref = false;
-					for (XmlEntityMetaData otherEntityModel : model.getEntities())
+					for (EntityMetaData otherEntityModel : model.getEntities())
 					{
-						for (XmlFieldMetaData f : otherEntityModel.getAllFields())
+						for (FieldMetaData f : otherEntityModel.getAllFields())
 						{
 							if ((f.getType() instanceof XrefField || f.getType() instanceof MrefField)
 									&& entity.getName().equals(f.getXrefEntity()))
@@ -698,11 +698,11 @@ public class MolgenisModelValidator
 	{
 		logger.debug("validate 'extends' and 'implements' relationships...");
 		// validate the extends and implements relations
-		for (XmlEntityMetaData entity : model.getEntities())
+		for (EntityMetaData entity : model.getEntities())
 		{
 
-			List<XmlEntityMetaData> ifaces = entity.getAllImplements();
-			for (XmlEntityMetaData iface : ifaces)
+			List<EntityMetaData> ifaces = entity.getAllImplements();
+			for (EntityMetaData iface : ifaces)
 			{
 				if (!iface.getAbstract()) throw new MetaDataException(entity.getName() + " cannot implement "
 						+ iface.getName() + " because it is not abstract");
@@ -713,14 +713,14 @@ public class MolgenisModelValidator
 				// composite keys are ignored
 				try
 				{
-					XmlFieldMetaData pkeyField = null;
-					if (iface.getKeyFields(XmlEntityMetaData.PRIMARY_KEY).size() == 1)
+					FieldMetaData pkeyField = null;
+					if (iface.getKeyFields(EntityMetaData.PRIMARY_KEY).size() == 1)
 					{
-						pkeyField = iface.getKeyFields(XmlEntityMetaData.PRIMARY_KEY).get(0);
+						pkeyField = iface.getKeyFields(EntityMetaData.PRIMARY_KEY).get(0);
 						// if not already exists
 						if (entity.getField(pkeyField.getName()) == null)
 						{
-							XmlFieldMetaData field = new XmlFieldMetaData(pkeyField);
+							FieldMetaData field = new FieldMetaData(pkeyField);
 							field.setEntity(entity);
 							field.setAuto(pkeyField.getAuto());
 							field.setNillable(pkeyField.getNillable());
@@ -748,7 +748,7 @@ public class MolgenisModelValidator
 
 			if (entity.getExtends() != null)
 			{
-				XmlEntityMetaData parent = entity.getExtends();
+				EntityMetaData parent = entity.getExtends();
 				if (parent == null) throw new MetaDataException("superclass '" + parent + "' for '"
 						+ entity.getName() + "' is missing");
 				if (parent.getAbstract()) throw new MetaDataException(entity.getName() + " cannot extend "
@@ -769,18 +769,18 @@ public class MolgenisModelValidator
 	public static void addInterfaces(MolgenisMetaData model) throws MetaDataException
 	{
 		logger.debug("add root entities for interfaces...");
-		for (XmlEntityMetaData entity : model.getEntities())
+		for (EntityMetaData entity : model.getEntities())
 		{
 			// Generate the interface if rootAncestor (so has subclasses) and
 			// itself is not an interface...
 			if (entity.getExtends() != null)
 			{
-				XmlEntityMetaData rootAncestor = entity;
+				EntityMetaData rootAncestor = entity;
 				if (!entity.getAbstract())
 				{
 
 					// generate a new interface
-					rootAncestor = new XmlEntityMetaData();
+					rootAncestor = new EntityMetaData();
 					rootAncestor.setName("_" + entity.getName() + "Interface");
 					rootAncestor
 							.setDescription("Identity map table for "
@@ -792,11 +792,11 @@ public class MolgenisModelValidator
 					// rootAncestor.setAbstract( true );
 
 					// copy key fields to interface and unset auto key in child
-					List<XmlFieldMetaData> keyfields = entity.getUniques().get(0).getFields();
+					List<FieldMetaData> keyfields = entity.getUniques().get(0).getFields();
 					List<String> keyfields_copy = new ArrayList<String>();
-					for (XmlFieldMetaData f : keyfields)
+					for (FieldMetaData f : keyfields)
 					{
-						XmlFieldMetaData key_field = new XmlFieldMetaData();
+						FieldMetaData key_field = new FieldMetaData();
 						key_field.setEntity(rootAncestor);
 						key_field.setType(f.getType());
 						key_field.setName(f.getName());
@@ -829,18 +829,18 @@ public class MolgenisModelValidator
 				}
 
 				// add the type enum to the root element
-				List<XmlEntityMetaData> subclasses = entity.getAllDescendants();
+				List<EntityMetaData> subclasses = entity.getAllDescendants();
 				List<String> enumOptions = new ArrayList<String>();
 				enumOptions.add(entity.getName());
-				for (XmlEntityMetaData subclass : subclasses)
+				for (EntityMetaData subclass : subclasses)
 				{
 					enumOptions.add(subclass.getName());
 				}
-				XmlFieldMetaData type_field = new XmlFieldMetaData();
+				FieldMetaData type_field = new FieldMetaData();
 
 				type_field.setEntity(rootAncestor);
 				type_field.setType(new EnumField());
-				type_field.setName(XmlFieldMetaData.TYPE_FIELD);
+				type_field.setName(FieldMetaData.TYPE_FIELD);
 				type_field.setAuto(true);
 
 				type_field.setDescription("Subtypes of " + entity.getName() + ". Have to be set to allow searching");
@@ -871,7 +871,7 @@ public class MolgenisModelValidator
 			}
 		}
 
-		for (XmlEntityMetaData e : model.getEntities())
+		for (EntityMetaData e : model.getEntities())
 		{
 			if (e.getName().contains(" "))
 			{
@@ -884,7 +884,7 @@ public class MolgenisModelValidator
 				throw new MetaDataException("entity name '" + e.getName() + "' illegal:" + e.getName()
 						+ " is a reserved JAVA and/or SQL word and cannot be used for entity name");
 			}
-			for (XmlFieldMetaData f : e.getFields())
+			for (FieldMetaData f : e.getFields())
 			{
 				if (f.getName().contains(" "))
 				{
@@ -900,7 +900,7 @@ public class MolgenisModelValidator
 
 				if (f.getType() instanceof XrefField || f.getType() instanceof MrefField)
 				{
-					XmlEntityMetaData xref_entity = f.getXrefEntity();
+					EntityMetaData xref_entity = f.getXrefEntity();
 					if (xref_entity != null
 							&& (keywords.contains(xref_entity.getName().toUpperCase()) || keywords.contains(xref_entity
 									.getName().toLowerCase())))
@@ -924,7 +924,7 @@ public class MolgenisModelValidator
 							}
 
 							// paranoia check on uniqueness
-							XmlEntityMetaData mrefEntityModel = null;
+							EntityMetaData mrefEntityModel = null;
 							try
 							{
 								mrefEntityModel = model.getEntity(mrefEntityModelName);
@@ -966,9 +966,9 @@ public class MolgenisModelValidator
 	public static void correctXrefCaseSensitivity(MolgenisMetaData model) throws MetaDataException
 	{
 		logger.debug("correct case of names in xrefs...");
-		for (XmlEntityMetaData e : model.getEntities())
+		for (EntityMetaData e : model.getEntities())
 		{
-			for (XmlFieldMetaData f : e.getFields())
+			for (FieldMetaData f : e.getFields())
 			{
 				// f.setName(f.getName().toLowerCase());
 
@@ -977,7 +977,7 @@ public class MolgenisModelValidator
 					try
 					{
 						// correct for uppercase/lowercase typo's
-						XmlEntityMetaData xrefEntityModel = f.getXrefEntity();
+						EntityMetaData xrefEntityModel = f.getXrefEntity();
 						f.setXrefEntity(xrefEntityModel.getName());
 						f.setXrefLabel(f.getXrefLabel().getName());
 					}
@@ -999,18 +999,18 @@ public class MolgenisModelValidator
 	static public void copyDecoratorsToSubclass(MolgenisMetaData model) throws MetaDataException
 	{
 		logger.debug("copying decorators to subclasses...");
-		for (XmlEntityMetaData e : model.getEntities())
+		for (EntityMetaData e : model.getEntities())
 		{
 			if (e.getDecorator() == null)
 			{
-				for (XmlEntityMetaData superClass : e.getImplements())
+				for (EntityMetaData superClass : e.getImplements())
 				{
 					if (superClass.getDecorator() != null)
 					{
 						e.setDecorator(superClass.getDecorator());
 					}
 				}
-				for (XmlEntityMetaData superClass : e.getAllExtends())
+				for (EntityMetaData superClass : e.getAllExtends())
 				{
 					if (superClass.getDecorator() != null)
 					{

@@ -1,6 +1,5 @@
 package org.molgenis.meta.types;
 
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,23 +16,22 @@ public class LongField extends DataType
 	@Override
 	public String getJavaAssignment(String value)
 	{
-		if (value == null || value.equals("") ) return "null";
+		if (value == null || value.equals("")) return "null";
 		return "" + Long.parseLong(value) + "L";
 	}
 
-	
 	@Override
 	public String getJavaPropertyDefault()
 	{
 		return getJavaAssignment(f.getDefaultValue());
 	}
-	
+
 	@Override
 	public String getMysqlType() throws MetaDataException
 	{
 		return "BIGINT";
 	}
-	
+
 	@Override
 	public String getOracleType() throws MetaDataException
 	{
@@ -45,6 +43,7 @@ public class LongField extends DataType
 	{
 		return "LONG";
 	}
+
 	@Override
 	public String getXsdType()
 	{
@@ -62,38 +61,41 @@ public class LongField extends DataType
 	{
 		return "long";
 	}
-	
+
 	@Override
 	public String getCppJavaPropertyType()
 	{
 		return "Ljava/lang/Long;";
 	}
 
+	@Override
 	public Class<?> getJavaType()
 	{
 		return Long.class;
 	}
 
-	public Long getTypedValue(String value) throws ParseException
+	@Override
+	public Long convert(Object value)
 	{
-		return Long.parseLong(value);
+		return TypeUtils.toLong(value);
 	}
-	
+
+	@Override
 	public String getName()
 	{
 		return "long";
 	}
-	
+
 	@Override
 	public List<String> getAllowedOperators()
 	{
 		return Arrays.asList("EQUALS", "NOT EQUALS", "LESS", "GREATER");
 	}
-	
+
 	@Override
 	public String toString(Object value)
 	{
-		if(value == null) return "";
+		if (value == null) return "";
 		return value.toString();
 	}
 

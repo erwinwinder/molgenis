@@ -1,9 +1,9 @@
 package org.molgenis.meta.types;
 
-import java.text.ParseException;
+import java.util.List;
 
+import org.molgenis.meta.FieldMetaData;
 import org.molgenis.meta.MetaDataException;
-import org.molgenis.meta.XmlFieldMetaData;
 
 /**
  * Many to many reference.
@@ -41,10 +41,11 @@ public class MrefField extends DataType
 	public String getJavaSetterType() throws MetaDataException
 	{
 		// Entity e_ref = f.getXrefEntity();
-		XmlFieldMetaData f_ref = f.getXrefField();
+		FieldMetaData f_ref = f.getXrefField();
 		return "new java.util.ArrayList<" + getFieldType(f_ref).getJavaSetterType() + ">()";
 	}
 
+	@Override
 	public String getJavaGetterType()
 	{
 		return "List";
@@ -92,7 +93,7 @@ public class MrefField extends DataType
 	@Override
 	public String getCppPropertyType() throws MetaDataException
 	{
-		XmlFieldMetaData f_ref = f.getXrefField();
+		FieldMetaData f_ref = f.getXrefField();
 		return "vector<" + getFieldType(f_ref).getCppPropertyType() + ">";
 	}
 
@@ -102,26 +103,28 @@ public class MrefField extends DataType
 		return "Ljava/util/List;";
 	}
 
+	@Override
 	public Class<?> getJavaType()
 	{
 		return java.util.List.class;
 	}
 
 	@Override
-	public Object getTypedValue(String value) throws ParseException
+	public List<String> convert(Object value)
 	{
-		throw new UnsupportedOperationException("Conversion of MRef not supported.");
+		return TypeUtils.toList(value);
 	}
 
+	@Override
 	public String getName()
 	{
 		return "mref";
 	}
 
+	@Override
 	public String toString(Object value)
 	{
-		throw new UnsupportedOperationException();
-
+		return TypeUtils.toString(value);
 	}
 
 }

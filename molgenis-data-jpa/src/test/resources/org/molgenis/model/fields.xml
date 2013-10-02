@@ -1,0 +1,155 @@
+<molgenis name="org.molgenis.test.fields">
+	<description>Test fields</description>
+	<entity name="VarcharEntity">
+		<description>Test Varchar</description>
+		<field name="id" type="autoid" />
+		<field name="normalVarchar" label="Normal Varchar" type="varchar"
+			unique="true" length="127" />
+		<field name="readonlyVarchar" label="Readonly Varchar" type="varchar"
+			readonly="true" default="readonly default" />
+		<field name="nillableVarchar" label="Nillable Varchar" type="varchar"
+			nillable="true" />
+		<field name="defaultVarchar" label="Defaulted Varchar" type="varchar"
+			default="1" />
+	</entity>
+	<entity name="OtherVarcharEntity">
+		<field name="id" type="autoid" />
+		<field name="normalVarchar" label="Normal Varchar" type="varchar"
+			unique="true" length="127" />
+		<field name="readonlyVarchar" label="Readonly Varchar" type="varchar"
+			readonly="true" default="readonly default" />
+		<field name="nillableVarchar" label="Nillable Varchar" type="varchar"
+			nillable="true" />
+		<field name="defaultVarchar" label="Defaulted Varchar" type="varchar"
+			default="1" />
+	</entity>
+	<entity name="XrefEntity">
+		<field name="id" type="autoid" />
+		<field name="normalXref" label="Normal Xref" type="xref"
+			xref_entity="VarcharEntity" xref_label="normalVarchar" />
+		<field name="readonlyXref" label="Readonly Xref" type="xref"
+			readonly="true" xref_entity="VarcharEntity" xref_label="normalVarchar" />
+		<field name="nillableXref" label="Nillable Xref" type="xref"
+			nillable="true" xref_entity="OtherVarcharEntity" xref_label="normalVarchar" />
+	</entity>
+	<entity name="TreeEntity">
+		<field name="id" type="autoid" />
+		<field name="name" type="varchar" unique="true" />
+		<field name="parent" type="xref" nillable="true" xref_entity="TreeEntity"
+			xref_label="name" />
+	</entity>
+	<entity name="DateEntity">
+		<field name="id" type="autoid" />
+		<field name="normalDate" label="Normal Date" type="date" />
+		<field name="readonlyDate" label="Readonly Date" type="date"
+			readonly="true" />
+		<field name="nillableDate" label="Nillable Date" type="date"
+			nillable="true" />
+		<field name="autoDate" label="Auto Date" type="date" auto="true" />
+		<field name="defaultDate" label="Default Date" type="date"
+			default="2006-02-25" />
+	</entity>
+	<entity name="DateTimeEntity">
+		<field name="id" type="autoid" />
+		<field name="normalDateTime" label="Normal DateTime" type="datetime" />
+		<field name="readonlyDateTime" label="Readonly DateTime" type="datetime"
+			readonly="true" />
+		<field name="nillableDateTime" label="Nillable DateTime" type="datetime"
+			nillable="true" />
+		<field name="autoDateTime" label="Auto DateTime" type="datetime"
+			auto="true" />
+		<field name="defaultDateTime" label="Default DateTime" type="datetime"
+			default="2006-02-25 19:20:19" />
+	</entity>
+	<entity name="MrefEntity">
+		<field name="id" type="autoid" />
+		<field name="name" description="At least one normal field is required..." />
+		<field name="normalMref" label="Normal Mref" type="mref"
+			xref_entity="VarcharEntity" xref_label="normalVarchar" />
+		<field name="readonlyMref" label="Readonly Mref" type="mref"
+			readonly="true" xref_entity="VarcharEntity" xref_label="normalVarchar" />
+		<field name="nillableMref" label="Nillable Mref" type="mref"
+			nillable="true" xref_entity="VarcharEntity" xref_label="normalVarchar" />
+	</entity>
+	<entity name="EnumEntity">
+		<field name="id" type="autoid" />
+		<field name="normalEnum" label="Normal Enum" type="enum"
+			enum_options="[a,b,c]" />
+		<field name="readonlyEnum" label="Readonly Enum" type="enum"
+			readonly="true" enum_options="[a,b,c]" />
+		<field name="nillableEnum" label="Nillable Enum" type="enum"
+			nillable="true" enum_options="[a,b,c]" />
+		<field name="defaultEnum" label="Defaulted Enum" type="enum"
+			default="b" enum_options="[a,b,c]" />
+	</entity>
+	<entity name="DecimalEntity">
+		<field name="id" type="autoid" />
+		<field name="normalDecimal" label="Normal Decimal" type="decimal" />
+		<field name="readonlyDecimal" label="Readonly Decimal" type="decimal"
+			readonly="true" />
+		<field name="nillableDecimal" label="Nillable Decimal" type="decimal"
+			nillable="true" />
+		<field name="defaultDecimal" label="Defaulted Decimal" type="decimal"
+			default="2.0" />
+	</entity>
+	<entity name="BoolEntity">
+		<field name="id" type="autoid" />
+		<field name="normalBool" label="Normal Bool" type="bool" />
+		<field name="readonlyBool" label="Readonly Bool" type="bool"
+			readonly="true" />
+		<field name="nillableBool" label="Nillable Bool" type="bool"
+			nillable="true" />
+		<field name="defaultBool" label="Defaulted Bool" type="bool"
+			default="true" />
+	</entity>
+	<entity name="IntEntity">
+		<field name="id" type="autoid" />
+		<field name="normalInt" label="Normal Int" type="int" />
+		<field name="readonlyInt" label="Readonly Int" type="int"
+			readonly="true" default="1" />
+		<field name="nillableInt" label="Nillable Int" type="int"
+			nillable="true" />
+		<field name="defaultInt" label="Defaulted Bool" type="int"
+			default="1" />
+	</entity>
+	<entity name="HiddenId">
+		<field name="id" type="autoid" hidden="true" />
+		<field name="normalVarchar" label="Normal Varchar" type="varchar" />
+		<field name="readonlyVarchar" label="Readonly Varchar" type="varchar"
+			readonly="true" />
+		<field name="nillableVarchar" label="Nillable Varchar" type="varchar"
+			nillable="true" />
+		<field name="defaultVarchar" label="Defaulted Varchar" type="varchar"
+			default="1" />
+	</entity>
+	<entity name="TextEntity">
+		<field name="id" type="autoid" />
+		<field name="normalText" label="Normal Text" type="text" />
+		<field name="readonlyText" label="Readonly Text" type="text"
+			readonly="true" />
+		<field name="nillableText" label="Nillable Text" type="text"
+			nillable="true" />
+		<field name="defaultText" label="Defaulted Text" type="text"
+			default="1" />
+	</entity>
+	<entity name="RichtextEntity">
+		<field name="id" type="autoid" />
+		<field name="normalText" label="Normal Text" type="richtext" />
+		<field name="readonlyText" label="Readonly Text" type="richtext"
+			readonly="true" />
+		<field name="nillableText" label="Nillable Text" type="richtext"
+			nillable="true" />
+		<field name="defaultText" label="Defaulted Text" type="richtext"
+			default="1" />
+	</entity>
+	<entity name="FreemarkerEntity">
+		<field name="id" type="autoid" />
+		<field name="normalFreemarker" label="Normal Freemarker" type="freemarker" />
+		<field name="readonlyFreemarker" label="Readonly Freemarker"
+			type="freemarker" readonly="true" />
+		<field name="nillableFreemarker" label="Nillable Freemarker"
+			type="freemarker" nillable="true" />
+		<field name="defaultFreemarker" label="Defaulted Freemarker"
+			type="freemarker" default="1" />
+	</entity>
+</molgenis>

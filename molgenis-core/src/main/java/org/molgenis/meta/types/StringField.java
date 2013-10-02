@@ -1,7 +1,5 @@
 package org.molgenis.meta.types;
 
-import java.text.ParseException;
-
 import org.molgenis.meta.MetaDataException;
 
 public class StringField extends DataType
@@ -9,10 +7,10 @@ public class StringField extends DataType
 	@Override
 	public String getJavaAssignment(String value) throws MetaDataException
 	{
-		if(value == null || value.equals("") ) return "null";
-		return "\""+value+"\"";
+		if (value == null || value.equals("")) return "null";
+		return "\"" + value + "\"";
 	}
-	
+
 	@Override
 	public String getJavaPropertyDefault() throws MetaDataException
 	{
@@ -28,20 +26,21 @@ public class StringField extends DataType
 	@Override
 	public String getMysqlType() throws MetaDataException
 	{
-		return "VARCHAR("+f.getLength()+")";
+		return "VARCHAR(" + f.getLength() + ")";
 	}
-	
+
 	@Override
 	public String getOracleType() throws MetaDataException
 	{
-		return "VARCHAR2("+f.getLength()+")";
+		return "VARCHAR2(" + f.getLength() + ")";
 	}
 
 	@Override
 	public String getHsqlType() throws MetaDataException
 	{
-		return "VARCHAR("+f.getLength()+")";
+		return "VARCHAR(" + f.getLength() + ")";
 	}
+
 	@Override
 	public String getXsdType() throws MetaDataException
 	{
@@ -59,25 +58,26 @@ public class StringField extends DataType
 	{
 		return "string";
 	}
-	
+
 	@Override
 	public String getCppJavaPropertyType()
 	{
 		return "Ljava/lang/String;";
 	}
 
+	@Override
 	public Class<?> getJavaType()
 	{
 		return String.class;
 	}
 
 	@Override
-	public String getTypedValue(String value) throws ParseException
+	public String convert(Object value)
 	{
-		return value;
+		return TypeUtils.toString(value);
 	}
 
-
+	@Override
 	public String getName()
 	{
 		return "string";
@@ -86,7 +86,6 @@ public class StringField extends DataType
 	@Override
 	public String toString(Object value)
 	{
-		if(value == null) return "";
-		return value.toString();
+		return TypeUtils.toString(value);
 	}
 }

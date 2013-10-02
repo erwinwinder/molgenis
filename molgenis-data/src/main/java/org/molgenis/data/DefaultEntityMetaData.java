@@ -2,7 +2,9 @@ package org.molgenis.data;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.molgenis.AttributeMetaData;
 import org.molgenis.EntityMetaData;
@@ -12,7 +14,7 @@ public class DefaultEntityMetaData implements EntityMetaData
 	private final String name;
 	private final String role;
 	private boolean visible = true;
-	private final List<AttributeMetaData> attributes = new ArrayList<AttributeMetaData>();
+	private final Map<String, AttributeMetaData> attributes = new LinkedHashMap<String, AttributeMetaData>();
 
 	public DefaultEntityMetaData(String name, String role)
 	{
@@ -41,19 +43,19 @@ public class DefaultEntityMetaData implements EntityMetaData
 
 	public void addAttributeMetaData(AttributeMetaData attributeMetaData)
 	{
-		attributes.add(attributeMetaData);
+		attributes.put(attributeMetaData.getName(), attributeMetaData);
 	}
 
 	@Override
 	public List<AttributeMetaData> getAttributes()
 	{
-		return Collections.unmodifiableList(attributes);
+		return Collections.unmodifiableList(new ArrayList<AttributeMetaData>(attributes.values()));
 	}
 
 	@Override
 	public AttributeMetaData getIdAttribute()
 	{
-		for (AttributeMetaData attribute : attributes)
+		for (AttributeMetaData attribute : attributes.values())
 		{
 			if (attribute.isIdAtrribute())
 			{
@@ -67,7 +69,7 @@ public class DefaultEntityMetaData implements EntityMetaData
 	@Override
 	public AttributeMetaData getLabelAttribute()
 	{
-		for (AttributeMetaData attribute : attributes)
+		for (AttributeMetaData attribute : attributes.values())
 		{
 			if (attribute.isLabelAttribute())
 			{
@@ -84,4 +86,9 @@ public class DefaultEntityMetaData implements EntityMetaData
 		return role;
 	}
 
+	@Override
+	public AttributeMetaData getAttribute(String attributeName)
+	{
+		return attributes.get(attributeName);
+	}
 }
