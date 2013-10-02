@@ -3,8 +3,11 @@ package org.molgenis.ui.data;
 import static org.molgenis.ui.data.DataPluginController.URI;
 
 import org.molgenis.Entity;
+import org.molgenis.data.CrudRepository;
 import org.molgenis.data.DataService;
+import org.molgenis.data.Queryable;
 import org.molgenis.data.Repository;
+import org.molgenis.data.WritableRepository;
 import org.molgenis.framework.ui.MolgenisPluginController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -43,6 +46,9 @@ public class DataPluginController extends MolgenisPluginController
 		Repository<? extends Entity> repo = dataService.getRepositoryByEntityName(entityName);
 		model.addAttribute("entityMetaData", repo.getEntityMetaData());
 		model.addAttribute("entities", Iterables.toArray(repo, Entity.class));
+		model.addAttribute("queryable", Queryable.class.isAssignableFrom(repo.getClass()));
+		model.addAttribute("writable", WritableRepository.class.isAssignableFrom(repo.getClass()));
+		model.addAttribute("updatable", CrudRepository.class.isAssignableFrom(repo.getClass()));
 
 		return init(model);
 	}

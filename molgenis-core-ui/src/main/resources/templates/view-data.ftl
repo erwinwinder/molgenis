@@ -13,6 +13,23 @@
 </div>
 
 <#if entityMetaData??>
+<table class="table table-bordered table-hover table-striped" style="width: 300px">
+	<tbody>
+		<tr>
+			<td>Writable</td>
+			<td>${writable?string('Yes', 'No')}</td>
+		</tr>
+		<tr>
+			<td>Updatable</td>
+			<td>${updatable?string('Yes', 'No')}</td>
+		</tr>
+		<tr>
+			<td>Queryable</td>
+			<td>${queryable?string('Yes', 'No')}</td>
+		</tr>
+	</tbody>
+</table>
+
 <table class="table table-bordered table-hover table-striped">
 	<thead>
 		<tr>
