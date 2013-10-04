@@ -97,13 +97,11 @@ public class ExcelReader implements DataSource, Closeable
 		return url;
 	}
 
-	@Override
 	public Iterable<String> getRepositoryNames()
 	{
 		return getEntityNames();
 	}
 
-	@Override
 	public Repository<ExcelEntity> getRepositoryByName(String name)
 	{
 		Sheet poiSheet = workbook.getSheet(name);

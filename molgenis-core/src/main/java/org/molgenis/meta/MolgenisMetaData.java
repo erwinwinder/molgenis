@@ -23,6 +23,17 @@ import org.xml.sax.SAXParseException;
 public class MolgenisMetaData
 {
 	private List<ModuleMetaData> modules = new ArrayList<ModuleMetaData>();
+	private final String dataSourceName;
+
+	public MolgenisMetaData(String dataSourceName)
+	{
+		this.dataSourceName = dataSourceName;
+	}
+
+	public String getDataSourceName()
+	{
+		return dataSourceName;
+	}
 
 	public List<EntityMetaData> getEntities()
 	{
@@ -172,7 +183,7 @@ public class MolgenisMetaData
 		try
 		{
 			// parse xml
-			context = JAXBContext.newInstance(MolgenisMetaData.class);
+			context = JAXBContext.newInstance(ModuleMetaData.class);
 			Unmarshaller um = context.createUnmarshaller();
 			SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 			URL url = MolgenisMetaData.class.getResource("molgenis.xsd");

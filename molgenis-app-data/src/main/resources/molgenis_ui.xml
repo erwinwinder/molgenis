@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<molgenis label="OMX" name="omx">
+	<menu label="Home" name="main">
+		<plugin id="data" name="Data" url="data"/>
+	</menu>
+</molgenis>

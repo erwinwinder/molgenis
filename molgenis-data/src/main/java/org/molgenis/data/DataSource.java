@@ -14,10 +14,6 @@ public interface DataSource
 
 	String getDescription();
 
-	Iterable<String> getRepositoryNames();
-
-	Repository<? extends Entity> getRepositoryByName(String name);
-
 	Iterable<String> getEntityNames();
 
 	Repository<? extends Entity> getRepositoryByEntityName(String entityName);

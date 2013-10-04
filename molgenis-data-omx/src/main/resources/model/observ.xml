@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<molgenis name="org.molgenis.data.omx">
+	
+		<entity name="Autoid" abstract="true">
+			<description>This interface assigns an automatic 'id'.
+			</description>
+			<field name="id" type="autoid" hidden="true"
+				description="automatically generated internal id, only for internal use." />
+				<unique fields="id" />
+		</entity>
+		<entity name="Identifiable" implements="Autoid" abstract="true"  label="Identifier" xref_label="Identifier">
+			<description>This interface assigns an automatic 'id', globally
+				unique identifier
+				'identifier' field, and possibly not unique 'name'
+				to all entities that implement it.
+			</description>
+			<field name="Identifier" type="string"
+				description="user supplied or automatically assigned (using a decorator) unique and short identifier, e.g. MA1234" />
+			<field name="Name" type="string"
+				description="human readible name, not necessary unique." />
+			<unique fields="Identifier" />
+		</entity>		
+		<entity name="Characteristic" implements="Identifiable" xref_label="Identifier" label="Identifier">
+			<field name="description" type="text" nillable="true"
+				description="(Optional) Rudimentary meta data about the observable feature. Use of ontology 
+					terms references to establish unambigious descriptions is recommended" />
+		</entity>
+		<entity name="ObservationTarget" extends="Characteristic">
+		</entity>
+		<entity name="ObservableFeature" extends="Characteristic" xref_label="Identifier">
+			<field name="unit" type="xref" xref_entity="OntologyTerm"
+				nillable="true"
+				description="(Optional) Reference to the well-defined measurement unit used to observe this feature 
+					(if feature is that concrete). E.g. mmHg" />
+			<field name="definition" type="xref" xref_entity="OntologyTerm" description="The concept that is being measured in a specific way." nillable="true" />
+			<field name="dataType" type="enum" default="string"
+				enum_options="[bool,categorical,date,datetime,decimal,email,enum,file,html,hyperlink,image,int,long,mref,string,text,xref]"
+				description="(Optional) Reference to the technical data type. E.g. 'int'" />
+			<field name="temporal" type="boolean" default="false"
+				description="Whether this feature is time dependent and can have different values when measured 
+					on different times (e.g. weight, temporal=true) or generally only measured once (e.g. birth date, 
+					temporal=false) " />
+		</entity>
+		<entity name="Category" extends="Characteristic" xref_label="Identifier">
+			<field name="observableFeature" type="xref" xref_entity="ObservableFeature"
+				description="The Measurement these permitted values are part of." />
+			<field name="valueCode" type="string"
+				description="The value used to store this category in ObservedValue. For example '1', '2'." nillable="true"/>
+			<field name="definition" type="xref" xref_entity="OntologyTerm" description="The category that is being measured in a specific way." nillable="true" />
+			<field name="isMissing" type="bool" default="false"
+				description="whether this value should be treated as missing value." />
+		</entity>
+		<entity name="Protocol" extends="Characteristic" xref_label="Identifier">
+			<field name="ProtocolType" nillable="true" type="xref"
+				xref_entity="OntologyTerm" description="classification of protocol" />
+			<field name="subprotocols" type="mref" mref_name="protocol_subprotocols" xref_entity="Protocol" nillable="true" description="Subprotocols of this protocol"/>
+			<field name="Features" type="mref" mref_name="protocol_observablefeature" nillable="true" xref_entity="ObservableFeature"
+				description="parameters (in/out) that are used or produced by this protocol." />
+		</entity>
+		<entity name="DataSet" extends="Characteristic" xref_label="Identifier">
+			<field name="ProtocolUsed" type="xref" xref_entity="Protocol"
+				description="Reference to the protocol that is being used (if available)" />
+			<field auto="true" name="startTime" type="datetime"
+				description="time when the protocol started." />
+			<field auto="true" name="endTime" type="datetime" nillable="true"
+				description="(Optional) time when the protocol ended." />
+			<field name="active" type="bool" default="true" description="whether this data set is considered active/inactive"/>
+		</entity>
+		<entity name="ObservationSet" implements="Autoid" label="id">
+			<field name="partOfDataSet" type="xref" xref_entity="DataSet"
+				description="DataSet this ValueSet is part of." />
+			<field name="Time" type="datetime" description="Time of this observationSet" nillable="true" />
+			<unique fields="partOfDataSet,Time" />
+		</entity>
+		<entity name="ObservedValue" implements="Autoid" label="Value">
+			<field name="ObservationSet" type="xref" xref_entity="ObservationSet"
+				description="Reference to the observation. For example a particular patient visit or the application of a microarray or the calculation of a QTL model" />
+			<field name="Feature" type="xref" xref_entity="ObservableFeature"
+				description="References the ObservableFeature that this observation was made on. For example 'probe123'." />
+			<!-- removed: <field name="Characteristic" nillable="true" type="xref"
+				xref_entity="Characteristic" description="Is brother of [characteristic], or Average of [height]" /> -->
+			<field name="Value" type="xref" xref_entity="Value" nillable="true" description="The value observed" /> 
+		</entity>
+
+		<entity name="Ontology" implements="Identifiable" xref_label="Identifier" label="Identifier">
+			<field auto="false" name="ontologyAccession" type="string"
+				nillable="true"
+				description="A accession that uniquely identifies the ontology (typically an acronym). E.g. GO, MeSH, HPO." />
+			<field nillable="true" auto="false" name="ontologyURI" type="hyperlink"
+				description="(Optional) A URI that references the location of the ontology." />
+		</entity>
+		<entity name="OntologyTerm" extends="Characteristic" xref_label="Identifier">
+			<field auto="false" name="ontology" type="xref" nillable="true"
+				description="(Optional) The source ontology or controlled vocabulary list that ontology terms have been obtained from."
+				xref_entity="Ontology" />
+			<field nillable="true" auto="false" name="termAccession" type="varchar"
+				description="(Optional) The accession number assigned to the ontology term in its source ontology. If empty it is assumed to be a locally defined term. " />
+			<field nillable="true" auto="false" name="definition" type="string"
+				description="(Optional) The definition of the term." />
+			<unique fields="ontology,termAccession" />
+		</entity>
+	
+		<entity name="Value" implements="Autoid" label="id">
+			<description></description>
+		</entity>
+		<entity name="BoolValue" extends="Value">
+			<description></description>
+			<field name="Value" type="bool" />
+		</entity>
+		<entity name="CategoricalValue" extends="Value">
+			<description></description>
+			<field name="Value" type="xref" xref_entity="Category" />
+		</entity>
+		<entity name="DateValue" extends="Value">
+			<description></description>
+			<field name="Value" type="date" />
+		</entity>
+		<entity name="DateTimeValue" extends="Value">
+			<description></description>
+			<field name="Value" type="datetime" />
+		</entity>
+		<entity name="DecimalValue" extends="Value">
+			<description></description>
+			<field name="Value" type="decimal" />
+		</entity>
+		<entity name="EmailValue" extends="Value">
+			<description></description>
+			<field name="Value" type="email" />
+		</entity>
+		<entity name="HtmlValue" extends="Value">
+			<description></description>
+			<field name="Value" type="text" />
+		</entity>
+		<entity name="HyperlinkValue" extends="Value">
+			<description></description>
+			<field name="Value" type="hyperlink" />
+		</entity>
+		<entity name="IntValue" extends="Value">
+			<description></description>
+			<field name="Value" type="int" />
+		</entity>
+		<entity name="LongValue" extends="Value">
+			<description></description>
+			<field name="Value" type="long" />
+		</entity>
+		<entity name="MrefValue" extends="Value">
+			<description></description>
+			<field name="Value" type="mref" mref_name="mrefvalue_characteristic" xref_entity="Characteristic" />
+		</entity>
+		<entity name="StringValue" extends="Value">
+			<description></description>
+			<field name="Value" type="string" />
+		</entity>
+		<entity name="TextValue" extends="Value">
+			<description></description>
+			<field name="Value" type="text" />
+		</entity>
+		<entity name="XrefValue" extends="Value">
+			<description></description>
+			<field name="Value" type="xref" xref_entity="Characteristic" />
+		</entity>
+	
+</molgenis>

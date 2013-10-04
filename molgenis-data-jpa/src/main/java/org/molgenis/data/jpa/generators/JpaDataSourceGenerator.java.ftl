@@ -6,27 +6,25 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.molgenis.Entity;
-import org.molgenis.data.DataSource;
 import org.molgenis.data.MolgenisDataException;
 import org.molgenis.data.Repository;
-import org.molgenis.test.AddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @org.springframework.stereotype.Repository
-public class JpaDataSource implements DataSource
+public class ${model.dataSourceName} implements JpaDataSource
 {
 	private final Map<String, JpaRepository<? extends Entity>> repos = new LinkedHashMap<String, JpaRepository<? extends Entity>>();
 	
 	@Override
 	public String getUrl()
 	{
-		return "jpa://";
+		return "jpa://${model.dataSourceName}";
 	}
 
 	<#list model.entities as entity>
 	<#if !entity.abstract>
 	@Autowired
-	public void set${JavaName(entity)}Repository(${JavaName(entity)}Repository ${entity.name}Repository)
+	public void set${JavaName(entity)}Repository(${entity.namespace}.${JavaName(entity)}Repository ${entity.name}Repository)
 	{	
 		repos.put("${entity.name}", ${entity.name}Repository);
 	}
@@ -37,18 +35,6 @@ public class JpaDataSource implements DataSource
 	public String getDescription()
 	{
 		return "Database entitities";
-	}
-
-	@Override
-	public Iterable<String> getRepositoryNames()
-	{
-		return getEntityNames();
-	}
-
-	@Override
-	public Repository<? extends Entity> getRepositoryByName(String name)
-	{
-		return repos.get(name);
 	}
 
 	@Override

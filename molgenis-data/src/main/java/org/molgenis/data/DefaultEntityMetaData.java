@@ -43,7 +43,7 @@ public class DefaultEntityMetaData implements EntityMetaData
 
 	public void addAttributeMetaData(AttributeMetaData attributeMetaData)
 	{
-		attributes.put(attributeMetaData.getName(), attributeMetaData);
+		attributes.put(attributeMetaData.getName().toLowerCase(), attributeMetaData);
 	}
 
 	@Override
@@ -89,6 +89,6 @@ public class DefaultEntityMetaData implements EntityMetaData
 	@Override
 	public AttributeMetaData getAttribute(String attributeName)
 	{
-		return attributes.get(attributeName);
+		return attributes.get(attributeName.toLowerCase());
 	}
 }

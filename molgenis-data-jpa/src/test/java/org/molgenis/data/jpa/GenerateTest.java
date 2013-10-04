@@ -15,7 +15,7 @@ public class GenerateTest
 	{
 		MolgenisOptions options = new MolgenisOptions();
 
-		MolgenisMetaData model = new MolgenisMetaData();
+		MolgenisMetaData model = new MolgenisMetaData("TestDataSource");
 		model.parse(this.getClass().getResourceAsStream("/org/molgenis/model/test.xml"));
 
 		EntityMetaDataGenerator entityMetaDataGenerator = new EntityMetaDataGenerator();

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class ${Name(entity)}Repository extends JpaRepository<${Name(entity)}>
 {
 	@Override
-	public ${Name(entity)}MetaData getEntityMetaData()
+	public ${entity.namespace}.${Name(entity)}MetaData getEntityMetaData()
 	{
 		return new ${Name(entity)}MetaData();
 	}

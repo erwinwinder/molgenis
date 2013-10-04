@@ -223,6 +223,7 @@ public class FieldMetaData implements AttributeMetaData
 		}
 		else
 		{
+			System.out.println(this.getName());
 			return getXrefEntity().getField(getXrefEntity().getXrefLabel());
 		}
 	}

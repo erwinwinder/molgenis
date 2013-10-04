@@ -50,7 +50,6 @@ public class ExcelSheetReader implements Repository<ExcelEntity>
 		this.cellProcessors = cellProcessors;
 	}
 
-	@Override
 	public String getName()
 	{
 		return sheet.getSheetName();

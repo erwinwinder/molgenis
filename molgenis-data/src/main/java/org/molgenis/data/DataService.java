@@ -4,8 +4,14 @@ import org.molgenis.Entity;
 
 public interface DataService
 {
+	/**
+	 * Register a new DataSourceFactory of a DataSource implementation
+	 */
 	void registerFactory(DataSourceFactory dataSourceFactory);
 
+	/**
+	 * Register a new DataSource
+	 */
 	void registerDataSource(String url);
 
 	Iterable<String> getDataSourceUrls();

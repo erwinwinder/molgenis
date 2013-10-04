@@ -42,7 +42,11 @@
 	<#list entities as entity>
 		<tr>
 		<#list entityMetaData.attributes as attribute>
-			<td>${entity.getDisplayValue(attribute.name)}</td>
+			<#if attribute.dataType != 'mref' && attribute.dataType != 'xref' && entity.getDisplayValue(attribute.name)??>
+				<td>${entity.getDisplayValue(attribute.name)}</td>
+			<#else>
+				<td>&nbsp;</td>
+			</#if>
 		</#list>
 		</tr>
 	</#list>

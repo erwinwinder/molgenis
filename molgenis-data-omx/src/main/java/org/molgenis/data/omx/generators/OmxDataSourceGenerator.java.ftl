@@ -1,4 +1,5 @@
-package org.molgenis.data.jpa;
+<#include "GeneratorHelper.ftl">
+package org.molgenis.data.omx;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -8,42 +9,34 @@ import org.molgenis.Entity;
 import org.molgenis.data.DataSource;
 import org.molgenis.data.MolgenisDataException;
 import org.molgenis.data.Repository;
-import org.molgenis.test.AddressRepository;
+import org.molgenis.data.jpa.JpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @org.springframework.stereotype.Repository
-public class JpaDataSource implements DataSource
+public class OmxDataSource implements DataSource
 {
 	private final Map<String, JpaRepository<? extends Entity>> repos = new LinkedHashMap<String, JpaRepository<? extends Entity>>();
 	
 	@Override
 	public String getUrl()
 	{
-		return "jpa://";
+		return "omx://";
 	}
 
+	<#list model.entities as entity>
+	<#if !entity.abstract>
 	@Autowired
-	public void setAddressRepository(AddressRepository addressRepository)
+	public void set${JavaName(entity)}Repository(${entity.namespace}.${JavaName(entity)}Repository ${entity.name}Repository)
 	{	
-		repos.put("address", addressRepository);
+		repos.put("${entity.name}", ${entity.name}Repository);
 	}
+	</#if>
+	</#list>
 
 	@Override
 	public String getDescription()
 	{
 		return "Database entitities";
-	}
-
-	@Override
-	public Iterable<String> getRepositoryNames()
-	{
-		return getEntityNames();
-	}
-
-	@Override
-	public Repository<? extends Entity> getRepositoryByName(String name)
-	{
-		return repos.get(name);
 	}
 
 	@Override

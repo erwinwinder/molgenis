@@ -24,7 +24,8 @@ public class JpaDataSourceGenerator extends MolgenisGenerator
 		Template template = createTemplate("/" + getClass().getSimpleName() + ".java.ftl");
 		Map<String, Object> templateArgs = createTemplateArguments(options);
 
-		File target = new File(this.getSourcePath(options) + "/org/molgenis/data/jpa/JpaDataSource.java");
+		File target = new File(this.getSourcePath(options) + "/org/molgenis/data/jpa/" + model.getDataSourceName()
+				+ ".java");
 		boolean created = target.getParentFile().mkdirs();
 		if (!created && !target.getParentFile().exists())
 		{

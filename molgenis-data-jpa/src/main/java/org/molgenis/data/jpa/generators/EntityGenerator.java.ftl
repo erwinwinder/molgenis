@@ -34,7 +34,7 @@ import javax.validation.constraints.*;
  */
 <#-- INTERFACE OR CLASS?-->
 <#if entity.abstract>
-public interface ${JavaName(entity)}<ID extends Serializable> extends <#if entity.hasImplements()><#list entity.getImplements() as i> ${i.namespace}.${JavaName(i)}<#if i_has_next>,</#if></#list><#else>Entity</#if>
+public interface ${JavaName(entity)} extends <#if entity.hasImplements()><#list entity.getImplements() as i> ${i.namespace}.${JavaName(i)}<#if i_has_next>,</#if></#list><#else>Entity</#if>
 <#else>
 @javax.persistence.Entity
 @javax.persistence.Inheritance(strategy=javax.persistence.InheritanceType.JOINED)
@@ -56,17 +56,7 @@ public interface ${JavaName(entity)}<ID extends Serializable> extends <#if entit
 </#list>
 </@compress>)
 <#-- indexes -->
-<#if entity.indices?has_content ><@compress>
-@org.hibernate.annotations.Table(appliesTo="${SqlName(entity)}", indexes={
-<#foreach index in entity.indices>
-    @org.hibernate.annotations.Index(name="${index.name}", columnNames={
-			<#foreach field in index.fields>
-	"${field}"<#if field_has_next>,</#if>
-			</#foreach>
-    })<#if index_has_next>,</#if>
-</#foreach>
-})
-</@compress></#if>
+
 public class ${JavaName(entity)} <#if entity.hasExtends()>extends ${entity.extends.namespace}.${JavaName(entity.extends)}</#if><#if entity.hasImplements()> implements<#list entity.getImplements() as i> ${i.namespace}.${JavaName(i)},</#list>Entity<#else> implements Entity</#if>
 </#if>
 {
@@ -103,7 +93,6 @@ public class ${JavaName(entity)} <#if entity.hasExtends()>extends ${entity.exten
 	</#if>
 	<#if f.type == "xref">
 	@javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, optional = false)
-	@org.hibernate.annotations.LazyCollection(org.hibernate.annotations.LazyCollectionOption.EXTRA)
 	@javax.persistence.JoinColumn(name = "${f.name}")
 	<#elseif f.type == "mref">
 	@javax.persistence.ManyToMany 
@@ -155,62 +144,23 @@ public class ${JavaName(entity)} <#if entity.hasExtends()>extends ${entity.exten
 		return this.${f.name};
 	}
 	
-	/** Set ${f.name}
+	
+	<#if f.type == "mref">
+	
+	/** Set ${f.name} using the @Id
+	 * ${f.description}
+	 */
+	public void set${JavaName(f)}(java.util.List<${f.xrefEntity.namespace}.${JavaName(f.xrefEntity)}> ${name(f)})
+	{
+		this.${f.name} = ${name(f)};
+	}
+	<#else>
+		/** Set ${f.name}
 	 * ${f.description}
 	 */
 	public void set${JavaName(f)}(${JavaType(f)} ${name(f)})
 	{
 		this.${f.name} = ${name(f)};
-	}<#if f.type == "xref">
-	/** Set ${f.name} using the @Id
-	 * ${f.description}
-	 */
-	public void set${JavaName(f)}ById(Integer ${name(f)})
-	{
-		${f.xrefEntity.namespace}.${JavaName(f.xrefEntity)} e = new ${f.xrefEntity.namespace}.${JavaName(f.xrefEntity)}();
-		e.set${JavaName(f.xrefField)}(${name(f)});
-		this.${f.name} = e;
-	}
-	
-	/** Set ${f.name} using the xrefLabel
-	 * ${f.description}
-	 */
-	public void set${JavaName(f)}ByLabel(String ${name(f)})
-	{
-		${f.xrefEntity.namespace}.${JavaName(f.xrefEntity)} e = new ${f.xrefEntity.namespace}.${JavaName(f.xrefEntity)}();
-		e.set${JavaName(f.xrefLabel)}(${name(f)});
-		this.${f.name} = e;
-	}<#elseif f.type == "mref">
-	
-	/** Set ${f.name} using the @Id
-	 * ${f.description}
-	 */
-	public void set${JavaName(f)}ById(java.util.List<Integer> ${name(f)})
-	{
-		java.util.List<${f.xrefEntity.namespace}.${JavaName(f.xrefEntity)}> list = new java.util.ArrayList<${f.xrefEntity.namespace}.${JavaName(f.xrefEntity)}>();
-		for(Integer id: ${name(f)})
-		{
-			${f.xrefEntity.namespace}.${JavaName(f.xrefEntity)} e = new ${f.xrefEntity.namespace}.${JavaName(f.xrefEntity)}();
-			e.set${JavaName(f.xrefField)}(id);
-			list.add(e);
-		}
-		this.${f.name} = list;
-	}
-	
-	/** Set ${f.name} using the xrefLabel
-	 * ${f.description}
-	 */
-	public void set${JavaName(f)}ByLabel(java.util.List<String> ${name(f)})
-	{
-		//todo: use e.setXrefLabel();
-		java.util.List<${f.xrefEntity.namespace}.${JavaName(f.xrefEntity)}> list = new java.util.ArrayList<${f.xrefEntity.namespace}.${JavaName(f.xrefEntity)}>();
-		for(String label: ${name(f)})
-		{
-			${f.xrefEntity.namespace}.${JavaName(f.xrefEntity)} e = new ${f.xrefEntity.namespace}.${JavaName(f.xrefEntity)}();
-			e.set${JavaName(f.xrefLabel)}(label);
-			list.add(e);
-		}
-		this.${f.name} = list;
 	}
 	</#if>
 </#list>
@@ -234,28 +184,11 @@ public class ${JavaName(entity)} <#if entity.hasExtends()>extends ${entity.exten
 		if("${f.name}".equalsIgnoreCase(field))
 		{
 <#if f.type == "xref">
-			if(value instanceof ${JavaType(f)}) this.set${JavaName(f.name)}((${JavaType(f)})value);
-			else if(value instanceof Integer) this.set${JavaName(f.name)}ById(TypeUtils.toInteger(value));
-			else if(value instanceof String) this.set${JavaName(f.name)}ByLabel(TypeUtils.toString(value));
+			set${JavaName(f.name)}((${JavaType(f)})value);
+			
 <#elseif f.type == "mref">
-			try
-			{
-				//if list of string ... assume labels
-				this.set${JavaName(f.name)}ByLabel(TypeUtils.toList(String.class, value));
-			}
-			catch(Exception e)
-			{
-				try
-				{
-					//if list of Integer ... assume ids
-					this.set${JavaName(f.name)}ById(TypeUtils.toList(Integer.class, value));
-				}
-				catch(Exception e2)
-				{
-					//else assume they are full objects
-					this.set${JavaName(f.name)}(TypeUtils.toList(${f.xrefEntity.namespace}.${JavaName(f.xrefEntity)}.class, value));
-				}
-			}
+			this.set${JavaName(f.name)}(TypeUtils.toList(${f.xrefEntity.namespace}.${JavaName(f.xrefEntity)}.class, value));
+
 <#else>
 			this.set${JavaName(f.name)}(TypeUtils.to${settertype(f)}(value));
 </#if>
@@ -343,7 +276,6 @@ public class ${JavaName(entity)} <#if entity.hasExtends()>extends ${entity.exten
 		return "${JavaName(entity)}(<#list entity.allFields as f>${f.name}="+get${JavaName(f)}()+"<#if f_index &gt; 0>," 
 		+"</#if></#list>)";
 	}
-</#if>
 
 	@Override
 	public String getDisplayValue(String attributeName)
@@ -356,4 +288,5 @@ public class ${JavaName(entity)} <#if entity.hasExtends()>extends ${entity.exten
 
 		return null;
 	}
+</#if>
 }

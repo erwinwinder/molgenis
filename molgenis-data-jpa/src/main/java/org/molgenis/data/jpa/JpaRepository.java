@@ -62,12 +62,6 @@ public abstract class JpaRepository<E extends Entity> implements CrudRepository<
 	}
 
 	@Override
-	public String getName()
-	{
-		return getEntityMetaData().getName();
-	}
-
-	@Override
 	public abstract EntityMetaData getEntityMetaData();
 
 	@Override
