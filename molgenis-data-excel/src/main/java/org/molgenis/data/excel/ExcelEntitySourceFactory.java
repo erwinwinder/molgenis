@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.molgenis.data.EntitySource;
 import org.molgenis.data.EntitySourceFactory;
 import org.molgenis.data.MolgenisDataException;
+import org.molgenis.io.processor.TrimProcessor;
 
 /**
  * EntitySourceFactory that creates a ExcelReader EntitySource
@@ -32,7 +33,10 @@ public class ExcelEntitySourceFactory implements EntitySourceFactory
 	{
 		try
 		{
-			return new ExcelEntitySource(url);
+			ExcelEntitySource entitySource = new ExcelEntitySource(url);
+			entitySource.addCellProcessor(new TrimProcessor());
+
+			return entitySource;
 		}
 		catch (IOException e)
 		{
