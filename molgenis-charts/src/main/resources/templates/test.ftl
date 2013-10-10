@@ -6,7 +6,7 @@
 		
 		<script type="text/javascript">
 	  		$(function() {
-				$.getScript("http://localhost:8080/charts/line?entity=eelde&x=YYYYMMDD&y=TG");
+				$.getScript("http://localhost:8080/charts/line?entity=eelde&x=${x}&y=${y}");
 			});	
 		</script>
 	</head>

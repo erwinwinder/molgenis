@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping(URI)
@@ -30,8 +31,23 @@ public class ChartController
 	}
 
 	@RequestMapping("/test")
-	public String test()
+	public String test(@RequestParam(value = "x", required = false)
+	String x, @RequestParam(value = "y", required = false)
+	String y, Model model)
 	{
+		if (x == null)
+		{
+			x = "YYYYMMDD";
+		}
+
+		if (y == null)
+		{
+			y = "TG";
+		}
+
+		model.addAttribute("x", x);
+		model.addAttribute("y", y);
+
 		return "test";
 	}
 
