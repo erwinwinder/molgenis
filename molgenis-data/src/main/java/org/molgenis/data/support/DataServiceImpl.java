@@ -62,6 +62,13 @@ public class DataServiceImpl implements DataService
 	}
 
 	@Override
+	public void removeRepository(String name)
+	{
+		repositoryNames.remove(name);
+		repositories.remove(name.toLowerCase());
+	}
+
+	@Override
 	public EntityMetaData getEntityMetaData(String entityName)
 	{
 		Repository repository = repositories.get(entityName.toLowerCase());
@@ -328,4 +335,5 @@ public class DataServiceImpl implements DataService
 			addRepository(repository);
 		}
 	}
+
 }

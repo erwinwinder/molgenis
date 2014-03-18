@@ -22,6 +22,8 @@ public interface DataService extends RepositoryCollection
 	 */
 	void addRepository(Repository repository);
 
+	void removeRepository(String name);
+
 	/**
 	 * Add all repositories of a RepositorySource
 	 * 

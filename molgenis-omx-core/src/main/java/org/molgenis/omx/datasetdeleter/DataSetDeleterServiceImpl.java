@@ -40,6 +40,7 @@ public class DataSetDeleterServiceImpl implements DataSetDeleterService
 	{
 		DataSet dataSet = dataService.findOne(DataSet.ENTITY_NAME,
 				new QueryImpl().eq(DataSet.IDENTIFIER, dataSetIdentifier), DataSet.class);
+
 		deleteData(dataSet);
 		searchService.deleteDocumentsByType(dataSet.getIdentifier());
 
@@ -54,7 +55,6 @@ public class DataSetDeleterServiceImpl implements DataSetDeleterService
 			deleteProtocol(protocolUsed, entitiesList);
 		}
 
-		dataService.delete(DataSet.ENTITY_NAME, dataSet);
 		return dataSet.getName();
 	}
 
@@ -92,6 +92,7 @@ public class DataSetDeleterServiceImpl implements DataSetDeleterService
 			dataService.delete(ObservedValue.ENTITY_NAME, observedValues);
 		}
 		dataService.delete(ObservationSet.ENTITY_NAME, observationSets);
+		dataService.delete(DataSet.ENTITY_NAME, dataset);
 	}
 
 	/**
@@ -140,9 +141,10 @@ public class DataSetDeleterServiceImpl implements DataSetDeleterService
 			entitiesList.removeAll(subprotocolsToDelete);
 		}
 		List<ObservableFeature> features = protocol.getFeatures();
-		dataService.delete(Protocol.ENTITY_NAME, protocol);
 		entitiesList.remove(protocol);
 		deleteFeatures(features, entitiesList);
+		dataService.delete(Protocol.ENTITY_NAME, protocol);
+
 		return entitiesList;
 	}
 
