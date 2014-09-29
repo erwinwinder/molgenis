@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -155,8 +154,6 @@ public class DataExplorerController extends MolgenisPluginController
 	public String init(@RequestParam(value = "dataset", required = false) String selectedEntityName,
 			@RequestParam(value = "searchTerm", required = false) String searchTerm, Model model) throws Exception
 	{
-		boolean entityExists = false;
-		boolean hasEntityPermission = false;
 		Iterable<EntityMetaData> entitiesMeta = Iterables.transform(dataService.getEntityNames(),
 				new Function<String, EntityMetaData>()
 				{
@@ -167,11 +164,14 @@ public class DataExplorerController extends MolgenisPluginController
 					}
 				});
 		model.addAttribute("entitiesMeta", entitiesMeta);
+
+		boolean entityExists = false;
+		boolean hasEntityPermission = false;
+
 		if (selectedEntityName != null)
 		{
 			entityExists = dataService.hasRepository(selectedEntityName);
 			hasEntityPermission = molgenisPermissionService.hasPermissionOnEntity(selectedEntityName, Permission.COUNT);
-
 		}
 
 		if (entityExists && hasEntityPermission)
@@ -191,12 +191,8 @@ public class DataExplorerController extends MolgenisPluginController
 				}
 				model.addAttribute("warningMessage", message.toString());
 			}
-			Iterator<EntityMetaData> entitiesIterator = entitiesMeta.iterator();
-			if (entitiesIterator.hasNext())
-			{
-				selectedEntityName = entitiesIterator.next().getName();
-			}
 		}
+
 		model.addAttribute("selectedEntityName", selectedEntityName);
 		model.addAttribute("searchTerm", searchTerm);
 		model.addAttribute("hideSearchBox", molgenisSettings.getBooleanProperty(KEY_HIDE_SEARCH_BOX, false));
@@ -582,7 +578,8 @@ public class DataExplorerController extends MolgenisPluginController
 	}
 
 	@RequestMapping(value = "/settings", method = RequestMethod.GET)
-	public @ResponseBody Map<String, String> getSettings(@RequestParam(required = false) String keyStartsWith)
+	public @ResponseBody
+	Map<String, String> getSettings(@RequestParam(required = false) String keyStartsWith)
 	{
 		if (keyStartsWith == null)
 		{

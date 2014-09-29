@@ -101,7 +101,26 @@ function($, molgenis, settingsXhr) {
 			$('#entity-class-description').html('');
 		}
 	}
+	
+	function updateCookie() {
+		if (getSelectedEntityMeta()) {
+		$.cookie('entity', getSelectedEntityMeta().name, { expires: 365 });
+		$.cookie('q', createEntityQuery(), { expires: 365 });
+		}
+	}
 
+	function readCookie() {
+		var entity = $.cookie('entity');
+		if (entity) {
+			$('#dataset-select').val('/api/v1/' + entity);
+		}
+		
+		var q = $.cookie('q');
+		if (q) {
+			$(document).trigger('changeQuery', q);
+		}
+	}
+	
 	/**
 	 * @memberOf molgenis.dataexplorer
 	 */
@@ -219,6 +238,11 @@ function($, molgenis, settingsXhr) {
 	 * @memberOf molgenis.dataexplorer
 	 */
 	$(function() {
+		$.cookie.json = true;
+		
+		$(document).on('changeQuery.data', function(e, query) {
+			updateCookie();
+		});
 		
 		var searchTerm = $("#observationset-search").val();
 		
@@ -273,6 +297,7 @@ function($, molgenis, settingsXhr) {
 				});
 				
 				self.createHeader(entityMetaData);
+				updateCookie();
 			});
 		});
 		
@@ -335,6 +360,10 @@ function($, molgenis, settingsXhr) {
 			e.preventDefault();
 			$(document).trigger('removeAttributeFilter', {'attributeUri': $(this).data('href')});
 		});
+		
+		if (!entityPreSelected) {
+			readCookie();
+		}
 		
 		// fire event handler
 		$('#dataset-select').change();

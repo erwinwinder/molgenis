@@ -28,7 +28,8 @@
 	"jquery.molgenis.xrefmrefsearch.js",
 	"dataexplorer.js",
 	"jquery.molgenis.table.js",
-	"handlebars.min.js"]>
+	"handlebars.min.js",
+	"jquery.cookie.js"]>
 
 <@header css js/>
 
@@ -99,7 +100,7 @@
         		<div class="col-md-7">
         			<select class="form-control" id="dataset-select" data-placeholder="Choose an Entity (example: dataset, protocol..." id="dataset-select">
             		<#list entitiesMeta.iterator() as entityMeta>
-                		<option value="/api/v1/${entityMeta.name}" <#if entityMeta.name == selectedEntityName> selected</#if>><#if entityMeta.label?has_content>${entityMeta.label}<#else>${entityMeta.name}</#if></option>
+                		<option value="/api/v1/${entityMeta.name}" <#if selectedEntityName?? && (entityMeta.name == selectedEntityName)> selected</#if>><#if entityMeta.label?has_content>${entityMeta.label}<#else>${entityMeta.name}</#if></option>
                		</#list>
             		</select>
        			</div>
@@ -170,4 +171,9 @@
 		</div>
 	</div>
 </script>
+
+<script>
+	var entityPreSelected = <#if selectedEntityName??>true<#else>false</#if>
+</script>
+
 <@footer/>
