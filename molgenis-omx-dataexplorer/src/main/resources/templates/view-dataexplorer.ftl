@@ -31,7 +31,8 @@
 	"handlebars.min.js"]>
 
 <@header css js/>
-
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDbeHQGlsQQVbPr7iX4C7W7Lk3ayDkLvfI"></script>
+    
 <div id="entity-class" class="well">
 	<h3 id="entity-class-name"></h3>
 	<span id="entity-class-description"></span>

@@ -17,6 +17,7 @@
     self.setGenomeBrowserAttributes = setGenomeBrowserAttributes;
     self.setGenomeBrowserSettings = setGenomeBrowserSettings;
     self.setGenomeBrowserEntities = setGenomeBrowserEntities;
+    self.createMap = createMap;
     
 	var restApi = new molgenis.RestClient();
 	var genomeBrowser;
@@ -29,6 +30,9 @@
     var genomeBrowserSettings = {};
     var featureInfoMap = {};
 
+    var map;
+    var mapFeatures = [];
+    
     /**
 	 * @memberOf molgenis.dataexplorer.data
 	 */
@@ -96,6 +100,71 @@
 		});
 
 		return dataRequest;
+	}
+	
+	//--BEGIN map
+	function createMap() {
+		$('#map-canvas').css('display', 'block');
+		
+       map =  new google.maps.Map(document.getElementById('map-canvas'), {
+  			center: { lat: 52.0901422, lng: 5.109664899999984},//utrecht
+  			zoom: 7
+		});
+    }
+
+	function showOnMap(data) {
+		clearMap();
+		
+		$.each(data.attributes, function(index, attribute) {
+			if (attribute.fieldType === 'GEOMETRY') {
+				$.each(data.data.items, function(index, entity){
+					var feature = {
+						type: 'Feature',
+						geometry: entity[attribute.name]
+					};
+					var addedFeatures = map.data.addGeoJson(feature);
+					mapFeatures.push(addedFeatures[0]);
+				});
+			}
+		});
+		
+		zoomMapToFeatureBounds()
+	}
+	
+	function clearMap() {
+		$.each(mapFeatures, function() {
+			map.data.remove(this);
+		});
+		
+		mapFeatures = [];
+	}
+	
+	function zoomMapToFeatureBounds() {
+		var bounds = new google.maps.LatLngBounds();
+		map.data.forEach(function(feature) {
+			processPoints(feature.getGeometry(), bounds.extend, bounds);
+		});
+		map.fitBounds(bounds);
+	}
+
+	/**
+	 * Process each point in a Geometry, regardless of how deep the points may lie.
+	 * @param {google.maps.Data.Geometry} geometry The structure to process
+	 * @param {function(google.maps.LatLng)} callback A function to call on each
+	 *     LatLng point encountered (e.g. Array.push)
+	 * @param {Object} thisArg The value of 'this' as provided to 'callback' (e.g.
+	 *     myArray)
+	 */
+	function processPoints(geometry, callback, thisArg) {
+		if (geometry instanceof google.maps.LatLng) {
+			callback.call(thisArg, geometry);
+		} else if (geometry instanceof google.maps.Data.Point) {
+			callback.call(thisArg, geometry.get());
+		} else {
+			geometry.getArray().forEach(function(g) {
+				processPoints(g, callback, thisArg);
+			});
+		}
 	}
 
 	//--BEGIN genome browser--
@@ -325,6 +394,10 @@
 			// TODO what to do for genome browser
 		});
 
+		$(document).on('onTableDataChanged', function(e, data) {
+			showOnMap(data);
+		});
+		
 		$('#download-button').click(function() {
 			download();
 		});

@@ -34,6 +34,7 @@ import org.molgenis.data.support.ConvertingIterable;
 import org.molgenis.data.support.MapEntity;
 import org.molgenis.data.support.QueryImpl;
 import org.molgenis.fieldtypes.FieldType;
+import org.molgenis.fieldtypes.GeometryField;
 import org.molgenis.fieldtypes.IntField;
 import org.molgenis.fieldtypes.MrefField;
 import org.molgenis.fieldtypes.StringField;
@@ -251,6 +252,7 @@ public class MysqlRepository extends AbstractCrudRepository implements Manageabl
 			case SCRIPT:
 				break;
 			case STRING:
+			case GEOMETRY:
 				break;
 			case TEXT:
 				break;
@@ -368,7 +370,15 @@ public class MysqlRepository extends AbstractCrudRepository implements Manageabl
 			if (!(att.getDataType() instanceof MrefField))
 			{
 				sql.append('`').append(att.getName()).append('`').append(", ");
-				params.append("?, ");
+				if (att.getDataType() instanceof GeometryField)
+				{
+					params.append("GeomFromText(?), ");
+				}
+				else
+				{
+					params.append("?, ");
+				}
+
 			}
 		if (sql.charAt(sql.length() - 1) == ' ' && sql.charAt(sql.length() - 2) == ',')
 		{
@@ -496,6 +506,13 @@ public class MysqlRepository extends AbstractCrudRepository implements Manageabl
 				select.append("GROUP_CONCAT(DISTINCT(").append('`').append(att.getName()).append('`').append('.')
 						.append('`').append(att.getName()).append('`').append(")) AS ").append('`')
 						.append(att.getName()).append('`');
+			}
+			else if (att.getDataType() instanceof GeometryField)
+			{
+				select.append("AsText(this.`").append(att.getName()).append("`) as `").append(att.getName())
+						.append('`');
+				if (group.length() > 0) group.append(", this.").append('`').append(att.getName()).append('`');
+				else group.append("this.").append('`').append(att.getName()).append('`');
 			}
 			else
 			{
@@ -887,13 +904,23 @@ public class MysqlRepository extends AbstractCrudRepository implements Manageabl
 		for (AttributeMetaData att : getEntityMetaData().getAtomicAttributes())
 			if (!(att.getDataType() instanceof MrefField))
 			{
-				sql.append('`').append(att.getName()).append('`').append(" = ?, ");
+				sql.append('`').append(att.getName()).append('`');
+				if (att.getDataType() instanceof GeometryField)
+				{
+					sql.append(" = GeomFromText(?), ");
+				}
+				else
+				{
+					sql.append(" = ?, ");
+				}
 			}
 		if (sql.charAt(sql.length() - 1) == ' ' && sql.charAt(sql.length() - 2) == ',')
 		{
 			sql.setLength(sql.length() - 2);
 		}
 		sql.append(" WHERE ").append('`').append(idAttribute.getName()).append('`').append("= ?");
+		;
+
 		return sql.toString();
 	}
 
@@ -1009,14 +1036,29 @@ public class MysqlRepository extends AbstractCrudRepository implements Manageabl
 							}
 							else
 							{
-								// default value, if any
-								if (batch.get(rowIndex).get(att.getName()) == null)
+								Entity e = batch.get(rowIndex);
+								if (att.getDataType() instanceof GeometryField)
 								{
+									// TODO use WKB?
+									String wkt;
+									if (e.get(att.getName()) == null)
+									{
+										wkt = DataConverter.toString(att.getDefaultValue());
+									}
+									else
+									{
+										wkt = DataConverter.toString(e.get(att.getName()));
+									}
+									preparedStatement.setString(fieldIndex++, wkt);
+								}
+								else if (e.get(att.getName()) == null)
+								{
+									// default value, if any
 									preparedStatement.setObject(fieldIndex++, att.getDefaultValue());
 								}
 								else if (att.getDataType() instanceof XrefField)
 								{
-									Object value = batch.get(rowIndex).get(att.getName());
+									Object value = e.get(att.getName());
 									if (value instanceof Entity)
 									{
 										value = ((Entity) value).get(att.getRefEntity().getIdAttribute().getName());
@@ -1028,7 +1070,7 @@ public class MysqlRepository extends AbstractCrudRepository implements Manageabl
 								else
 								{
 									preparedStatement.setObject(fieldIndex++,
-											att.getDataType().convert(batch.get(rowIndex).get(att.getName())));
+											att.getDataType().convert(e.get(att.getName())));
 								}
 							}
 						}
@@ -1143,6 +1185,10 @@ public class MysqlRepository extends AbstractCrudRepository implements Manageabl
 									preparedStatement.setObject(fieldIndex++, att.getRefEntity().getIdAttribute()
 											.getDataType().convert(value));
 								}
+							}
+							else if (att.getDataType() instanceof GeometryField)
+							{
+								preparedStatement.setString(fieldIndex++, DataConverter.toString(e.get(att.getName())));
 							}
 							else
 							{

@@ -286,7 +286,8 @@ function formatTableCellValue(value, dataType, editable) {
 
 	} else if (dataType.toLowerCase() == "email") {
 		value = '<a href="mailto:' + value + '">' + htmlEscape(value) + '</a>';
-
+	} else if (dataType.toLowerCase() == 'geometry') {
+		value = value.type;
 	} else if (dataType.toLowerCase() != 'html') {
 
 		if (value.length > 50) {

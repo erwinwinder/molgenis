@@ -12,6 +12,8 @@ import org.molgenis.data.Entity;
 import org.molgenis.data.convert.DateToStringConverter;
 import org.springframework.beans.BeanUtils;
 
+import com.vividsolutions.jts.geom.Geometry;
+
 public abstract class AbstractEntity implements Entity
 {
 	private static final long serialVersionUID = 1L;
@@ -34,8 +36,8 @@ public abstract class AbstractEntity implements Entity
 			case LONG:
 			case STRING:
 			case TEXT:
-				Object obj = get(labelAttributeName);
-				return obj != null ? obj.toString() : null;
+			case GEOMETRY:
+				return getString(labelAttributeName);
 			case DATE:
 			case DATE_TIME:
 				Date date = getUtilDate(labelAttributeName);
@@ -124,6 +126,12 @@ public abstract class AbstractEntity implements Entity
 	public Entity getEntity(String attributeName)
 	{
 		return DataConverter.toEntity(get(attributeName));
+	}
+
+	@Override
+	public Geometry getGeometry(String attributeName)
+	{
+		return DataConverter.toGeometry(get(attributeName));
 	}
 
 	@Override

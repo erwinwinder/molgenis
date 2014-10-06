@@ -103,6 +103,7 @@
 		restApi.getAsync(entityCollectionUri, {'attributes' : attributeNames, 'expand' : expandAttributeNames, 'q' : q}, function(data) {
 			settings.data = data;
 			callback(data);
+			$(document).trigger('onTableDataChanged', {data: data, attributes: settings.colAttributes});
 		});
 	}
 

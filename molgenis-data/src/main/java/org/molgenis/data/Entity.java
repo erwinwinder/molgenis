@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.List;
 
+import com.vividsolutions.jts.geom.Geometry;
+
 /**
  * Entity is a data record which can contain a hash of attribute values. Attribute names are unique. Synonyms are
  * ‘tuple’, ‘record’, ‘row’, ‘hashmap’. Optionally Entity can provide a unique ‘id’ for updates. Optionally Entity can
@@ -80,6 +82,11 @@ public interface Entity extends Serializable
 	 * Retrieves the value of the designated column as entity
 	 */
 	Entity getEntity(String attributeName);
+
+	/**
+	 * Retrieves the value of the designated column as Geometry
+	 */
+	Geometry getGeometry(String attributeName);
 
 	/**
 	 * Retrieves the value of the designated column as entity of the give type

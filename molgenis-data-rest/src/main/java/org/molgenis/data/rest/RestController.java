@@ -4,6 +4,7 @@ import static org.molgenis.MolgenisFieldTypes.FieldTypeEnum.CATEGORICAL;
 import static org.molgenis.MolgenisFieldTypes.FieldTypeEnum.COMPOUND;
 import static org.molgenis.MolgenisFieldTypes.FieldTypeEnum.DATE;
 import static org.molgenis.MolgenisFieldTypes.FieldTypeEnum.DATE_TIME;
+import static org.molgenis.MolgenisFieldTypes.FieldTypeEnum.GEOMETRY;
 import static org.molgenis.MolgenisFieldTypes.FieldTypeEnum.MREF;
 import static org.molgenis.MolgenisFieldTypes.FieldTypeEnum.XREF;
 import static org.molgenis.data.rest.RestController.BASE_URI;
@@ -1151,6 +1152,10 @@ public class RestController
 							.put(attrName,
 									date != null ? new SimpleDateFormat(MolgenisDateFormat.DATEFORMAT_DATETIME)
 											.format(date) : null);
+				}
+				else if (attrType == GEOMETRY)
+				{
+					entityMap.put(attrName, entity.getGeometry(attrName));
 				}
 				else if (attrType != XREF && attrType != CATEGORICAL && attrType != MREF)
 				{

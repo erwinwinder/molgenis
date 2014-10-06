@@ -218,3 +218,8 @@ ul.fancytree-container {
 #chartCreationButtons {
 	padding-top: 10px;
 }
+
+#map-canvas {
+	height: 400px;
+	display: none;
+}

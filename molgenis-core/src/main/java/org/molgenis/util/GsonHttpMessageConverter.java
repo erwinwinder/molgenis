@@ -33,6 +33,8 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.github.filosganga.geogson.gson.GeometryAdapterFactory;
+import com.github.filosganga.geogson.jts.JtsAdapterFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
@@ -72,6 +74,10 @@ public class GsonHttpMessageConverter extends BaseHttpMessageConverter<Object>
 
 		GsonBuilder builder = new GsonBuilder().setDateFormat(MolgenisDateFormat.DATEFORMAT_DATETIME)
 				.disableHtmlEscaping();
+
+		builder.registerTypeAdapterFactory(new JtsAdapterFactory());
+		builder.registerTypeAdapterFactory(new GeometryAdapterFactory());
+
 		if (prettyPrinting)
 		{
 			builder = builder.setPrettyPrinting();

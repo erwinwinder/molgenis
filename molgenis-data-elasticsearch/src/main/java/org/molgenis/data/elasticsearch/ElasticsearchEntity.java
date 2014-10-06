@@ -20,6 +20,7 @@ import org.molgenis.util.MolgenisDateFormat;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.vividsolutions.jts.geom.Geometry;
 
 public abstract class ElasticsearchEntity implements Entity
 {
@@ -139,6 +140,8 @@ public abstract class ElasticsearchEntity implements Entity
 				return getLong(attributeName);
 			case MREF:
 				return getEntities(attributeName);
+			case GEOMETRY:
+				return getGeometry(attributeName);
 			default:
 				throw new RuntimeException("Unknown data type [" + dataType + "]");
 		}
@@ -247,6 +250,12 @@ public abstract class ElasticsearchEntity implements Entity
 	public List<Integer> getIntList(String attributeName)
 	{
 		return DataConverter.toIntList(source.get(attributeName));
+	}
+
+	@Override
+	public Geometry getGeometry(String attributeName)
+	{
+		return DataConverter.toGeometry(attributeName);
 	}
 
 	@Override

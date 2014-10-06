@@ -8,11 +8,15 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.molgenis.data.convert.DateToStringConverter;
+import org.molgenis.data.convert.GeometryToStringConverter;
 import org.molgenis.data.convert.StringToDateConverter;
+import org.molgenis.data.convert.StringToGeometryConverter;
 import org.molgenis.util.ApplicationContextProvider;
 import org.molgenis.util.ListEscapeUtils;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP_BOOLEAN_RETURN_NULL", justification = "We want to return Boolean.TRUE, Boolean.FALSE or null")
 public class DataConverter
@@ -71,10 +75,19 @@ public class DataConverter
 				return toInt(source);
 			case LONG:
 				return toLong(source);
+			case GEOMETRY:
+				return toGeometry(source);
 			default:
 				return toString(source);
 
 		}
+	}
+
+	public static Geometry toGeometry(Object source)
+	{
+		if (source == null) return null;
+		if (source instanceof Geometry) return (Geometry) source;
+		return convert(source, Geometry.class);
 	}
 
 	public static String toString(Object source)
@@ -219,6 +232,8 @@ public class DataConverter
 				conversionService = new DefaultConversionService();
 				((DefaultConversionService) conversionService).addConverter(new DateToStringConverter());
 				((DefaultConversionService) conversionService).addConverter(new StringToDateConverter());
+				((DefaultConversionService) conversionService).addConverter(new GeometryToStringConverter());
+				((DefaultConversionService) conversionService).addConverter(new StringToGeometryConverter());
 			}
 			else
 			{

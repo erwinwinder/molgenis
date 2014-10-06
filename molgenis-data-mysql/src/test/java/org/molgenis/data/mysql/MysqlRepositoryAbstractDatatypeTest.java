@@ -60,7 +60,7 @@ public abstract class MysqlRepositoryAbstractDatatypeTest extends AbstractTestNG
 			Object defaultValue = repo.getEntityMetaData().getAttribute("col3").getDefaultValue();
 			logger.debug("defaultClass=" + defaultValue.getClass().getName() + " - valueClass="
 					+ value.getClass().getName());
-			Assert.assertEquals(defaultValue, value);
+			Assert.assertEquals(value, defaultValue);
 
 		}
 

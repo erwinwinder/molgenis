@@ -20,6 +20,11 @@
 	</div>
 	<div class="row">
         <div class="col-md-12">
+        	<div id="map-canvas"></div>
+        </div>
+    </div>
+	<div class="row">
+        <div class="col-md-12">
             <div class="data-table-container" id="data-table-container"></div>
         </div>
     </div>
@@ -142,14 +147,26 @@
 		        {
 		            $('#genomebrowser').css('display', 'none');
 		        }
-
+			
 			<#-- create data table -->
 			var rowClickable = ${rowClickable?string('true', 'false')};
 			var tableEditable = ${tableEditable?string('true', 'false')};
 			if (tableEditable) {
 				tableEditable = molgenis.hasWritePermission(molgenis.dataexplorer.getSelectedEntityMeta().name);
 			}
-			molgenis.dataexplorer.data.createDataTable(tableEditable, rowClickable);    	
+			molgenis.dataexplorer.data.createDataTable(tableEditable, rowClickable);  
+			
+			<#-- map -->
+			var showMap = false;
+			$.each(molgenis.dataexplorer.getSelectedEntityMeta().attributes, function() {
+				if (this.fieldType == 'GEOMETRY') {
+					showMap = true;
+				}
+			}); 	
+			if (showMap) {
+				molgenis.dataexplorer.data.createMap();
+			}
+			
 		})
 		.fail(function() {
 			molgenis.createAlert([{'message': 'An error occured. Please contact the administrator.'}], 'error');

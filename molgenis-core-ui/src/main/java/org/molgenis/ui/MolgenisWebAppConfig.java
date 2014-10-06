@@ -19,11 +19,10 @@ import org.molgenis.data.MolgenisDataException;
 import org.molgenis.data.Repository;
 import org.molgenis.data.RepositoryDecoratorFactory;
 import org.molgenis.data.convert.DateToStringConverter;
+import org.molgenis.data.convert.GeometryToStringConverter;
 import org.molgenis.data.convert.StringToDateConverter;
-import org.molgenis.data.elasticsearch.ElasticsearchRepositoryDecorator;
+import org.molgenis.data.convert.StringToGeometryConverter;
 import org.molgenis.data.elasticsearch.SearchService;
-import org.molgenis.data.elasticsearch.meta.ElasticsearchAttributeMetaDataRepository;
-import org.molgenis.data.elasticsearch.meta.ElasticsearchEntityMetaDataRepository;
 import org.molgenis.data.meta.AttributeMetaDataRepository;
 import org.molgenis.data.meta.AttributeMetaDataRepositoryDecoratorFactory;
 import org.molgenis.data.meta.EntityMetaDataRepository;
@@ -136,6 +135,8 @@ public abstract class MolgenisWebAppConfig extends WebMvcConfigurerAdapter
 	{
 		registry.addConverter(new DateToStringConverter());
 		registry.addConverter(new StringToDateConverter());
+		registry.addConverter(new GeometryToStringConverter());
+		registry.addConverter(new StringToGeometryConverter());
 	}
 
 	@Bean
@@ -351,26 +352,27 @@ public abstract class MolgenisWebAppConfig extends WebMvcConfigurerAdapter
 				else
 				{
 					// create indexing meta data if meta data does not exist
-					EntityMetaData entityMetaData = repository.getEntityMetaData();
-					if (!elasticSearchService.hasMapping(entityMetaData))
-					{
-						try
-						{
-							elasticSearchService.createMappings(entityMetaData);
-						}
-						catch (IOException e)
-						{
-							throw new MolgenisDataException(e);
-						}
-					}
+//					EntityMetaData entityMetaData = repository.getEntityMetaData();
+//					if (!elasticSearchService.hasMapping(entityMetaData))
+//					{
+//						try
+//						{
+//							elasticSearchService.createMappings(entityMetaData);
+//						}
+//						catch (IOException e)
+//						{
+//							throw new MolgenisDataException(e);
+//						}
+//					}
 
 					// 1. security decorator
 					// 2. validation decorator
 					// 3. indexing decorator
 					// 4. repository
-					return new IndexedCrudRepositorySecurityDecorator(new IndexedRepositoryValidationDecorator(
-							dataService, new ElasticsearchRepositoryDecorator(repository, elasticSearchService),
-							new EntityAttributesValidator()), molgenisSettings);
+					// return new IndexedCrudRepositorySecurityDecorator(new IndexedRepositoryValidationDecorator(
+					// dataService, new ElasticsearchRepositoryDecorator(repository, elasticSearchService),
+					// new EntityAttributesValidator()), molgenisSettings);
+					return repository;
 				}
 			}
 		};
@@ -386,7 +388,8 @@ public abstract class MolgenisWebAppConfig extends WebMvcConfigurerAdapter
 			public AttributeMetaDataRepository createDecoratedRepository(AttributeMetaDataRepository repository)
 			{
 				// 1. indexing decorator
-				return new ElasticsearchAttributeMetaDataRepository(repository, dataService, elasticSearchService);
+				return repository;
+				// return new ElasticsearchAttributeMetaDataRepository(repository, dataService, elasticSearchService);
 			}
 		};
 	}
@@ -401,7 +404,8 @@ public abstract class MolgenisWebAppConfig extends WebMvcConfigurerAdapter
 			public EntityMetaDataRepository createDecoratedRepository(EntityMetaDataRepository repository)
 			{
 				// 1. indexing decorator
-				return new ElasticsearchEntityMetaDataRepository(repository, elasticSearchService);
+				return repository;
+				// return new ElasticsearchEntityMetaDataRepository(repository, elasticSearchService);
 			}
 		};
 	}

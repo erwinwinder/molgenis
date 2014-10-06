@@ -20,6 +20,7 @@ import org.molgenis.util.MolgenisDateFormat;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Wraps an entity that behaves like an entity with other entity meta data. Reference data types (e.g. categorical,
@@ -146,6 +147,8 @@ public class TransformedEntity implements Entity
 				return getLong(attributeName);
 			case MREF:
 				return getEntities(attributeName);
+			case GEOMETRY:
+				return getGeometry(attributeName);
 			default:
 				throw new RuntimeException("Unknown data type [" + dataType + "]");
 		}
@@ -311,5 +314,11 @@ public class TransformedEntity implements Entity
 	public void set(Entity values)
 	{
 		throw new UnsupportedOperationException(this.getClass().getSimpleName() + " is not mutable");
+	}
+
+	@Override
+	public Geometry getGeometry(String attributeName)
+	{
+		return DataConverter.toGeometry(entity.get(attributeName));
 	}
 }
