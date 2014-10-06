@@ -1,0 +1,266 @@
+/* variables */
+@dark: #313239;
+
+/* functions (mixins) */
+
+.box-shadow(@style, @c) when (iscolor(@c)) {
+  -webkit-box-shadow: @style @c;
+  box-shadow:         @style @c;
+}
+
+// box shadow helper
+.box-shadow(@style, @alpha: 50%) when (isnumber(@alpha)) {
+  .box-shadow(@style, rgba(0, 0, 0, @alpha));
+}
+
+// transparent content areas
+.transparentWhite(@alpha: 60%)
+{
+	background: #fff;
+	background: rgba(255,255,255,@alpha);
+}
+
+// rem font size
+// 16 px is 1
+// 32 px is 2
+// always work in % 4, so either 12, 16, 20, 24 etc..
+.font-size(@sizeValue) {
+	@remValue: @sizeValue;
+  	@pxValue: (@sizeValue * 10);
+  	font-size: ~"@{pxValue}px"; 
+  	font-size: ~"@{remValue}rem";
+}
+
+/* less stylesheet */
+
+html {
+	font-size: 16px;
+}
+
+body, html {
+	height: 100%;
+}
+
+body {
+
+	background: @dark;
+	font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+	background: @dark url('../img/bg-footer.jpg') no-repeat left bottom; 
+}
+
+.contentWrapper {
+	background: #fff url('../img/bg-body.jpg') no-repeat left top;
+}
+
+.topContainer, footer {
+	height: 75px;			
+	nav {
+		float: right;
+		ul, li {
+			list-style: none;
+			padding: 0px;
+			margin: 0px;				
+		}
+		li {
+			display: inline;
+			line-height: 75px;				
+			a {
+				color: #000000;
+				margin-left: 30px;
+				.font-size(1);
+			}
+		}
+	}
+}
+
+.mainNav {
+	background: @dark url('../img/bg-mainNav.jpg') no-repeat center center;
+	height: 75px;
+	width: 100%;
+	 .box-shadow(0px 2px 5px, 30%);
+	.col-md-12 {
+		position: relative;
+	}		 
+	.logo {
+		display: block;
+		width: 241px;
+		position: absolute;
+		height: 103px;
+		left: 0px;
+		top: -17px;
+		background: url('../img/logo.png') no-repeat;
+	}		
+	nav {
+		float: right;
+		ul, li {
+			list-style: none;
+			padding: 0px;
+			margin: 0px;
+		}
+		li {
+			display: block;
+			float: left;
+			line-height: 75px;
+			position: relative;
+			a {
+				display: block;
+				padding: 0px 30px 0px 30px;
+				float: left;
+				top: -1px;
+				.font-size(1.75);				
+				height: 76px;
+				position: relative;
+				z-index: 5;
+				color: #f7f7f7;
+			}
+			a.open {
+				background:#e8ecee;
+				color: #000;
+				position: relative;
+				z-index: 110;
+			}
+		}
+		li.visualise .submenu, .analyse .submenu {
+			left: auto;
+			right: -1px;
+		}
+	}
+	.submenu {
+		width: 435px;
+		display: none;
+		line-height: 1em;
+		top: 75px;
+		background: #e8ecee;
+		left: -1px;
+		border: 1px solid #bac5cb;
+		border-top: none;
+		position: absolute;
+		z-index: 100;
+		 .box-shadow(0px 2px 5px, 20%);
+		.row {
+			padding: 15px;
+		}
+		ul {
+			border-bottom: 1px solid #fff;
+			margin-bottom: 10px;
+		}
+		li {
+			line-height: 1em;
+			float: none;
+			display: inline;
+			.font-size(1);							
+			text-transform: uppercase;
+		}
+		li strong {
+			display: block;
+			padding-bottom: 10px;
+		}
+		a {
+			height: auto;			
+			color: #000;
+			display: block;
+			text-transform: none;
+			line-height: 1em;
+			float: none;
+			padding: 0px;
+			padding-bottom: 10px;
+			.font-size(1);
+		}
+		.col-md-6 ul:last-child {
+			border: none;
+			margin-bottom: 0px;
+		}
+	}	 
+}
+
+.mainContent {
+	position: relative;
+	padding-top: 26px;
+	z-index: 0;
+	.col-md-11 {
+		float: none;
+		margin: 0px auto 0px auto;
+	}
+	.breadcrumbs {
+		display: inline-block;
+		height: 36px;
+		line-height: 36px;
+		padding: 0px 13px 0px 13px;
+		.box-shadow(0px 0px 20px, 10%);		
+		.transparentWhite();
+		ul {
+			list-style: none;
+			padding: 0px;
+			margin: 0px;
+			li {
+				display: block;
+				float: left;
+				color: #666;
+				margin-right: 6px;
+				cursor: default;
+			}
+			li span {
+				padding: 0px 6px 0px 0px;
+				color: #666;
+			}
+			li a span {
+				color: #000;
+			}
+			li:after {
+				content: '/';
+			}
+			li:last-child:after {
+				content: '';
+			}
+			li:last-child span {
+				padding-right: 0px;
+			}
+		}
+	}
+	.content {
+		margin-bottom: 26px;
+		.box-shadow(0px 0px 20px, 10%);
+		.transparentWhite();
+		padding: 26px 13px 26px 13px;;
+		h1, h2, h3, h4, h5, h6 {
+			margin: 0px;
+			.font-size(1.75);
+			padding: 0px 0px 13px 0px;
+		}
+		h2 {
+			.font-size(1.5);
+		}
+		h3 {
+			.font-size(1.25);
+		}
+		h4 {
+			.font-size(1);
+		}
+		h5 {
+			.font-size(0.75);
+		}
+		h6 {
+			// dit is een straf dat je zover in de headings zit, ga terug!
+			.font-size(0.25);
+		}
+		p {
+			font-size: 0.75;
+			padding-bottom: 13px;
+			margin: 0px;
+		}
+	}
+	
+}
+
+footer {
+	height: 75px;
+	line-height: 75px;
+	color: #fff;
+	.font-size(1);
+	nav ul li a {
+		color: #fff;
+	}
+	nav ul li a:hover {
+		color: #fff;
+	}
+}
