@@ -10,5 +10,11 @@ $(function(){
 			$(this).find('> a').removeClass('open');			
 		}
 	);
-	
+	$('form select').selectpicker({
+		style: 'btn-primary'
+	});	
+	$('form input').iCheck({
+		checkboxClass: 'icheckbox_square-blue',
+		radioClass: 'iradio_square'
+	});	
 });
