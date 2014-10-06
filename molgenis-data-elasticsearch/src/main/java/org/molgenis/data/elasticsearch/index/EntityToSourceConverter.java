@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.elasticsearch.common.collect.Lists;
+import org.elasticsearch.common.geo.builders.PolygonBuilder;
+import org.elasticsearch.common.geo.builders.ShapeBuilder;
 import org.molgenis.MolgenisFieldTypes.FieldTypeEnum;
 import org.molgenis.data.AttributeMetaData;
 import org.molgenis.data.Entity;
@@ -15,6 +17,9 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Converts entities to Elasticsearch documents
@@ -142,6 +147,38 @@ public class EntityToSourceConverter
 				}
 				break;
 			}
+			case GEOMETRY:
+				Geometry geometry = entity.getGeometry(attrName);
+				if (geometry == null)
+				{
+					value = null;
+				}
+				else
+				{
+					if (geometry instanceof Point)
+					{
+						value = ShapeBuilder.newPoint(((Point) geometry).getCoordinate());
+					}
+					else if (geometry instanceof Polygon)
+					{
+						Polygon poly = ((Polygon) geometry);
+						PolygonBuilder pb = ShapeBuilder.newPolygon().points(poly.getExteriorRing().getCoordinates());
+						for (int i = 0; i < poly.getNumInteriorRing(); i++)
+						{
+							pb.hole().points(poly.getInteriorRingN(i).getCoordinates()).close();
+						}
+						pb.close();
+
+						value = pb;
+					}
+					else
+					{
+						throw new IllegalArgumentException("Unsupported geometry type [" + geometry + "]");
+					}
+
+				}
+
+				break;
 			case COMPOUND:
 				throw new RuntimeException("Compound attribute is not an atomic attribute");
 			case FILE:

@@ -395,7 +395,9 @@
 		});
 
 		$(document).on('onTableDataChanged', function(e, data) {
-			showOnMap(data);
+			if (map) {
+				showOnMap(data);
+			}
 		});
 		
 		$('#download-button').click(function() {

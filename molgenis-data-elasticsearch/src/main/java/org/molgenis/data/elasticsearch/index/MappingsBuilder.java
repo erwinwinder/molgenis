@@ -16,7 +16,6 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.molgenis.MolgenisFieldTypes;
 import org.molgenis.MolgenisFieldTypes.FieldTypeEnum;
 import org.molgenis.data.AttributeMetaData;
-import org.molgenis.data.Entity;
 import org.molgenis.data.EntityMetaData;
 import org.molgenis.data.MolgenisDataException;
 import org.molgenis.data.Range;
@@ -224,6 +223,9 @@ public class MappingsBuilder
 				jsonBuilder.field("type", "long");
 				// disable norms for numeric fields
 				jsonBuilder.field("norms").startObject().field("enabled", false).endObject();
+				break;
+			case GEOMETRY:
+				jsonBuilder.field("type", "geo_shape");
 				break;
 			case EMAIL:
 			case ENUM:

@@ -255,7 +255,7 @@ public abstract class ElasticsearchEntity implements Entity
 	@Override
 	public Geometry getGeometry(String attributeName)
 	{
-		return DataConverter.toGeometry(attributeName);
+		return DataConverter.toGeometry(source.get(attributeName));
 	}
 
 	@Override
