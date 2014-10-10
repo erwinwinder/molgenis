@@ -37,6 +37,7 @@
             <properties>
                 <minify.skipMinify>true</minify.skipMinify>
                 <molgenis.build.profile>dev</molgenis.build.profile>
+                <less.compress>false</less.compress>
             </properties>
         </profile>
         <!-- release profile (default) -->
@@ -45,6 +46,7 @@
             <properties>
                 <minify.skipMinify>false</minify.skipMinify>
                 <molgenis.build.profile>release</molgenis.build.profile>
+                 <less.compress>true</less.compress>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -457,6 +459,25 @@
                         </execution>
                     </executions>
                 </plugin>
+                
+                <!-- less compiler -->
+                <plugin>
+   					<groupId>org.lesscss</groupId>
+    				<artifactId>lesscss-maven-plugin</artifactId>
+    				<version>1.7.0.1.1</version>
+    				<configuration>
+        				<sourceDirectory>${project.basedir}/src/main/less</sourceDirectory>
+        				<outputDirectory>${project.build.outputDirectory}/css</outputDirectory>
+        				<compress>${less.compress}</compress>
+    				</configuration>
+    				<executions>
+        				<execution>
+            				<goals>
+                				<goal>compile</goal>
+            				</goals>
+        				</execution>
+    				</executions>
+				</plugin>
             </plugins>
         </pluginManagement>
 

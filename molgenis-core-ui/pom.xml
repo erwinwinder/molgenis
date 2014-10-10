@@ -65,6 +65,11 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- less compiler -->
+			<plugin>
+   				<groupId>org.lesscss</groupId>
+    			<artifactId>lesscss-maven-plugin</artifactId>
+    		</plugin>
 		</plugins>
 	</build>
 	<dependencies>
