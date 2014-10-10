@@ -1,0 +1,494 @@
+/* variables */
+@dark: #313239;
+@notdark: #fbfeff;
+
+/* functions (mixins) */
+
+.box-shadow(@style, @c) when (iscolor(@c)) {
+  -webkit-box-shadow: @style @c;
+  box-shadow:         @style @c;
+}
+
+// box shadow helper
+.box-shadow(@style, @alpha: 50%) when (isnumber(@alpha)) {
+  .box-shadow(@style, rgba(0, 0, 0, @alpha));
+}
+
+// transparent content areas
+.transparentWhite(@alpha: 60%)
+{
+	background: #fff;
+	background: rgba(255,255,255,@alpha);
+}
+
+// rem font size
+// 16 px is 1
+// 32 px is 2
+// always work in % 4, so either 12, 16, 20, 24 etc..
+.font-size(@sizeValue) {
+	@remValue: @sizeValue;
+  	@pxValue: (@sizeValue * 10);
+  	font-size: ~"@{pxValue}px"; 
+  	font-size: ~"@{remValue}rem";
+}
+
+/* less stylesheet */
+
+html {
+	font-size: 16px;
+}
+
+body, html {
+	height: 100%;
+}
+
+body {
+
+	background: @dark;
+	font-family: Calibri, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+	background: @dark url('../img/bg-footer.jpg') no-repeat left bottom; 
+}
+
+.contentWrapper {
+	background: #fff url('../img/bg-body.jpg') no-repeat left top;
+}
+
+.topContainer, footer {
+	height: 75px;			
+	nav {
+		float: right;
+		ul, li {
+			list-style: none;
+			padding: 0px;
+			margin: 0px;				
+		}
+		li {
+			display: inline;
+			line-height: 75px;				
+			a {
+				color: #000000;
+				margin-left: 30px;
+				.font-size(1);
+			}
+		}
+	}
+}
+
+.mainNav {
+	background: @dark url('../img/bg-mainNav.jpg') no-repeat center center;
+	height: 75px;
+	width: 100%;
+	 .box-shadow(0px 2px 5px, 30%);
+	.col-md-12 {
+		position: relative;
+	}		 
+	.logo {
+		display: block;
+		width: 103px;
+		position: absolute;
+		height: 103px;
+		line-height: 113px;
+		padding-left: 120px;
+		left: 0px;
+		font-weight: bold;
+		color: #fff;
+		text-shadow: 1px 1px 4px @dark;
+		top: -17px;
+		background: url('../img/logo.png') no-repeat;
+	}	
+	.logo-small {
+		.font-size(2.625);		
+	}
+	.logo-big {
+		.font-size(1.9);		
+	}
+	.logo:hover {
+		text-decoration: none;
+	}	
+	nav {
+		float: right;
+		ul, li {
+			list-style: none;
+			padding: 0px;
+			margin: 0px;
+		}
+		li {
+			display: block;
+			float: left;
+			line-height: 75px;
+			position: relative;
+			a {
+				display: block;
+				padding: 0px 30px 0px 30px;
+				float: left;
+				top: -1px;
+				.font-size(1.75);				
+				height: 76px;
+				position: relative;
+				z-index: 5;
+				color: #f7f7f7;
+			}
+			a.open {
+				background:#e8ecee;
+				color: #000;
+				text-decoration: none;
+				position: relative;
+				z-index: 110;
+			}
+		}
+		li.visualise .submenu, .analyse .submenu {
+			left: auto;
+			right: -1px;
+		}
+	}
+	.submenu {
+		width: 435px;
+		display: none;
+		line-height: 1em;
+		top: 75px;
+		background: #e8ecee;
+		left: -1px;
+		border: 1px solid #bac5cb;
+		border-top: none;
+		position: absolute;
+		z-index: 100;
+		 .box-shadow(0px 2px 5px, 20%);
+		.row {
+			padding: 15px;
+		}
+		ul {
+			border-bottom: 1px solid #fff;
+			margin-bottom: 10px;
+		}
+		li {
+			line-height: 1em;
+			float: none;
+			display: inline;
+			.font-size(1);							
+			text-transform: uppercase;
+		}
+		li strong {
+			display: block;
+			padding-bottom: 10px;
+		}
+		a {
+			height: auto;			
+			color: #000;
+			display: block;
+			text-transform: none;
+			line-height: 1em;
+			float: none;
+			padding: 0px;
+			padding-bottom: 10px;
+			.font-size(1);
+		}
+		.col-md-6 ul:last-child {
+			border: none;
+			margin-bottom: 0px;
+		}
+	}	 
+}
+
+.mainContent {
+	position: relative;
+	padding-top: 26px;
+	z-index: 0;
+	.col-md-11 {
+		float: none;
+		margin: 0px auto 0px auto;
+	}
+	.breadcrumbs {
+		display: inline-block;
+		height: 36px;
+		line-height: 36px;
+		padding: 0px 13px 0px 13px;
+		.box-shadow(0px 0px 20px, 10%);		
+		.transparentWhite();
+		ul {
+			list-style: none;
+			padding: 0px;
+			margin: 0px;
+			li {
+				display: block;
+				float: left;
+				color: #666;
+				margin-right: 6px;
+				cursor: default;
+			}
+			li span {
+				padding: 0px 6px 0px 0px;
+				color: #666;
+			}
+			li a span {
+				color: #000;
+			}
+			li:after {
+				content: '/';
+			}
+			li:last-child:after {
+				content: '';
+			}
+			li:last-child span {
+				padding-right: 0px;
+			}
+		}
+	}
+	.content {
+		margin-bottom: 26px;
+		.box-shadow(0px 0px 20px, 10%);
+		.transparentWhite();
+		padding: 26px 13px 26px 13px;
+	}		
+}
+
+/* BOOTSTRAP OVERSCHRIJVEN */
+
+h1, h2, h3, h4, h5, h6 {
+	margin: 0px;
+	.font-size(1.75);
+	padding: 0px 0px 13px 0px;
+}
+h2 {
+	.font-size(1.5);
+}
+h3 {
+	.font-size(1.25);
+}
+h4 {
+	.font-size(1);
+}
+h5 {
+	.font-size(0.75);
+}
+h6 {
+	// dit is een straf dat je zover in de headings zit, ga terug!
+	.font-size(0.25);
+}
+p {
+	font-size: 0.75;
+	padding-bottom: 13px;
+	margin: 0px;
+}
+
+blockquote {
+	font-style: italic;
+	small {
+		font-style: normal;			
+	}
+}
+
+.btn {
+	border-radius: 0px;
+	.font-size(1);
+	padding: 4px 12px;
+}
+
+.btn i {
+	position: relative;
+	top: 1px;
+	padding-right: 5px;
+	
+}
+
+.btn-toolbar {
+	.btn i {
+		padding-right: 0px;
+	}
+}
+
+.btn-primary {
+	background: #fff;
+	color: #000;
+	border-color: darken(#fff, 20%);
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open>.dropdown-toggle.btn-primary, .btn-active {
+	background: @dark;
+	color: #fff;
+	border-color: darken(@dark, 20%);
+}
+
+.dropdown-menu a i {
+	position: relative;
+	top: 1px;
+	padding-right: 2px;
+}
+
+.btn-primary.disabled {
+	border-color: lighten(@dark, 60%); 
+	background: lighten(@dark, 70%);
+	color: #999;
+}
+
+.dropdown-menu {
+	background: @notdark;
+	border-radius: 0px;	
+	li>a:hover, li>a:focus {
+		background: @dark;
+		color: #fff;
+	}
+}
+
+.table>thead>tr>th {
+	border: none;
+	background: @dark;
+	font-weight: bold;
+	padding: 10px 10px 8px 10px;
+	color: #fff;
+	.font-size(1);
+}
+
+.table-hover>tbody>tr:hover>td, .table-hover>tbody>tr:hover>th {
+	background: #eff2f3
+}
+
+.table>tbody>tr {
+	border: none;
+}
+
+.nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
+	background: @dark;
+}
+
+.tab-content {
+	padding-top: 13px;
+}
+
+.nav-tabs>li>a {
+	border-radius: 0px;
+}
+
+.label-default {
+	background: @dark;
+}
+
+.label {
+	font-size: 90%;
+}
+
+.pagination>.active>a, .pagination>.active>span, .pagination>.active>a:hover, .pagination>.active>span:hover, .pagination>.active>a:focus, .pagination>.active>span:focus {
+	background: @dark;
+	border-color: darken(@dark, 20%);	
+}
+
+.pagination>li>a,.pagination>li>a:hover, .pagination>li>span:hover, .pagination>li>a:focus, .pagination>li>span:focus {
+	color: @dark;
+}
+
+.nav>li>a {
+	color: @dark;
+}
+
+.nav-pills>li>a {
+	border-radius: 0px;
+}
+
+.alert {
+	.font-size(1);
+}
+
+.btn-toolbar .btn-group, .btn-group-justified {
+	display: inline-block;
+	.box-shadow(2px 2px 4px, #c4cdd2);
+}
+
+.alert>p {
+	padding: 0px;
+	.font-size(1);
+}
+
+.panel-heading {
+	border-radius: 0px;
+}
+
+.panel-primary>.panel-heading {
+	background: @dark;
+	border: 1px solid @dark;
+}
+
+.panel-primary {
+	border: 1px solid @dark;
+}
+
+.table>tbody>tr>td {
+	.font-size(0.9);
+	color: @dark;
+	border-top: none;
+	padding: 10px 10px 8px 10px;
+	border-left: 1px solid #c3ccd2;
+}
+
+.panel {
+	border-radius: 0px;
+}
+
+.table>tbody>tr>td:first-child {
+}
+
+.bootstrap-select .btn:focus, .dropdown-menu li > a:hover, .dropdown-menu li > a:focus {
+	outline: none !important;
+}
+
+.panel-title {
+	padding: 0px;
+	font-weight: bold;
+}
+
+.icheckbox_square-blue {
+	margin-right: 6px;
+}
+
+.progress-bar {
+	background-color: @dark
+}
+
+.radio label, .checkbox label {
+	padding-left: 0px;
+}
+
+.input-group-addon {
+	background: @dark;
+	color: #fff;
+	border: 1px solid @dark;
+	border-radius: 0px;
+}
+
+.well {
+	border-radius: 0px;
+	.box-shadow(2px 2px 4px, 10%);
+	background: #fff
+}
+
+.form-control {
+	color: @dark;
+	.box-shadow(inset 0 1px 1px, #d9dfe3);
+	border: 1px solid #bec8cf;
+	.font-size(1);
+	border-radius: 0px;
+}
+
+label {
+	.font-size(1);
+}
+
+.form-control:focus {
+	.box-shadow(inset 0 0px 5px, #79c9ff);	
+	border: 1px solid #bec8cf;	
+}
+
+.text-primary {
+	color: @dark;
+}
+
+footer {
+	height: 75px;
+	line-height: 75px;
+	color: #fff;
+	.font-size(1);
+	nav ul li a {
+		color: #fff;
+	}
+	nav ul li a:hover {
+		color: #fff;
+	}
+}
