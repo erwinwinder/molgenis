@@ -8,6 +8,7 @@ import org.molgenis.data.AttributeMetaData;
 import org.molgenis.data.Entity;
 import org.molgenis.data.EntityMetaData;
 import org.molgenis.data.MolgenisDataException;
+import org.molgenis.fieldtypes.MrefField;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -99,7 +100,7 @@ public class DependencyResolver
 	 * @param emd
 	 * @return
 	 */
-	public static Iterable<Entity> resolveSelfReferences(Iterable<Entity> entities, EntityMetaData emd)
+	public static <E extends Entity> Iterable<E> resolveSelfReferences(Iterable<E> entities, EntityMetaData emd)
 	{
 		List<AttributeMetaData> selfRefAttributes = Lists.newArrayList();
 		for (AttributeMetaData attr : emd.getAtomicAttributes())
@@ -118,13 +119,13 @@ public class DependencyResolver
 
 		// You can't have a self reference if you provide id'ds. So we have id's
 
-		Map<Object, Entity> entitiesById = Maps.newHashMap();
+		Map<Object, E> entitiesById = Maps.newHashMap();
 
 		// All self-references of an entity
 		Map<Object, Set<Object>> dependenciesById = Maps.newHashMap();
 
 		// Fill maps
-		for (Entity entity : entities)
+		for (E entity : entities)
 		{
 			Object id = entity.getIdValue();
 			if (id == null) throw new MolgenisDataException("Entity [" + emd.getName()
@@ -141,26 +142,55 @@ public class DependencyResolver
 			for (AttributeMetaData attr : selfRefAttributes)
 			{
 				Object id = entity.getIdValue();
-				Entity ref = entity.getEntity(attr.getName());
-				if (ref != null)
+				if (attr.getDataType() instanceof MrefField)
 				{
-					Object refId = ref.getIdValue();
-					if (refId == null) throw new MolgenisDataException("Entity [" + emd.getName()
-							+ "] contains an attribute that has a self reference but is missing an id.");
-					if (!id.equals(refId))// Ref to the entity itself, should that be possible?
+					Iterable<Entity> refs = entity.getEntities(attr.getName());
+					if (refs != null)
 					{
-						// If it is an unknown id it is already in the repository (or is missing, this is checked in the
-						// validator)
-						if (entitiesById.containsKey(refId))
+						for (Entity ref : refs)
 						{
-							dependenciesById.get(id).add(refId);
+							Object refId = ref.getIdValue();
+							if (refId == null) throw new MolgenisDataException("Entity [" + emd.getName()
+									+ "] contains an attribute that has a self reference but is missing an id.");
+							if (!id.equals(refId))// Ref to the entity itself, should that be possible?
+							{
+								// If it is an unknown id it is already in the repository (or is missing, this is
+								// checked in
+								// the
+								// validator)
+								if (entitiesById.containsKey(refId))
+								{
+									dependenciesById.get(id).add(refId);
+								}
+							}
 						}
 					}
 				}
+				else
+				{
+					Entity ref = entity.getEntity(attr.getName());
+					if (ref != null)
+					{
+						Object refId = ref.getIdValue();
+						if (refId == null) throw new MolgenisDataException("Entity [" + emd.getName()
+								+ "] contains an attribute that has a self reference but is missing an id.");
+						if (!id.equals(refId))// Ref to the entity itself, should that be possible?
+						{
+							// If it is an unknown id it is already in the repository (or is missing, this is checked in
+							// the
+							// validator)
+							if (entitiesById.containsKey(refId))
+							{
+								dependenciesById.get(id).add(refId);
+							}
+						}
+					}
+				}
+
 			}
 		}
 
-		List<Entity> resolved = Lists.newArrayList();
+		List<E> resolved = Lists.newArrayList();
 		while (!dependenciesById.isEmpty())
 		{
 			final List<Object> ready = Lists.newArrayList();
