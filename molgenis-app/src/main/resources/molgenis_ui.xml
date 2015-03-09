@@ -16,6 +16,7 @@
             <plugin id="news" name="News" url="news"/>
             <plugin id="references" name="References" url="references"/>
             <plugin id="scripts" name="Scripts" url="scripts" />
+            <plugin id="googlespreadsheet" name="Google spreadsheet EMX importer" url="googlespreadsheet" />
 	    </menu>
 		<menu label="Entities" name ="entities">
 			<plugin id="form.entities" name="EntityMeta" url="form.entities?subForms=attributes.entity"/>

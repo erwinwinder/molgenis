@@ -166,4 +166,10 @@ public class MapEntity extends AbstractEntity
 		return true;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "MapEntity [values=" + values + "]";
+	}
+
 }

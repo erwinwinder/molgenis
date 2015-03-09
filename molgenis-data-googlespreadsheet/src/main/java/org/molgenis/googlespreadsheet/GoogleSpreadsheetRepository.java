@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.molgenis.MolgenisFieldTypes;
 import org.molgenis.MolgenisFieldTypes.FieldTypeEnum;
 import org.molgenis.data.AttributeMetaData;
 import org.molgenis.data.Entity;
@@ -45,8 +46,7 @@ public class GoogleSpreadsheetRepository extends AbstractRepository
 	private final String spreadsheetKey;
 	private final String worksheetId;
 	private final Visibility visibility;
-
-	private EntityMetaData entityMetaData;
+	private DefaultEntityMetaData entityMetaData;
 
 	public GoogleSpreadsheetRepository(SpreadsheetService spreadsheetService, String spreadsheetKey, String worksheetId)
 			throws IOException, ServiceException
@@ -70,7 +70,7 @@ public class GoogleSpreadsheetRepository extends AbstractRepository
 	@Override
 	public Iterator<Entity> iterator()
 	{
-		if (entityMetaData == null) entityMetaData = getEntityMetaData();
+		if (entityMetaData == null) entityMetaData = (DefaultEntityMetaData) getEntityMetaData();
 
 		ListFeed feed;
 		try
@@ -93,8 +93,11 @@ public class GoogleSpreadsheetRepository extends AbstractRepository
 		}
 
 		final Iterator<ListEntry> it = feed.getEntries().iterator();
+
 		return new Iterator<Entity>()
 		{
+			int i = 1;
+
 			@Override
 			public boolean hasNext()
 			{
@@ -109,19 +112,23 @@ public class GoogleSpreadsheetRepository extends AbstractRepository
 				for (AttributeMetaData attributeMetaData : entityMetaData.getAttributes())
 				{
 					// see remark in getEntityMetaData
-					String colName = attributeMetaData.getLabel();
-					String normalizedColName = colName.replaceAll("_", "").toLowerCase();
-					String value = customElements.getValue(normalizedColName);
-					entity.set(colName, value);
+					if (attributeMetaData.isIdAtrribute())
+					{
+						entity.set(attributeMetaData.getName(), i++);
+					}
+					else
+					{
+						String colName = attributeMetaData.getLabel();
+						String normalizedColName = colName.replaceAll(" ", "").toLowerCase();
+						String value = customElements.getValue(normalizedColName);
+						entity.set(colName, value);
+					}
 				}
+
+				System.out.println(entity);
 				return entity;
 			}
 
-			@Override
-			public void remove()
-			{
-				throw new UnsupportedOperationException();
-			}
 		};
 	}
 
@@ -152,15 +159,18 @@ public class GoogleSpreadsheetRepository extends AbstractRepository
 				throw new RuntimeException(e);
 			}
 
-			entityMetaData = new DefaultEntityMetaData(feed.getTitle().getPlainText(), MapEntity.class);
+			entityMetaData = new DefaultEntityMetaData(feed.getTitle().getPlainText());
+			entityMetaData.addAttribute("id").setIdAttribute(true).setNillable(false)
+					.setDataType(MolgenisFieldTypes.INT);
+			entityMetaData.setBackend("GoogleSpreadsheet");
 
 			for (CellEntry cellEntry : feed.getEntries())
 			{
 				Cell cell = cellEntry.getCell();
 				if (cell.getRow() == 1)
 				{
-					((DefaultEntityMetaData) entityMetaData).addAttributeMetaData(new DefaultAttributeMetaData(cell
-							.getValue(), FieldTypeEnum.STRING));
+					entityMetaData.addAttributeMetaData(new DefaultAttributeMetaData(cell.getValue()
+							.replaceAll(" ", "").toLowerCase(), FieldTypeEnum.STRING));
 				}
 			}
 		}
