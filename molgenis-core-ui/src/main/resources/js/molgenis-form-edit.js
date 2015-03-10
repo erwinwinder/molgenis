@@ -62,6 +62,25 @@
 		$('#error-message').hide();
 	};
 	
+	ns.updateInputsVisibility = function() {
+		$.ajax({
+			type: 'POST',
+			url:  $('#entity-form').attr('action')  + '/attributes/visibility' ,
+			data: $('#entity-form').serialize(),
+			contentType: 'application/x-www-form-urlencoded',
+			async: false,
+			success: function(data, textStatus, response) {
+				$('#entity-form input').each(function(index, el) {
+					if (data[el.name] === true) {
+						$(el).parent().parent().show();
+					} else if (data[el.name] === false) {
+						$(el).parent().parent().hide();
+					}
+				});
+			}
+		});
+	};
+	
 	$(function() {
 		//Enable datepickers
 		$('.date.datetime').datetimepicker({pickTime: true, useSeconds : true});
@@ -74,13 +93,14 @@
 	        });
 	    });
 		
+		ns.updateInputsVisibility();
+		
 		//If validation succeeds call onFormSubmit
 		$.validator.setDefaults({
 			submitHandler: function() {
 				ns.onFormSubmit();
 			}
 		});
-		
 		
 		//Validate occurs on form submit
 		$("#entity-form").validate({
@@ -100,6 +120,10 @@
 		
 		$('.empty-date-input').on('click', function() {
 			$(this).parent().parent().children('input').val('');
+		});
+		
+		$('input').on('change', function() {
+			ns.updateInputsVisibility();
 		});
 		
 	});

@@ -19,6 +19,7 @@ import static org.molgenis.data.meta.AttributeMetaDataMetaData.READ_ONLY;
 import static org.molgenis.data.meta.AttributeMetaDataMetaData.REF_ENTITY;
 import static org.molgenis.data.meta.AttributeMetaDataMetaData.UNIQUE;
 import static org.molgenis.data.meta.AttributeMetaDataMetaData.VISIBLE;
+import static org.molgenis.data.meta.AttributeMetaDataMetaData.VISIBLE_EXPRESSION;
 import static org.molgenis.data.meta.EntityMetaDataMetaData.ABSTRACT;
 import static org.molgenis.data.meta.EntityMetaDataMetaData.EXTENDS;
 import static org.molgenis.data.meta.EntityMetaDataMetaData.PACKAGE;
@@ -89,7 +90,8 @@ public class EmxMetaDataParser implements MetaDataParser
 			ID_ATTRIBUTE.toLowerCase(), LABEL.toLowerCase(), LABEL_ATTRIBUTE.toLowerCase(),
 			LOOKUP_ATTRIBUTE.toLowerCase(), NAME, NILLABLE.toLowerCase(), PART_OF_ATTRIBUTE.toLowerCase(),
 			RANGE_MAX.toLowerCase(), RANGE_MIN.toLowerCase(), READ_ONLY.toLowerCase(), REF_ENTITY.toLowerCase(),
-			VISIBLE.toLowerCase(), UNIQUE.toLowerCase(), TAGS.toLowerCase(), EXPRESSION.toLowerCase());
+			VISIBLE.toLowerCase(), UNIQUE.toLowerCase(), TAGS.toLowerCase(), EXPRESSION.toLowerCase(),
+			VISIBLE_EXPRESSION.toLowerCase());
 	static final String AUTO = "auto";
 
 	private final DataService dataService;
@@ -293,6 +295,7 @@ public class EmxMetaDataParser implements MetaDataParser
 
 			attribute.setLabel(attributeEntity.getString(LABEL));
 			attribute.setDescription(attributeEntity.getString(DESCRIPTION));
+			attribute.setVisibleExpression(attributeEntity.getString(VISIBLE_EXPRESSION));
 
 			if (attribute.getDataType() instanceof EnumField)
 			{

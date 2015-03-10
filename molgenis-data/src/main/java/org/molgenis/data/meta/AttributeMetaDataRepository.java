@@ -21,6 +21,7 @@ import static org.molgenis.data.meta.AttributeMetaDataMetaData.READ_ONLY;
 import static org.molgenis.data.meta.AttributeMetaDataMetaData.REF_ENTITY;
 import static org.molgenis.data.meta.AttributeMetaDataMetaData.UNIQUE;
 import static org.molgenis.data.meta.AttributeMetaDataMetaData.VISIBLE;
+import static org.molgenis.data.meta.AttributeMetaDataMetaData.VISIBLE_EXPRESSION;
 import static org.molgenis.data.support.QueryImpl.EQ;
 
 import java.util.LinkedHashMap;
@@ -179,6 +180,7 @@ class AttributeMetaDataRepository
 		attributeMetaDataEntity.set(READ_ONLY, att.isReadonly());
 		attributeMetaDataEntity.set(UNIQUE, att.isUnique());
 		attributeMetaDataEntity.set(EXPRESSION, att.getExpression());
+		attributeMetaDataEntity.set(VISIBLE_EXPRESSION, att.getVisibleExpression());
 		if (parentCompoundAtt != null)
 		{
 			attributeMetaDataEntity.set(PART_OF_ATTRIBUTE, parentCompoundAtt.getName());
@@ -285,6 +287,7 @@ class AttributeMetaDataRepository
 		attributeMetaData.setReadOnly(entity.getBoolean(READ_ONLY) == null ? false : entity.getBoolean(READ_ONLY));
 		attributeMetaData.setUnique(entity.getBoolean(UNIQUE) == null ? false : entity.getBoolean(UNIQUE));
 		attributeMetaData.setExpression(entity.getString(EXPRESSION));
+		attributeMetaData.setVisibleExpression(entity.getString(VISIBLE_EXPRESSION));
 
 		Long rangeMin = entity.getLong(RANGE_MIN);
 		Long rangeMax = entity.getLong(RANGE_MAX);

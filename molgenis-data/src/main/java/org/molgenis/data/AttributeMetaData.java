@@ -109,5 +109,10 @@ public interface AttributeMetaData
 	 */
 	List<String> getEnumOptions();
 
+	/**
+	 * Expression that determines at runtime if an attribute input field is visible or not (in the forms)
+	 */
+	String getVisibleExpression();
+
 	boolean isSameAs(AttributeMetaData attributeMetaData);
 }

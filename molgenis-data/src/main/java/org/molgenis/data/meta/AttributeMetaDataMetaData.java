@@ -34,6 +34,7 @@ public class AttributeMetaDataMetaData extends DefaultEntityMetaData
 	public static final String READ_ONLY = "readOnly";
 	public static final String UNIQUE = "unique";
 	public static final String TAGS = "tags";
+	public static final String VISIBLE_EXPRESSION = "visibleExpression";
 
 	public AttributeMetaDataMetaData()
 	{
@@ -61,5 +62,6 @@ public class AttributeMetaDataMetaData extends DefaultEntityMetaData
 		addAttribute(READ_ONLY).setDataType(BOOL).setNillable(false);
 		addAttribute(UNIQUE).setDataType(BOOL).setNillable(false);
 		addAttribute(TAGS).setDataType(MREF).setRefEntity(new TagMetaData());
+		addAttribute(VISIBLE_EXPRESSION).setNillable(true);
 	}
 }

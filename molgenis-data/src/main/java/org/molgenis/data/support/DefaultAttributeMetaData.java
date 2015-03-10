@@ -42,6 +42,7 @@ public class DefaultAttributeMetaData implements AttributeMetaData
 	private List<AttributeMetaData> attributesMetaData;
 	private boolean aggregateable = false;
 	private Range range;
+	private String visibleExpression;
 
 	public DefaultAttributeMetaData(String name, FieldTypeEnum fieldType)
 	{
@@ -375,6 +376,18 @@ public class DefaultAttributeMetaData implements AttributeMetaData
 	}
 
 	@Override
+	public String getVisibleExpression()
+	{
+		return this.visibleExpression;
+	}
+
+	public DefaultAttributeMetaData setVisibleExpression(String visibleExpression)
+	{
+		this.visibleExpression = visibleExpression;
+		return this;
+	}
+
+	@Override
 	public boolean equals(Object o)
 	{
 		if (this == o) return true;
@@ -470,4 +483,5 @@ public class DefaultAttributeMetaData implements AttributeMetaData
 
 		return true;
 	}
+
 }

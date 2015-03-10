@@ -66,6 +66,7 @@ import org.molgenis.data.validation.ConstraintViolation;
 import org.molgenis.data.validation.MolgenisValidationException;
 import org.molgenis.fieldtypes.BoolField;
 import org.molgenis.framework.db.EntityNotFoundException;
+import org.molgenis.js.ScriptEvaluator;
 import org.molgenis.security.core.MolgenisPermissionService;
 import org.molgenis.security.core.Permission;
 import org.molgenis.security.token.TokenExtractor;
@@ -76,6 +77,7 @@ import org.molgenis.util.ErrorMessageResponse;
 import org.molgenis.util.ErrorMessageResponse.ErrorMessage;
 import org.molgenis.util.MolgenisDateFormat;
 import org.molgenis.util.ResourceFingerprintRegistry;
+import org.mozilla.javascript.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -875,6 +877,31 @@ public class RestController
 		tokenService.removeToken(token);
 		SecurityContextHolder.getContext().setAuthentication(null);
 		request.getSession().invalidate();
+	}
+
+	@RequestMapping(value =
+	{ "/{entityName}/attributes/visibility", "/{entityName}/**/attributes/visibility" }, method = POST, headers = "Content-Type=application/x-www-form-urlencoded")
+	@ResponseBody
+	public Map<String, Boolean> checkVisbleRuntimeExpressions(@PathVariable("entityName") String entityName,
+			HttpServletRequest request)
+	{
+		Map<String, Boolean> visibilityMap = new HashMap<>();
+
+		Entity entity = new MapEntity();
+		EntityMetaData entityMeta = dataService.getMeta().getEntityMetaData(entityName);
+		for (AttributeMetaData attr : entityMeta.getAtomicAttributes())
+		{
+			entity.set(attr.getName(), request.getParameter(attr.getName()));
+		}
+
+		for (AttributeMetaData attr : entityMeta.getAtomicAttributes())
+		{
+			boolean visible = attr.getVisibleExpression() == null ? true : Context.toBoolean(ScriptEvaluator.eval(
+					attr.getVisibleExpression(), entity));
+			visibilityMap.put(attr.getName(), visible);
+		}
+
+		return visibilityMap;
 	}
 
 	@ExceptionHandler(HttpMessageNotReadableException.class)
