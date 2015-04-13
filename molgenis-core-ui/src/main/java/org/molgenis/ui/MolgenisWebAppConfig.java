@@ -4,6 +4,7 @@ import static org.molgenis.framework.ui.ResourcePathPatterns.PATTERN_CSS;
 import static org.molgenis.framework.ui.ResourcePathPatterns.PATTERN_FONTS;
 import static org.molgenis.framework.ui.ResourcePathPatterns.PATTERN_IMG;
 import static org.molgenis.framework.ui.ResourcePathPatterns.PATTERN_JS;
+import static org.molgenis.framework.ui.ResourcePathPatterns.PATTERN_JSX;
 import static org.molgenis.security.runas.RunAsSystemProxy.runAsSystem;
 
 import java.io.File;
@@ -128,6 +129,7 @@ public abstract class MolgenisWebAppConfig extends WebMvcConfigurerAdapter
 				.setCachePeriod(aYear);
 		registry.addResourceHandler("/generated-doc/**").addResourceLocations("/generated-doc/").setCachePeriod(3600);
 		registry.addResourceHandler("/html/**").addResourceLocations("/html/", "classpath:/html/").setCachePeriod(3600);
+		registry.addResourceHandler(PATTERN_JSX).addResourceLocations("/jsx/", "classpath:/jsx/");
 	}
 
 	@Value("${environment:production}")
@@ -462,8 +464,9 @@ public abstract class MolgenisWebAppConfig extends WebMvcConfigurerAdapter
 									new EntityAttributesValidator()), molgenisIdGenerator()), molgenisSettings);
 				}
 
-				return new RepositorySecurityDecorator(new AutoValueRepositoryDecorator(new RepositoryValidationDecorator(
-						dataService(), repository, new EntityAttributesValidator()), molgenisIdGenerator()));
+				return new RepositorySecurityDecorator(new AutoValueRepositoryDecorator(
+						new RepositoryValidationDecorator(dataService(), repository, new EntityAttributesValidator()),
+						molgenisIdGenerator()));
 			}
 		};
 	}

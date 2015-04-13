@@ -4,6 +4,7 @@ import static org.molgenis.framework.ui.ResourcePathPatterns.PATTERN_CSS;
 import static org.molgenis.framework.ui.ResourcePathPatterns.PATTERN_FONTS;
 import static org.molgenis.framework.ui.ResourcePathPatterns.PATTERN_IMG;
 import static org.molgenis.framework.ui.ResourcePathPatterns.PATTERN_JS;
+import static org.molgenis.framework.ui.ResourcePathPatterns.PATTERN_JSX;
 
 import java.util.List;
 
@@ -113,6 +114,8 @@ public abstract class MolgenisWebAppSecurityConfig extends WebSecurityConfigurer
 		.antMatchers(PATTERN_JS).permitAll()
 
 		.antMatchers(PATTERN_FONTS).permitAll()
+
+		.antMatchers(PATTERN_JSX).permitAll()
 
 		.antMatchers("/html/**").permitAll()
 

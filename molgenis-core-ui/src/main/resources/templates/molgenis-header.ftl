@@ -34,7 +34,15 @@
 		<script src="<@resource_href "/js/jquery.validate.min.js"/>"></script>
 		<script src="<@resource_href "/js/handlebars.min.js"/>"></script>
 		<script src="<@resource_href "/js/molgenis.js"/>"></script>
-    <!--[if IE 9]>
+		<script src="/js/react/react.js"></script>
+		
+		<#if environment == "production">
+			<script src="/js/helloworld.js"></script>
+		<#else>  
+			<script type="text/jsx" src="jsx/helloworld.jsx"></script>
+			<script src="/js/react/JSXTransformer.js"></script>
+		</#if>
+   <!--[if IE 9]>
         <#-- used to disable the genomebrowser in IE9 -->
         <script>top.molgenis.ie9 = true;</script>
         <#-- required by dalliance-compiled.js to load the genomebrowsers in IE9 -->        
@@ -58,6 +66,7 @@
 	</#if>
 	</head>
 	<body>
+				
 		<#-- Navbar menu -->
         <#if menu_id??>
             <#if !(plugin_id??)>
@@ -108,6 +117,8 @@
 			<div class="row">
                 <div class="col-md-12">
                     <div id="plugin-container">
+                    <div id="hello"></div>
+
 </#macro>
 
 
