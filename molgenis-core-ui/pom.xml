@@ -9,6 +9,19 @@
 	<packaging>jar</packaging>
 	<build>
 		<plugins>
+			   
+                 <plugin>
+						<groupId>org.molgenis</groupId>
+  						<artifactId>jsx-maven-plugin</artifactId>
+  						<version>1.0-SNAPSHOT</version>
+  				<executions>
+					<execution>
+						<goals>
+							<goal>transform</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<!-- compile XML schemas -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -54,6 +67,14 @@
 				<executions>
 				    <execution>
                         <id>default-minify</id>
+                        <configuration>
+                        	<jsSourceExcludes>
+                				<jsSourceExclude>JSXTransformer.js</jsSourceExclude>
+                				<jsSourceExclude>**/worker-*.js</jsSourceExclude>
+                				<jsSourceExclude>**/*.min.js</jsSourceExclude>
+              				</jsSourceExcludes>
+                        </configuration>
+                        
                     </execution>
                     <execution>
 	                    <id>component-deps-merge</id>

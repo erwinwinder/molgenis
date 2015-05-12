@@ -74,9 +74,9 @@
     				cells.push(td({key: '3'}, e.backend));
     				cells.push(td({key: '4'}, e.idAttribute));
     				cells.push(td({key: '5'}, e.labelAttribute));
-    				cells.push(td({key: '6'}, e.abstract));
+    				cells.push(td({key: '6'}, 'e.abstract'));
     				cells.push(td({key: '7'}, e.label));
-    				cells.push(td({key: '8'}, e.extends));
+    				cells.push(td({key: '8'}, 'e.extends'));
     				cells.push(td({key: '9'}, e.description));
     				
     				var props = {

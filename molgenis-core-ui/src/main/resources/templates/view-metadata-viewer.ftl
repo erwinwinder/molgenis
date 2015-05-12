@@ -1,7 +1,7 @@
 <#include "molgenis-header.ftl">
 <#include "molgenis-footer.ftl">
 
-<@header js=['component/BootstrapPanel.js', 'component/MetaDataViewer.js'] />
+<@header />
 
 <div class="row">
 	<div class="col-md-1"></div>
@@ -9,8 +9,8 @@
 	<div class="col-md-1"></div>
 </div>
 
-<script>
-    React.render(molgenis.ui.MetaDataViewer({}), document.getElementById('MetaDataViewer'));
+<script type="text/jsx">
+	React.render(<MetaDataViewer />, document.getElementById('MetaDataViewer'));
 </script>
 
 <@footer/>

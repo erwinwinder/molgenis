@@ -4,6 +4,7 @@ import static org.molgenis.framework.ui.ResourcePathPatterns.PATTERN_CSS;
 import static org.molgenis.framework.ui.ResourcePathPatterns.PATTERN_FONTS;
 import static org.molgenis.framework.ui.ResourcePathPatterns.PATTERN_IMG;
 import static org.molgenis.framework.ui.ResourcePathPatterns.PATTERN_JS;
+import static org.molgenis.framework.ui.ResourcePathPatterns.PATTERN_JSX;
 import static org.molgenis.security.core.runas.RunAsSystemProxy.runAsSystem;
 
 import java.io.File;
@@ -137,6 +138,8 @@ public abstract class MolgenisWebAppConfig extends WebMvcConfigurerAdapter
 				.setCachePeriod(cachePeriod);
 		registry.addResourceHandler(PATTERN_FONTS).addResourceLocations("/fonts/", "classpath:/fonts/")
 				.setCachePeriod(cachePeriod);
+		registry.addResourceHandler(PATTERN_JSX).addResourceLocations("/jsx/", "classpath:/jsx/")
+		.setCachePeriod(cachePeriod);
 		registry.addResourceHandler("/generated-doc/**").addResourceLocations("/generated-doc/").setCachePeriod(3600);
 		registry.addResourceHandler("/html/**").addResourceLocations("/html/", "classpath:/html/").setCachePeriod(3600);
 	}

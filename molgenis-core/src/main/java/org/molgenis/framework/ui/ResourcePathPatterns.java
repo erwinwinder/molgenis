@@ -6,7 +6,8 @@ public class ResourcePathPatterns
 	public static String PATTERN_JS = "/js/**";
 	public static String PATTERN_IMG = "/img/**";
 	public static String PATTERN_FONTS = "/fonts/**";
-
+	public static String PATTERN_JSX = "/jsx/**";
+	
 	private ResourcePathPatterns()
 	{
 	}
