@@ -1,4 +1,4 @@
-(function(React) {
+(function(React, molgenis) {
     "use strict";
     
     var BootstrapPanel = React.createClass({
@@ -20,5 +20,5 @@
     
     // export component
     molgenis.ui = molgenis.ui || {};
-    _.extend(molgenis.ui, {BootstrapPanel: React.createFactory(BootstrapPanel)});
-}(React));	
+    molgenis.ui.BootstrapPanel = BootstrapPanel;
+}(React, molgenis));	

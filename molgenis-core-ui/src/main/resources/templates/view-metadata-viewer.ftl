@@ -5,12 +5,12 @@
 
 <div class="row">
 	<div class="col-md-1"></div>
-	<div class="col-md-10" id="MetaDataViewer"></div>
+	<div class="col-md-10" id="MetaDataViewerHolder"></div>
 	<div class="col-md-1"></div>
 </div>
 
 <script type="text/jsx">
-	React.render(<MetaDataViewer />, document.getElementById('MetaDataViewer'));
+	React.render(molgenis.ui.MetaDataViewerFactory(), document.getElementById('MetaDataViewerHolder'));
 </script>
 
 <@footer/>
