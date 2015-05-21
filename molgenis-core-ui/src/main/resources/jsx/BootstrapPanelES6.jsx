@@ -14,8 +14,8 @@
 			return !_.isEqual(this.state, nextState) || !_.isEqual(this.props, nextProps);
 		}
 		
-		getAsync(uri, q) {
-			return this.restClient.getAsync(uri, q);
+		getAsync(uri, queryBuilder) {
+			return this.restClient.getAsync(uri, queryBuilder.build());
 		}
 	}
 	

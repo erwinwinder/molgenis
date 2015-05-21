@@ -30,13 +30,13 @@
     		return this;
     	}
     	
-    	expand(attrName) {
+    	exp(attrName) {
     		this.expand.push(attrName);
     		return this;
     	}
     	
     	build() {
-    		var q = {q: rules};
+    		var q = {q: this.rules};
     		if (this.expand.length > 0) {
     			_.extend(q, {expand: this.expand})
     		}
@@ -61,9 +61,7 @@
 		}
     	
     	_showPackageEntities(p) {
-    		var q = new QueryBuilder().eq('package', p.fullName).expand('attributes').build();
-    		
-    		this.getAsync('/api/v1/entities', q).done((data) => {
+    		this.getAsync('/api/v1/entities', new QueryBuilder().eq('package', p.fullName).exp('attributes')).done((data) => {
     			this.setState({
     				entities: data,
     			});
@@ -120,7 +118,7 @@
     	}
     	 
     	componentDidMount() {
-    		this.getAsync('/api/v1/packages', {'expand': ['parent']}).done((data) => {
+    		this.getAsync('/api/v1/packages', new QueryBuilder().exp('parent')).done((data) => {
     			this.setState({
 					packageData: data,
 					selectedPackage: data.items.length > 0 ? data.items[0] : null
