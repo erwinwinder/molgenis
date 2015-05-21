@@ -21,4 +21,5 @@
     // export component
     molgenis.ui = molgenis.ui || {};
     molgenis.ui.BootstrapPanel = BootstrapPanel;
+    
 }(React, molgenis));	

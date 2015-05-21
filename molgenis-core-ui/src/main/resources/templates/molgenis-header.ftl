@@ -87,9 +87,16 @@
     </#if>
         
     <script src="<@resource_href "/js/JSXTransformer.js"/>"></script>
+    
+    
+    <script src="/jsx/BootstrapPanelES6.jsx" type="text/jsx;harmony=true"></script>       
+    <script src="/jsx/MetaDataViewerES6.jsx" type="text/jsx;harmony=true"></script>   
+  
+    <#--
     <script src="/jsx/BootstrapPanel.jsx" type="text/jsx"></script>       
-    <script src="/jsx/MetaDataViewer.jsx" type="text/jsx"></script>   
-           
+    <script src="/jsx/MetaDataViewer.jsx" type="text/jsx"></script>
+    -->
+  
     <!--[if IE 9]>
         <#-- used to disable the genomebrowser in IE9 -->
         <script>top.molgenis.ie9 = true;</script>
