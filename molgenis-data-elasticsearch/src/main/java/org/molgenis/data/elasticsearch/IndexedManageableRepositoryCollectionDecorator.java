@@ -60,8 +60,17 @@ public class IndexedManageableRepositoryCollectionDecorator extends IndexedRepos
 		getSearchService().createMappings(meta);
 	}
 
+	@Override
+	public void updateAttribute(String entityName, AttributeMetaData attribute)
+	{
+		getManageableRepositoryCollection().updateAttribute(entityName, attribute);
+		getSearchService().createMappings(
+				getManageableRepositoryCollection().getRepository(entityName).getEntityMetaData());
+	}
+
 	protected ManageableRepositoryCollection getManageableRepositoryCollection()
 	{
 		return (ManageableRepositoryCollection) getDelegate();
 	}
+
 }

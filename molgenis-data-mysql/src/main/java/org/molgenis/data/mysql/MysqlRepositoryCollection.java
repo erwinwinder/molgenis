@@ -95,6 +95,14 @@ public abstract class MysqlRepositoryCollection implements ManageableRepositoryC
 		repo.addAttributeSync(attribute);
 	}
 
+	@Override
+	public void updateAttribute(String entityName, AttributeMetaData attribute)
+	{
+		MysqlRepository repo = repositories.get(entityName);
+		if (repo == null) throw new UnknownEntityException(String.format("Unknown entity '%s'", entityName));
+		repo.updateAttributeMetaData(attribute);
+	}
+
 	/**
 	 * Return a spring managed prototype bean
 	 */

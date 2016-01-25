@@ -26,4 +26,12 @@ public interface ManageableRepositoryCollection extends RepositoryCollection
 	void deleteAttribute(String entityName, String attributeName);
 
 	void addAttributeSync(String entityName, AttributeMetaData attribute);
+
+	/**
+	 * Updates an attribute.
+	 * 
+	 * @param entityName
+	 * @param attribute
+	 */
+	void updateAttribute(String entityName, AttributeMetaData attribute);
 }

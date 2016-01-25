@@ -139,4 +139,11 @@ public class ElasticsearchRepositoryCollection implements ManageableRepositoryCo
 		return false;
 	}
 
+	@Override
+	public void updateAttribute(String entityName, AttributeMetaData attribute)
+	{
+		// TODO
+		throw new UnsupportedOperationException();
+	}
+
 }

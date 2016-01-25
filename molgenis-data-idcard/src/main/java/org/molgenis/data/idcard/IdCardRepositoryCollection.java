@@ -53,8 +53,8 @@ public class IdCardRepositoryCollection implements ManageableRepositoryCollectio
 		}
 		else if (repositories.containsKey(IdCardBiobank.ENTITY_NAME))
 		{
-			throw new MolgenisDataException(
-					"ID-Card repository collection already contains repository [" + entityName + "]");
+			throw new MolgenisDataException("ID-Card repository collection already contains repository [" + entityName
+					+ "]");
 		}
 		else
 		{
@@ -116,11 +116,11 @@ public class IdCardRepositoryCollection implements ManageableRepositoryCollectio
 		EntityMetaData entityMetaData = dataService.getMeta().getEntityMetaData(entityName);
 		if (entityMetaData == null) throw new UnknownEntityException(String.format("Unknown entity '%s'", entityName));
 
-		DefaultEntityMetaData defaultEntityMetaData = new DefaultEntityMetaData(
-				dataService.getMeta().getEntityMetaData(entityName));
+		DefaultEntityMetaData defaultEntityMetaData = new DefaultEntityMetaData(dataService.getMeta()
+				.getEntityMetaData(entityName));
 		AttributeMetaData attr = entityMetaData.getAttribute(attributeName);
-		if (attr == null) throw new UnknownAttributeException(
-				String.format("Unknown attribute '%s' of entity '%s'", attributeName, entityName));
+		if (attr == null) throw new UnknownAttributeException(String.format("Unknown attribute '%s' of entity '%s'",
+				attributeName, entityName));
 
 		defaultEntityMetaData.removeAttributeMetaData(attr);
 	}
@@ -129,5 +129,13 @@ public class IdCardRepositoryCollection implements ManageableRepositoryCollectio
 	public void addAttributeSync(String entityName, AttributeMetaData attribute)
 	{
 		addAttribute(entityName, attribute);
+	}
+
+	@Override
+	public void updateAttribute(String entityName, AttributeMetaData attribute)
+	{
+		// TODO
+		throw new UnsupportedOperationException();
+
 	}
 }

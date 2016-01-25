@@ -97,4 +97,10 @@ public class InMemoryRepositoryCollection implements ManageableRepositoryCollect
 		}
 		return false;
 	}
+
+	@Override
+	public void updateAttribute(String entityName, AttributeMetaData attribute)
+	{
+		throw new UnsupportedOperationException();
+	}
 }
