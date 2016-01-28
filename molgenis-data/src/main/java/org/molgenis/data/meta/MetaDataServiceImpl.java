@@ -257,7 +257,7 @@ public class MetaDataServiceImpl implements MetaDataService
 		if (emd != null) getManageableRepositoryCollection(emd).deleteAttribute(entityName, attributeName);
 	}
 
-	private ManageableRepositoryCollection getManageableRepositoryCollection(EntityMetaData emd)
+	protected ManageableRepositoryCollection getManageableRepositoryCollection(EntityMetaData emd)
 	{
 		RepositoryCollection backend = getBackend(emd);
 		if (!(backend instanceof ManageableRepositoryCollection)) throw new RuntimeException(
@@ -344,6 +344,16 @@ public class MetaDataServiceImpl implements MetaDataService
 
 		EntityMetaData emd = entityMetaDataRepository.addAttribute(fullyQualifiedEntityName, attr);
 		getManageableRepositoryCollection(emd).addAttribute(fullyQualifiedEntityName, attr);
+	}
+
+	@Override
+	public void updateAttribute(String fullyQualifiedEntityName, AttributeMetaData attr)
+	{
+		validatePermission(fullyQualifiedEntityName, Permission.WRITEMETA);
+		MetaValidationUtils.validateAttribute(attr);// TODO validate transistion
+
+		EntityMetaData emd = entityMetaDataRepository.updateAttribute(fullyQualifiedEntityName, attr);
+		getManageableRepositoryCollection(emd).updateAttribute(emd.getName(), attr);
 	}
 
 	@Override

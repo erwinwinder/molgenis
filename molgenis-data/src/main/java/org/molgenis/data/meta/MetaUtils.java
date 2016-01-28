@@ -51,10 +51,8 @@ public class MetaUtils
 			{
 				if (!currentAttribute.isSameAs(attr))
 				{
-					throw new MolgenisDataException(
-							"Changing existing attributes is not currently supported. You tried to alter attribute ["
-									+ attr.getName() + "] of entity [" + entityMeta.getName()
-									+ "]. Only adding of new attributes is supported.");
+					// TODO add to method return value
+					metaDataService.updateAttribute(entityMeta.getName(), attr);
 				}
 			}
 			else if (!attr.isNillable())

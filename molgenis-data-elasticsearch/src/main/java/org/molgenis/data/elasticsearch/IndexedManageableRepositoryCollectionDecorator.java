@@ -64,8 +64,14 @@ public class IndexedManageableRepositoryCollectionDecorator extends IndexedRepos
 	public void updateAttribute(String entityName, AttributeMetaData attribute)
 	{
 		getManageableRepositoryCollection().updateAttribute(entityName, attribute);
-		getSearchService().createMappings(
-				getManageableRepositoryCollection().getRepository(entityName).getEntityMetaData());
+		DefaultEntityMetaData meta = new DefaultEntityMetaData(getManageableRepositoryCollection().getRepository(
+				entityName).getEntityMetaData());
+		meta.updateAttributeMetaData(attribute);
+
+		getSearchService().deleteMappings(meta);
+		getSearchService().createMappings(meta);
+
+		getRepository(entityName).rebuildIndex();
 	}
 
 	protected ManageableRepositoryCollection getManageableRepositoryCollection()

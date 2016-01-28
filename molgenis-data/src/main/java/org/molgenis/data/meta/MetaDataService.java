@@ -144,6 +144,8 @@ public interface MetaDataService extends Iterable<RepositoryCollection>, Applica
 	// FIXME remove this method
 	void addAttributeSync(String entityName, AttributeMetaData attribute);
 
+	void updateAttribute(String fullyQualifiedEntityName, AttributeMetaData attr);
+
 	/**
 	 * Deletes an Attribute
 	 * 
@@ -179,7 +181,7 @@ public interface MetaDataService extends Iterable<RepositoryCollection>, Applica
 	 */
 	LinkedHashMap<String, Boolean> integrationTestMetaData(ImmutableMap<String, EntityMetaData> newEntitiesMetaDataMap,
 			List<String> skipEntities, String defaultPackage);
-	
+
 	/**
 	 * Has backend will check if the requested backend already exists and is registered.
 	 * 

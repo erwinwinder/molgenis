@@ -316,4 +316,13 @@ class EntityMetaDataRepository
 		add(entityMetaData);
 		return entityMetaData;
 	}
+
+	public EntityMetaData updateAttribute(String fullyQualifiedEntityName, AttributeMetaData attr)
+	{
+		DefaultEntityMetaData entityMetaData = get(fullyQualifiedEntityName);
+		delete(fullyQualifiedEntityName);
+		entityMetaData.updateAttributeMetaData(attr);
+		add(entityMetaData);
+		return entityMetaData;
+	}
 }

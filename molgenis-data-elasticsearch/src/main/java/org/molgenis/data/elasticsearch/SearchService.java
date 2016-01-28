@@ -32,8 +32,9 @@ public interface SearchService
 
 	void createMappings(EntityMetaData entityMetaData);
 
-	void createMappings(EntityMetaData entityMetaData, boolean storeSource, boolean enableNorms,
-			boolean createAllIndex);
+	void deleteMappings(EntityMetaData entityMetaData);
+
+	void createMappings(EntityMetaData entityMetaData, boolean storeSource, boolean enableNorms, boolean createAllIndex);
 
 	/**
 	 * Refresh index, making all operations performed since the last refresh available for search

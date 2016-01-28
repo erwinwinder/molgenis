@@ -257,12 +257,16 @@ public class MysqlRepository extends AbstractRepository
 
 		try
 		{
-			execute(getModifyAttributeSql(attributeMetaData), true);
-
 			if (existing.isUnique() && !attributeMetaData.isUnique())
 			{
 				execute(getDropUniqueIndexSql(attributeMetaData), true);
 			}
+
+			execute(getModifyAttributeSql(attributeMetaData), true);
+
+			DefaultEntityMetaData demd = new DefaultEntityMetaData(metaData);
+			demd.updateAttributeMetaData(attributeMetaData);
+			setMetaData(demd);
 		}
 		catch (Exception e)
 		{

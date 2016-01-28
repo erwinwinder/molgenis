@@ -86,7 +86,7 @@ public class DefaultEntityMetaData implements EditableEntityMetaData
 	 */
 	public DefaultEntityMetaData(EntityMetaData entityMetaData)
 	{
-		this(entityMetaData.getName(), entityMetaData);
+		this(entityMetaData.getSimpleName(), entityMetaData);
 	}
 
 	public DefaultEntityMetaData(String simpleName, EntityMetaData entityMetaData)
@@ -288,6 +288,18 @@ public class DefaultEntityMetaData implements EditableEntityMetaData
 	public void addAttributeMetaData(AttributeMetaData attr)
 	{
 		attr.addChangeListener(attrChangeListener);
+		attributes.put(attr.getName(), attr);
+		clearCache();
+	}
+
+	@Override
+	public void updateAttributeMetaData(AttributeMetaData attr)
+	{
+		AttributeMetaData old = attributes.get(attr.getName());
+		Iterable<AttributeChangeListener> listeners = old.getChangeListeners();
+		old.removeChangeListeners();
+
+		attr.addChangeListeners(listeners);
 		attributes.put(attr.getName(), attr);
 		clearCache();
 	}
