@@ -1,6 +1,7 @@
 package org.molgenis.data.support;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.StreamSupport.stream;
 import static org.molgenis.MolgenisFieldTypes.STRING;
 import static org.molgenis.data.meta.AttributeMetaDataMetaData.AGGREGATEABLE;
 import static org.molgenis.data.meta.AttributeMetaDataMetaData.AUTO;
@@ -9,10 +10,12 @@ import static org.molgenis.data.meta.AttributeMetaDataMetaData.DEFAULT_VALUE;
 import static org.molgenis.data.meta.AttributeMetaDataMetaData.DESCRIPTION;
 import static org.molgenis.data.meta.AttributeMetaDataMetaData.ENUM_OPTIONS;
 import static org.molgenis.data.meta.AttributeMetaDataMetaData.EXPRESSION;
+import static org.molgenis.data.meta.AttributeMetaDataMetaData.IDENTIFIER;
 import static org.molgenis.data.meta.AttributeMetaDataMetaData.ID_ATTRIBUTE;
 import static org.molgenis.data.meta.AttributeMetaDataMetaData.LABEL;
 import static org.molgenis.data.meta.AttributeMetaDataMetaData.LABEL_ATTRIBUTE;
 import static org.molgenis.data.meta.AttributeMetaDataMetaData.LOOKUP_ATTRIBUTE;
+import static org.molgenis.data.meta.AttributeMetaDataMetaData.NAME;
 import static org.molgenis.data.meta.AttributeMetaDataMetaData.NILLABLE;
 import static org.molgenis.data.meta.AttributeMetaDataMetaData.PARTS;
 import static org.molgenis.data.meta.AttributeMetaDataMetaData.RANGE_MAX;
@@ -31,16 +34,24 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.molgenis.MolgenisFieldTypes;
 import org.molgenis.MolgenisFieldTypes.FieldTypeEnum;
 import org.molgenis.data.AttributeChangeListener;
 import org.molgenis.data.AttributeMetaData;
+import org.molgenis.data.DataService;
+import org.molgenis.data.Entity;
 import org.molgenis.data.EntityMetaData;
 import org.molgenis.data.Range;
+import org.molgenis.data.i18n.LanguageService;
+import org.molgenis.data.meta.AttributeMetaDataMetaData;
+import org.molgenis.fieldtypes.CompoundField;
 import org.molgenis.fieldtypes.EnumField;
 import org.molgenis.fieldtypes.FieldType;
 import org.molgenis.util.CaseInsensitiveLinkedHashMap;
+
+import com.google.common.base.Joiner;
 
 /**
  * Default implementation of the AttributeMetaData interface
@@ -50,6 +61,7 @@ public class DefaultAttributeMetaData implements AttributeMetaData
 {
 	private Map<String, AttributeChangeListener> changeListeners;
 
+	private String identifier;
 	private final String name;
 	private FieldType fieldType;
 	private String description;
@@ -135,6 +147,145 @@ public class DefaultAttributeMetaData implements AttributeMetaData
 			}
 			this.attributePartsMap = attributePartsMap;
 		}
+	}
+
+	public static DefaultAttributeMetaData fromAttributeMetaData(Entity entity, DataService dataService,
+			LanguageService languageService)
+	{
+		DefaultAttributeMetaData attributeMetaData = new DefaultAttributeMetaData(entity.getString(NAME));
+		attributeMetaData.setDataType(MolgenisFieldTypes.getType(entity.getString(DATA_TYPE)));
+		attributeMetaData.setNillable(entity.getBoolean(NILLABLE));
+		attributeMetaData.setAuto(entity.getBoolean(AUTO));
+		attributeMetaData.setIdAttribute(entity.getBoolean(ID_ATTRIBUTE));
+		attributeMetaData.setLookupAttribute(entity.getBoolean(LOOKUP_ATTRIBUTE));
+		attributeMetaData.setVisible(entity.getBoolean(VISIBLE));
+		attributeMetaData.setLabel(entity.getString(LABEL));
+		attributeMetaData.setDescription(entity.getString(DESCRIPTION));
+		attributeMetaData.setAggregateable(entity.getBoolean(AGGREGATEABLE) == null ? false : entity
+				.getBoolean(AGGREGATEABLE));
+		attributeMetaData.setEnumOptions(entity.getList(ENUM_OPTIONS));
+		attributeMetaData.setLabelAttribute(entity.getBoolean(LABEL_ATTRIBUTE) == null ? false : entity
+				.getBoolean(LABEL_ATTRIBUTE));
+		attributeMetaData.setReadOnly(entity.getBoolean(READ_ONLY) == null ? false : entity.getBoolean(READ_ONLY));
+		attributeMetaData.setUnique(entity.getBoolean(UNIQUE) == null ? false : entity.getBoolean(UNIQUE));
+		attributeMetaData.setExpression(entity.getString(EXPRESSION));
+
+		Long rangeMin = entity.getLong(RANGE_MIN);
+		Long rangeMax = entity.getLong(RANGE_MAX);
+		if ((rangeMin != null) || (rangeMax != null))
+		{
+			attributeMetaData.setRange(new Range(rangeMin, rangeMax));
+		}
+		if (entity.get(REF_ENTITY) != null)
+		{
+			final String refEntityName = entity.getString(REF_ENTITY);
+			attributeMetaData.setRefEntity(dataService.getEntityMetaData(refEntityName));
+		}
+		Iterable<Entity> parts = entity.getEntities(PARTS);
+		if (parts != null)
+		{
+			stream(parts.spliterator(), false).map(DefaultAttributeMetaData::fromAttributeMetaData).forEach(
+					attributeMetaData::addAttributePart);
+		}
+		attributeMetaData.setVisibleExpression(entity.getString(VISIBLE_EXPRESSION));
+		attributeMetaData.setValidationExpression(entity.getString(VALIDATION_EXPRESSION));
+		attributeMetaData.setDefaultValue(entity.getString(DEFAULT_VALUE));
+
+		// Language attributes
+		for (String languageCode : languageService.getLanguageCodes())
+		{
+			String attributeName = LABEL + '-' + languageCode;
+			String label = entity.getString(attributeName);
+			if (label != null) attributeMetaData.setLabel(languageCode, label);
+
+			attributeName = DESCRIPTION + '-' + languageCode;
+			String description = entity.getString(attributeName);
+			if (description != null) attributeMetaData.setDescription(languageCode, description);
+		}
+
+		return attributeMetaData;
+	}
+
+	@Override
+	public Entity asEntity()
+	{
+		Entity attributeMetaDataEntity = new MapEntity(AttributeMetaDataMetaData.INSTANCE);
+		attributeMetaDataEntity.set(IDENTIFIER, getIdentifier());
+		attributeMetaDataEntity.set(AttributeMetaDataMetaData.NAME, getName());
+		attributeMetaDataEntity.set(DATA_TYPE, getDataType());
+		attributeMetaDataEntity.set(ID_ATTRIBUTE, isIdAtrribute());
+		attributeMetaDataEntity.set(NILLABLE, isNillable());
+		attributeMetaDataEntity.set(AUTO, isAuto());
+		attributeMetaDataEntity.set(VISIBLE, isVisible());
+		attributeMetaDataEntity.set(LABEL, getLabel());
+		attributeMetaDataEntity.set(DESCRIPTION, getDescription());
+		attributeMetaDataEntity.set(AGGREGATEABLE, isAggregateable());
+		attributeMetaDataEntity.set(LOOKUP_ATTRIBUTE, isLookupAttribute());
+		attributeMetaDataEntity.set(LABEL_ATTRIBUTE, isLabelAttribute());
+		attributeMetaDataEntity.set(READ_ONLY, isReadonly());
+		attributeMetaDataEntity.set(UNIQUE, isUnique());
+		attributeMetaDataEntity.set(EXPRESSION, getExpression());
+		attributeMetaDataEntity.set(VISIBLE_EXPRESSION, getVisibleExpression());
+		attributeMetaDataEntity.set(VALIDATION_EXPRESSION, getValidationExpression());
+		attributeMetaDataEntity.set(DEFAULT_VALUE, getDefaultValue());
+
+		if ((getDataType() instanceof EnumField) && (getEnumOptions() != null))
+		{
+			attributeMetaDataEntity.set(ENUM_OPTIONS, Joiner.on(',').join(getEnumOptions()));
+		}
+
+		if (getRange() != null)
+		{
+			attributeMetaDataEntity.set(RANGE_MIN, getRange().getMin());
+			attributeMetaDataEntity.set(RANGE_MAX, getRange().getMax());
+		}
+
+		if (getRefEntity() != null)
+		{
+			String entityName = getRefEntity().getName();
+			attributeMetaDataEntity.set(REF_ENTITY, entityName);
+		}
+
+		// recursive for compound attribute parts
+		if (getDataType() instanceof CompoundField)
+		{
+			attributeMetaDataEntity.set(PARTS, asEntities(getAttributeParts()));
+		}
+
+		// Language attributes
+		for (String languageCode : getLabelLanguageCodes())
+		{
+			String attributeName = LABEL + '-' + languageCode;
+			String label = getLabel(languageCode);
+			if (label != null) attributeMetaDataEntity.set(attributeName, label);
+		}
+
+		for (String languageCode : getDescriptionLanguageCodes())
+		{
+			String attributeName = DESCRIPTION + '-' + languageCode;
+			String description = getDescription(languageCode);
+			if (description != null) attributeMetaDataEntity.set(attributeName, description);
+		}
+
+		return attributeMetaDataEntity;
+	}
+
+	private List<Entity> asEntities(Iterable<AttributeMetaData> attrs)
+	{
+		return stream(attrs.spliterator(), false).map(AttributeMetaData::asEntity).collect(Collectors.toList());
+	}
+
+	@Override
+	public String getIdentifier()
+	{
+		return identifier;
+	}
+
+	public DefaultAttributeMetaData setIdentifier(String identifier)
+	{
+		this.identifier = identifier;
+		fireChangeEvent(IDENTIFIER);
+		return this;
 	}
 
 	@Override
@@ -538,85 +689,63 @@ public class DefaultAttributeMetaData implements AttributeMetaData
 	public boolean isSameAs(AttributeMetaData other)
 	{
 		if (this == other) return true;
-		if (other == null)
-			return false;
+		if (other == null) return false;
 
-		if (isAggregateable() != other.isAggregateable())
-			return false;
-		if (isAuto() != other.isAuto())
-			return false;
+		if (isAggregateable() != other.isAggregateable()) return false;
+		if (isAuto() != other.isAuto()) return false;
 		if (getDescription() == null)
 		{
-			if (other.getDescription() != null) {
+			if (other.getDescription() != null)
+			{
 				return false;
 			}
 		}
-		else if (!getDescription().equals(other.getDescription()))
-			return false;
+		else if (!getDescription().equals(other.getDescription())) return false;
 		if (getDataType() == null)
 		{
-			if (other.getDataType() != null)
-				return false;
+			if (other.getDataType() != null) return false;
 		}
 		else
 		{
-			if (getDataType().getEnumType() != other.getDataType().getEnumType())
-				return false;
+			if (getDataType().getEnumType() != other.getDataType().getEnumType()) return false;
 			if (getDataType().getEnumType() == FieldTypeEnum.ENUM)
 			{
 				if (((EnumField) getDataType()).getEnumOptions() == null)
 				{
-					if (((EnumField) other.getDataType()).getEnumOptions() != null)
-						return false;
+					if (((EnumField) other.getDataType()).getEnumOptions() != null) return false;
 					if (!((EnumField) getDataType()).getEnumOptions().equals(
-							((EnumField) other.getDataType()).getEnumOptions()))
-						return true;
+							((EnumField) other.getDataType()).getEnumOptions())) return true;
 				}
 			}
 		}
-		if (isIdAtrribute() != other.isIdAtrribute())
-			return false;
+		if (isIdAtrribute() != other.isIdAtrribute()) return false;
 		if (getLabel() == null)
 		{
-			if (other.getLabel() != null)
-				return false;
+			if (other.getLabel() != null) return false;
 		}
-		else if (!getLabel().equals(other.getLabel()))
-			return false;
-		if (isLabelAttribute() != other.isLabelAttribute())
-			return false;
-		if (isLookupAttribute() != other.isLookupAttribute())
-			return false;
+		else if (!getLabel().equals(other.getLabel())) return false;
+		if (isLabelAttribute() != other.isLabelAttribute()) return false;
+		if (isLookupAttribute() != other.isLookupAttribute()) return false;
 		if (getName() == null)
 		{
-			if (other.getName() != null)
-				return false;
+			if (other.getName() != null) return false;
 		}
-		else if (!getName().equals(other.getName()))
-			return false;
-		if (isNillable() != other.isNillable())
-			return false;
+		else if (!getName().equals(other.getName())) return false;
+		if (isNillable() != other.isNillable()) return false;
 
 		if (getRange() == null)
 		{
-			if (other.getRange() != null)
-				return false;
+			if (other.getRange() != null) return false;
 		}
-		else if (!getRange().equals(other.getRange()))
-			return false;
-		if (isReadonly() != other.isReadonly())
-			return false;
+		else if (!getRange().equals(other.getRange())) return false;
+		if (isReadonly() != other.isReadonly()) return false;
 		if (getRefEntity() == null)
 		{
-			if (other.getRefEntity() != null)
-				return false;
+			if (other.getRefEntity() != null) return false;
 		}
-		else if (!getRefEntity().getName().equals(other.getRefEntity().getName()))
-			return false;
-		if (isUnique() != other.isUnique())
-			return false;
-		if (isVisible() != other.isVisible())
-			return false;
+		else if (!getRefEntity().getName().equals(other.getRefEntity().getName())) return false;
+		if (isUnique() != other.isUnique()) return false;
+		if (isVisible() != other.isVisible()) return false;
 
 		// attributeparts
 		Iterator<AttributeMetaData> attributeParts = getAttributeParts().iterator();

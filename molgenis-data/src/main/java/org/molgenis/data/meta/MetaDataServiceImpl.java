@@ -5,6 +5,7 @@ import static com.google.common.collect.Lists.reverse;
 import static org.molgenis.util.SecurityDecoratorUtils.validatePermission;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,6 +53,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -68,13 +70,13 @@ import com.google.common.collect.Sets;
 public class MetaDataServiceImpl implements MetaDataService
 {
 	private PackageRepository packageRepository;
-	private EntityMetaDataRepository entityMetaDataRepository;
-	private AttributeMetaDataRepository attributeMetaDataRepository;
 	private ManageableRepositoryCollection defaultBackend;
 	private final Map<String, RepositoryCollection> backends = Maps.newHashMap();
 	private final DataServiceImpl dataService;
 	private TransactionTemplate transactionTemplate;
 	private LanguageService languageService;
+	private Repository attributeMetaRepository;
+	private Repository entityMetaRepository;
 
 	public MetaDataServiceImpl(DataServiceImpl dataService)
 	{
@@ -167,14 +169,20 @@ public class MetaDataServiceImpl implements MetaDataService
 		dataService.addRepository(new MetaDataRepositoryDecorator(packages));
 		packageRepository = new PackageRepository(packages);
 
-		attributeMetaDataRepository = new AttributeMetaDataRepository(defaultBackend, languageService);
-		entityMetaDataRepository = new EntityMetaDataRepository(defaultBackend, packageRepository,
-				attributeMetaDataRepository, languageService);
-		attributeMetaDataRepository.setEntityMetaDataRepository(entityMetaDataRepository);
+		// attributeMetaDataRepository = new AttributeMetaDataRepository(defaultBackend, languageService);
+		// entityMetaDataRepository = new EntityMetaDataRepository(defaultBackend, packageRepository,
+		// attributeMetaDataRepository, languageService);
+		// attributeMetaDataRepository.setEntityMetaDataRepository(entityMetaDataRepository);
+		//
+		// dataService.addRepository(attributeMetaDataRepository.getRepository());
+		// dataService.addRepository(entityMetaDataRepository.getRepository());
+		// entityMetaDataRepository.fillEntityMetaDataCache();
 
-		dataService.addRepository(new MetaDataRepositoryDecorator(attributeMetaDataRepository.getRepository()));
-		dataService.addRepository(new MetaDataRepositoryDecorator(entityMetaDataRepository.getRepository()));
-		entityMetaDataRepository.fillEntityMetaDataCache();
+		entityMetaRepository = defaultBackend.addEntityMeta(EntityMetaDataMetaData.INSTANCE);
+		dataService.addRepository(entityMetaRepository);
+
+		attributeMetaRepository = defaultBackend.addEntityMeta(AttributeMetaDataMetaData.INSTANCE);
+		dataService.addRepository(attributeMetaRepository);
 	}
 
 	@Override
@@ -187,6 +195,25 @@ public class MetaDataServiceImpl implements MetaDataService
 	public RepositoryCollection getBackend(String name)
 	{
 		return backends.get(name);
+	}
+
+	/**
+	 * Deletes attributes from the repository. If the attribute is a compound attribute with attribute parts, also
+	 * deletes its parts.
+	 * 
+	 * @param attributes
+	 *            Iterable<Entity> for the attribute that should be deleted
+	 */
+	public void deleteAttributeMetaDataEntities(Iterable<Entity> attributes)
+	{
+		if (attributes != null)
+		{
+			for (Entity attribute : attributes)
+			{
+				deleteAttributeMetaDataEntities(attribute.getEntities(AttributeMetaDataMetaData.PARTS));
+				attributeMetaRepository.delete(attribute);
+			}
+		}
 	}
 
 	/**
@@ -203,7 +230,14 @@ public class MetaDataServiceImpl implements MetaDataService
 			{
 				getManageableRepositoryCollection(emd).deleteEntityMeta(entityName);
 			}
-			entityMetaDataRepository.delete(entityName);
+
+			Entity metaEntity = entityMetaRepository.findOne(entityName);
+			if (metaEntity != null)
+			{
+				entityMetaRepository.deleteById(entityName);
+				deleteAttributeMetaDataEntities(metaEntity.getEntities(EntityMetaDataMetaData.ATTRIBUTES));
+			}
+
 			if (dataService.hasRepository(entityName)) dataService.removeRepository(entityName);
 			deleteEntityPermissions(entityName);
 
@@ -252,7 +286,15 @@ public class MetaDataServiceImpl implements MetaDataService
 		validatePermission(entityName, Permission.WRITEMETA);
 
 		// Update AttributeMetaDataRepository
-		entityMetaDataRepository.removeAttribute(entityName, attributeName);
+		Entity entityMeta = entityMetaRepository.findOne(attributeName);
+		List<Entity> attributes = Lists.newArrayList(entityMeta.getEntities(EntityMetaDataMetaData.ATTRIBUTES));
+		Entity attributeEntity = attributes.stream()
+				.filter(att -> attributeName.equals(att.getString(AttributeMetaDataMetaData.NAME))).findFirst().get();
+		attributes.remove(attributeEntity);
+		entityMeta.set(EntityMetaDataMetaData.ATTRIBUTES, attributes);
+		entityMetaRepository.update(entityMeta);
+		deleteAttributeMetaDataEntities(Collections.singletonList(attributeEntity));
+
 		EntityMetaData emd = getEntityMetaData(entityName);
 		if (emd != null) getManageableRepositoryCollection(emd).deleteAttribute(entityName, attributeName);
 	}
@@ -410,8 +452,8 @@ public class MetaDataServiceImpl implements MetaDataService
 	{
 		delete(newArrayList(getEntityMetaDatas()));
 
-		attributeMetaDataRepository.deleteAll();
-		entityMetaDataRepository.deleteAll();
+		attributeMetaRepository.deleteAll();
+		entityMetaRepository.deleteAll();
 		packageRepository.deleteAll();
 		packageRepository.updatePackageCache();
 	}
