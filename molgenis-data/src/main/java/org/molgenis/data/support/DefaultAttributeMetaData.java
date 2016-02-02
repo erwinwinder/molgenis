@@ -184,7 +184,8 @@ public class DefaultAttributeMetaData implements AttributeMetaData
 		Iterable<Entity> parts = entity.getEntities(PARTS);
 		if (parts != null)
 		{
-			stream(parts.spliterator(), false).map(DefaultAttributeMetaData::fromAttributeMetaData).forEach(
+			stream(parts.spliterator(), false).map(
+					e -> DefaultAttributeMetaData.fromAttributeMetaData(e, dataService, languageService)).forEach(
 					attributeMetaData::addAttributePart);
 		}
 		attributeMetaData.setVisibleExpression(entity.getString(VISIBLE_EXPRESSION));

@@ -13,11 +13,14 @@ import java.util.stream.Stream;
 
 import org.molgenis.data.AttributeChangeListener;
 import org.molgenis.data.AttributeMetaData;
+import org.molgenis.data.DataService;
 import org.molgenis.data.EditableEntityMetaData;
 import org.molgenis.data.Entity;
 import org.molgenis.data.EntityMetaData;
 import org.molgenis.data.Package;
 import org.molgenis.data.PackageChangeListener;
+import org.molgenis.data.meta.EntityMetaDataMetaData;
+import org.molgenis.data.meta.PackageMetaData;
 import org.molgenis.util.CaseInsensitiveLinkedHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -696,4 +699,41 @@ public class DefaultEntityMetaData implements EditableEntityMetaData
 		return Collections.unmodifiableSet(labelByLanguageCode.keySet());
 	}
 
+	@Override
+	public Entity asEntity(DataService dataService)
+	{
+		Entity entityMetaDataEntity = new MapEntity(EntityMetaDataMetaData.INSTANCE);
+		entityMetaDataEntity.set(EntityMetaDataMetaData.FULL_NAME, getName());
+		entityMetaDataEntity.set(EntityMetaDataMetaData.SIMPLE_NAME, getSimpleName());
+		if (getPackage() != null)
+		{
+			entityMetaDataEntity.set(EntityMetaDataMetaData.PACKAGE,
+					dataService.findOne(PackageMetaData.ENTITY_NAME, getPackage().getName()));
+		}
+		entityMetaDataEntity.set(EntityMetaDataMetaData.DESCRIPTION, getDescription());
+		entityMetaDataEntity.set(EntityMetaDataMetaData.ABSTRACT, isAbstract());
+		entityMetaDataEntity.set(EntityMetaDataMetaData.LABEL, getLabel());
+		entityMetaDataEntity.set(EntityMetaDataMetaData.BACKEND, getBackend());
+		if (getExtends() != null)
+		{
+			entityMetaDataEntity.set(EntityMetaDataMetaData.EXTENDS,
+					dataService.findOne(EntityMetaDataMetaData.ENTITY_NAME, getExtends().getName()));
+		}
+
+		// Language attributes
+		for (String languageCode : getDescriptionLanguageCodes())
+		{
+			String attributeName = EntityMetaDataMetaData.DESCRIPTION + '-' + languageCode;
+			String description = getDescription(languageCode);
+			if (description != null) entityMetaDataEntity.set(attributeName, description);
+		}
+
+		for (String languageCode : getLabelLanguageCodes())
+		{
+			String attributeName = EntityMetaDataMetaData.LABEL + '-' + languageCode;
+			String label = getLabel(languageCode);
+			if (label != null) entityMetaDataEntity.set(attributeName, label);
+		}
+		return entityMetaDataEntity;
+	}
 }

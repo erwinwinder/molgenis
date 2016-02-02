@@ -182,7 +182,8 @@ public class MetaDataServiceImpl implements MetaDataService
 		dataService.addRepository(entityMetaRepository);
 
 		attributeMetaRepository = defaultBackend.addEntityMeta(AttributeMetaDataMetaData.INSTANCE);
-		dataService.addRepository(attributeMetaRepository);
+		dataService.addRepository(new AttributeMetaDataRepositoryDecorator(attributeMetaRepository, dataService,
+				languageService));
 	}
 
 	@Override
@@ -381,42 +382,31 @@ public class MetaDataServiceImpl implements MetaDataService
 	@Override
 	public void addAttribute(String fullyQualifiedEntityName, AttributeMetaData attr)
 	{
-		validatePermission(fullyQualifiedEntityName, Permission.WRITEMETA);
-		MetaValidationUtils.validateName(attr.getName());
-
-		EntityMetaData emd = entityMetaDataRepository.addAttribute(fullyQualifiedEntityName, attr);
-		getManageableRepositoryCollection(emd).addAttribute(fullyQualifiedEntityName, attr);
+		attributeMetaRepository.add(attr.asEntity());
 	}
 
 	@Override
 	public void updateAttribute(String fullyQualifiedEntityName, AttributeMetaData attr)
 	{
-		validatePermission(fullyQualifiedEntityName, Permission.WRITEMETA);
-		MetaValidationUtils.validateAttribute(attr);// TODO validate transistion
-
-		EntityMetaData emd = entityMetaDataRepository.updateAttribute(fullyQualifiedEntityName, attr);
-		getManageableRepositoryCollection(emd).updateAttribute(emd.getName(), attr);
+		attributeMetaRepository.update(attr.asEntity());
 	}
 
 	@Override
 	public void addAttributeSync(String fullyQualifiedEntityName, AttributeMetaData attr)
 	{
-		validatePermission(fullyQualifiedEntityName, Permission.WRITEMETA);
-		MetaValidationUtils.validateName(attr.getName());
-
-		EntityMetaData emd = entityMetaDataRepository.addAttribute(fullyQualifiedEntityName, attr);
-		getManageableRepositoryCollection(emd).addAttributeSync(fullyQualifiedEntityName, attr);
+		attributeMetaRepository.add(attr.asEntity());
 	}
 
 	@Override
 	public DefaultEntityMetaData getEntityMetaData(String fullyQualifiedEntityName)
 	{
 		// at construction time, will be called when entityMetaDataRepository is still null
-		if (attributeMetaDataRepository == null)
-		{
-			return null;
-		}
-		return entityMetaDataRepository.get(fullyQualifiedEntityName);
+		//if (attributeMetaDataRepository == null)
+		//{
+		//	return null;
+		//}
+		//return entityMetaDataRepository.get(fullyQualifiedEntityName);
+		Entity entityMeta = this.entityMetaRepository.findOne(id)
 	}
 
 	@Override

@@ -142,4 +142,11 @@ public interface EntityMetaData
 	public EntityMetaData getExtends();
 
 	Class<? extends Entity> getEntityClass();
+
+	/**
+	 * Create an entity representation of this EntityMetaData
+	 * 
+	 * @return
+	 */
+	Entity asEntity(DataService dataServices);
 }
