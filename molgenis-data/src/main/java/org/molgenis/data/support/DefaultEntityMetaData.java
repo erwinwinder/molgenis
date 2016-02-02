@@ -1,6 +1,8 @@
 package org.molgenis.data.support;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.StreamSupport.stream;
 import static org.molgenis.MolgenisFieldTypes.FieldTypeEnum.COMPOUND;
 
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import org.molgenis.data.Entity;
 import org.molgenis.data.EntityMetaData;
 import org.molgenis.data.Package;
 import org.molgenis.data.PackageChangeListener;
+import org.molgenis.data.i18n.LanguageService;
 import org.molgenis.data.meta.EntityMetaDataMetaData;
 import org.molgenis.data.meta.PackageMetaData;
 import org.molgenis.util.CaseInsensitiveLinkedHashMap;
@@ -699,6 +702,52 @@ public class DefaultEntityMetaData implements EditableEntityMetaData
 		return Collections.unmodifiableSet(labelByLanguageCode.keySet());
 	}
 
+	public static DefaultEntityMetaData fromEntity(Entity entity, DataService dataService,
+			LanguageService languageService)
+	{
+		String name = entity.getString(EntityMetaDataMetaData.SIMPLE_NAME);
+		DefaultEntityMetaData entityMetaData = new DefaultEntityMetaData(name);
+		entityMetaData.setAbstract(entity.getBoolean(EntityMetaDataMetaData.ABSTRACT));
+		entityMetaData.setIdAttribute(entity.getString(EntityMetaDataMetaData.ID_ATTRIBUTE));
+		entityMetaData.setLabelAttribute(entity.getString(EntityMetaDataMetaData.LABEL_ATTRIBUTE));
+		entityMetaData.setLabel(entity.getString(EntityMetaDataMetaData.LABEL));
+		entityMetaData.setDescription(entity.getString(EntityMetaDataMetaData.DESCRIPTION));
+		entityMetaData.setBackend(entity.getString(EntityMetaDataMetaData.BACKEND));
+
+		// Language attributes
+		for (String languageCode : languageService.getLanguageCodes())
+		{
+			String attributeName = EntityMetaDataMetaData.DESCRIPTION + '-' + languageCode;
+			String description = entity.getString(attributeName);
+			if (description != null) entityMetaData.setDescription(languageCode, description);
+
+			attributeName = EntityMetaDataMetaData.LABEL + '-' + languageCode;
+			String label = entity.getString(attributeName);
+			if (label != null) entityMetaData.setLabel(languageCode, label);
+		}
+
+		// Attributes
+		Iterable<Entity> attributeEntities = entity.getEntities(EntityMetaDataMetaData.ATTRIBUTES);
+		if (attributeEntities != null)
+		{
+			stream(attributeEntities.spliterator(), false).map(
+					e -> DefaultAttributeMetaData.fromAttributeEntity(e, dataService, languageService)).forEach(
+					entityMetaData::addAttributeMetaData);
+		}
+
+		// Extends
+		Entity extendsEntity = entity.getEntity(EntityMetaDataMetaData.EXTENDS);
+		if (extendsEntity != null)
+		{
+			entityMetaData.setExtends(DefaultEntityMetaData.fromEntity(extendsEntity, dataService, languageService));
+		}
+
+		// Package
+		// TODO
+
+		return entityMetaData;
+	}
+
 	@Override
 	public Entity asEntity(DataService dataService)
 	{
@@ -734,6 +783,12 @@ public class DefaultEntityMetaData implements EditableEntityMetaData
 			String label = getLabel(languageCode);
 			if (label != null) entityMetaDataEntity.set(attributeName, label);
 		}
+
+		// Attributes
+		List<Entity> attributeMetas = stream(this.getAttributes().spliterator(), false)
+				.map(AttributeMetaData::asEntity).collect(toList());
+		entityMetaDataEntity.set(EntityMetaDataMetaData.ATTRIBUTES, attributeMetas);
+
 		return entityMetaDataEntity;
 	}
 }

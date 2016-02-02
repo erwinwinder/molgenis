@@ -155,7 +155,7 @@ public class AttributeMetaDataRepositoryDecorator implements Repository
 			SecurityDecoratorUtils.validatePermission(entityName, Permission.WRITEMETA);
 
 			getBackend(entityMeta).updateAttribute(entityName,
-					DefaultAttributeMetaData.fromAttributeMetaData(entityMeta, dataService, languageService));
+					DefaultAttributeMetaData.fromAttributeEntity(entityMeta, dataService, languageService));
 		}
 	}
 
@@ -231,7 +231,7 @@ public class AttributeMetaDataRepositoryDecorator implements Repository
 			SecurityDecoratorUtils.validatePermission(entityName, Permission.WRITEMETA);
 
 			getBackend(entityMeta).addAttribute(entityName,
-					DefaultAttributeMetaData.fromAttributeMetaData(entityMeta, dataService, languageService));
+					DefaultAttributeMetaData.fromAttributeEntity(entityMeta, dataService, languageService));
 		}
 	}
 
@@ -282,6 +282,11 @@ public class AttributeMetaDataRepositoryDecorator implements Repository
 	{
 		RepositoryCollection backend = dataService.getMeta().getBackend(
 				entityMeta.getString(EntityMetaDataMetaData.BACKEND));
+
+		if (backend == null)
+		{
+			backend = dataService.getMeta().getDefaultBackend();
+		}
 
 		if (!(backend instanceof ManageableRepositoryCollection))
 		{

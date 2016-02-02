@@ -2,6 +2,7 @@ package org.molgenis.data.meta;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.reverse;
+import static java.util.stream.Collectors.toList;
 import static org.molgenis.util.SecurityDecoratorUtils.validatePermission;
 
 import java.util.Collection;
@@ -17,6 +18,7 @@ import java.util.stream.StreamSupport;
 
 import org.molgenis.MolgenisFieldTypes;
 import org.molgenis.data.AttributeMetaData;
+import org.molgenis.data.AutoValueRepositoryDecorator;
 import org.molgenis.data.Entity;
 import org.molgenis.data.EntityMetaData;
 import org.molgenis.data.ManageableRepositoryCollection;
@@ -37,10 +39,11 @@ import org.molgenis.data.support.DataServiceImpl;
 import org.molgenis.data.support.DefaultAttributeMetaData;
 import org.molgenis.data.support.DefaultEntityMetaData;
 import org.molgenis.data.support.NonDecoratingRepositoryDecoratorFactory;
+import org.molgenis.data.support.QueryImpl;
+import org.molgenis.data.support.UuidGenerator;
 import org.molgenis.data.system.RepositoryTemplateLoader;
 import org.molgenis.security.core.Permission;
 import org.molgenis.security.core.runas.RunAsSystem;
-import org.molgenis.security.core.runas.RunAsSystemProxy;
 import org.molgenis.security.core.utils.SecurityUtils;
 import org.molgenis.util.DependencyResolver;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -178,12 +181,15 @@ public class MetaDataServiceImpl implements MetaDataService
 		// dataService.addRepository(entityMetaDataRepository.getRepository());
 		// entityMetaDataRepository.fillEntityMetaDataCache();
 
-		entityMetaRepository = defaultBackend.addEntityMeta(EntityMetaDataMetaData.INSTANCE);
+		attributeMetaRepository = new AutoValueRepositoryDecorator(new AttributeMetaDataRepositoryDecorator(
+				defaultBackend.addEntityMeta(AttributeMetaDataMetaData.INSTANCE), dataService, languageService),
+				new UuidGenerator());
+		dataService.addRepository(attributeMetaRepository);
+
+		entityMetaRepository = new EntityMetaDataRepositoryDecorator(
+				defaultBackend.addEntityMeta(EntityMetaDataMetaData.INSTANCE), dataService, languageService);
 		dataService.addRepository(entityMetaRepository);
 
-		attributeMetaRepository = defaultBackend.addEntityMeta(AttributeMetaDataMetaData.INSTANCE);
-		dataService.addRepository(new AttributeMetaDataRepositoryDecorator(attributeMetaRepository, dataService,
-				languageService));
 	}
 
 	@Override
@@ -353,7 +359,9 @@ public class MetaDataServiceImpl implements MetaDataService
 			packageRepository.add(emd.getPackage());
 		}
 
-		addToEntityMetaDataRepository(emd);
+		attributeMetaRepository.add(StreamSupport.stream(emd.getAttributes().spliterator(), false).map(
+				AttributeMetaData::asEntity));
+		entityMetaRepository.add(emd.asEntity(dataService));
 		if (emd.isAbstract()) return null;
 
 		Repository repo = backend.addEntityMeta(getEntityMetaData(emd.getName()));
@@ -400,13 +408,10 @@ public class MetaDataServiceImpl implements MetaDataService
 	@Override
 	public DefaultEntityMetaData getEntityMetaData(String fullyQualifiedEntityName)
 	{
-		// at construction time, will be called when entityMetaDataRepository is still null
-		//if (attributeMetaDataRepository == null)
-		//{
-		//	return null;
-		//}
-		//return entityMetaDataRepository.get(fullyQualifiedEntityName);
-		Entity entityMeta = this.entityMetaRepository.findOne(id)
+		Entity entityMeta = entityMetaRepository.findOne(fullyQualifiedEntityName);
+		if (entityMeta == null) return null;
+
+		return DefaultEntityMetaData.fromEntity(entityMeta, dataService, languageService);
 	}
 
 	@Override
@@ -451,18 +456,19 @@ public class MetaDataServiceImpl implements MetaDataService
 	@Override
 	public Collection<EntityMetaData> getEntityMetaDatas()
 	{
-		return entityMetaDataRepository.getMetaDatas();
+		return this.entityMetaRepository.findAll(new QueryImpl())
+				.map(e -> DefaultEntityMetaData.fromEntity(e, dataService, languageService)).collect(toList());
 	}
 
 	// TODO make private
 	@Override
 	public void refreshCaches()
 	{
-		RunAsSystemProxy.runAsSystem(() -> {
-			packageRepository.updatePackageCache();
-			entityMetaDataRepository.fillEntityMetaDataCache();
-			return null;
-		});
+		// RunAsSystemProxy.runAsSystem(() -> {
+		// packageRepository.updatePackageCache();
+		// entityMetaDataRepository.fillEntityMetaDataCache();
+		// return null;
+		// });
 	}
 
 	@Transactional
@@ -503,7 +509,7 @@ public class MetaDataServiceImpl implements MetaDataService
 		Map<String, EntityMetaData> emds = event.getApplicationContext().getBeansOfType(EntityMetaData.class);
 
 		// Create repositories from EntityMetaData in EntityMetaData repo
-		for (EntityMetaData emd : entityMetaDataRepository.getMetaDatas())
+		for (EntityMetaData emd : getEntityMetaDatas())
 		{
 			if (!emd.isAbstract() && !dataService.hasRepository(emd.getName()))
 			{
@@ -535,21 +541,21 @@ public class MetaDataServiceImpl implements MetaDataService
 		return backends.values().iterator();
 	}
 
-	public void updateEntityMetaBackend(String entityName, String backend)
-	{
-		validatePermission(entityName, Permission.WRITEMETA);
-
-		DefaultEntityMetaData entityMeta = entityMetaDataRepository.get(entityName);
-		if (entityMeta == null) throw new UnknownEntityException("Unknown entity '" + entityName + "'");
-		entityMeta.setBackend(backend);
-		entityMetaDataRepository.update(entityMeta);
-	}
-
-	public void addToEntityMetaDataRepository(EntityMetaData entityMetaData)
-	{
-		MetaValidationUtils.validateEntityMetaData(entityMetaData);
-		entityMetaDataRepository.add(entityMetaData);
-	}
+	// public void updateEntityMetaBackend(String entityName, String backend)
+	// {
+	// validatePermission(entityName, Permission.WRITEMETA);
+	//
+	// DefaultEntityMetaData entityMeta = entityMetaDataRepository.get(entityName);
+	// if (entityMeta == null) throw new UnknownEntityException("Unknown entity '" + entityName + "'");
+	// entityMeta.setBackend(backend);
+	// entityMetaDataRepository.update(entityMeta);
+	// }
+	//
+	// public void addToEntityMetaDataRepository(EntityMetaData entityMetaData)
+	// {
+	// MetaValidationUtils.validateEntityMetaData(entityMetaData);
+	// entityMetaDataRepository.add(entityMetaData);
+	// }
 
 	@Override
 	public LinkedHashMap<String, Boolean> integrationTestMetaData(RepositoryCollection repositoryCollection)

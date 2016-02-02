@@ -149,7 +149,7 @@ public class DefaultAttributeMetaData implements AttributeMetaData
 		}
 	}
 
-	public static DefaultAttributeMetaData fromAttributeMetaData(Entity entity, DataService dataService,
+	public static DefaultAttributeMetaData fromAttributeEntity(Entity entity, DataService dataService,
 			LanguageService languageService)
 	{
 		DefaultAttributeMetaData attributeMetaData = new DefaultAttributeMetaData(entity.getString(NAME));
@@ -185,7 +185,7 @@ public class DefaultAttributeMetaData implements AttributeMetaData
 		if (parts != null)
 		{
 			stream(parts.spliterator(), false).map(
-					e -> DefaultAttributeMetaData.fromAttributeMetaData(e, dataService, languageService)).forEach(
+					e -> DefaultAttributeMetaData.fromAttributeEntity(e, dataService, languageService)).forEach(
 					attributeMetaData::addAttributePart);
 		}
 		attributeMetaData.setVisibleExpression(entity.getString(VISIBLE_EXPRESSION));

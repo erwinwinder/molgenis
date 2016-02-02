@@ -43,7 +43,8 @@ public class AttributeMetaDataMetaData extends DefaultEntityMetaData
 	{
 		super(ENTITY_NAME);
 
-		addAttribute(IDENTIFIER).setIdAttribute(true).setNillable(false).setDataType(STRING).setVisible(false);
+		addAttribute(IDENTIFIER).setIdAttribute(true).setNillable(false).setDataType(STRING).setVisible(false)
+				.setAuto(true);
 		addAttribute(NAME).setNillable(false).setLabelAttribute(true).setLookupAttribute(true);
 		addAttribute(DATA_TYPE);
 		addAttribute(PARTS).setDataType(MREF).setRefEntity(this);
